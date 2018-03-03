@@ -5,7 +5,6 @@
  */
 package ClientGUI;
 
-import Client.TUI;
 import Server.ClientStub;
 import Utilities.BenutzerException;
 import Server.Utilities.DatenbankException;
@@ -62,13 +61,13 @@ public class LoginFenster extends javax.swing.JFrame {
                     infoBoxPanel.setVisible(true);
                     return;                  
                 default:
-                    Registry registry = LocateRegistry.getRegistry(result, 1099);                   
+                    Registry registry = LocateRegistry.getRegistry(result, 1099);                             
                     try {
                         stub = (ClientStub) registry.lookup("ClientStub");
-                        System.out.println("neue verbindung hergestellt");
                     } catch (NotBoundException | AccessException ex) {
-                        Logger.getLogger(TUI.class.getName()).log(Level.SEVERE, null, ex);
-                    }                   
+                        Logger.getLogger(LoginFenster.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    System.out.println("neue verbindung hergestellt");                                    
             }  
             sitzungsID = stub.einloggen(username, password);
             if(sitzungsID < 0){

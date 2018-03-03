@@ -24,9 +24,11 @@ import java.sql.SQLException;
 public class Server {
 
     private final ServerDaten serverDaten;
+    private final String[] args;
     
     public Server(String[] args) throws ClassNotFoundException, SQLException, NoSuchAlgorithmException{        
-        this.serverDaten = new ServerDaten(args[0]);
+        this.serverDaten = new ServerDaten(args);
+        this.args = args;
         System.setProperty("java.rmi.server.hostname", args[0]);
     }
 
@@ -43,7 +45,12 @@ public class Server {
      */
     public void start() throws RemoteException, AlreadyBoundException, NotBoundException, UnknownHostException, SQLException, DatenbankException, IOException{
         
-        System.out.println("LOG * Starte Server");
+        if (!args[1].equals("root")) {          
+            System.out.println("LOG * Starte Leaf-Server");
+        }
+        else{
+            System.out.println("LOG * Starte Root-Server");
+        }     
         System.out.println("LOG * Server-IP: " + serverDaten.primitiveDaten.ownIP);
         System.out.println("LOG * ");
               
@@ -52,11 +59,17 @@ public class Server {
         initClientStub();
         System.out.println("LOG * ");
         
-        //baue bis zu 2 dauerhafte Verbindungen zu anderen Servern auf
-        System.out.println("LOG * Erste Verbindung wird aufgebaut");
-        if(this.serverDaten.connectToServer()){
-            System.out.println("LOG * Zweite Verbindung wird aufgebaut");
-            this.serverDaten.connectToServer();
+        //baut Verbindung zu Parent auf
+        if (!args[1].equals("root")) {          
+            this.serverDaten.connectToParent(args[1]);
+        }
+        else{
+            //baue bis zu 2 dauerhafte Verbindungen zu anderen Servern auf
+            System.out.println("LOG * Erste Verbindung wird aufgebaut");
+            if(this.serverDaten.connectToServer()){
+                System.out.println("LOG * Zweite Verbindung wird aufgebaut");
+                this.serverDaten.connectToServer();
+            }
         }
 
         System.out.println("LOG * ");

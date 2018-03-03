@@ -34,7 +34,7 @@ public class FindUserDataFlooding extends Thread{
     @Override
     public void run() {
         try {
-            this.resultList.add(connection.getServerStub().findServerForUser(originIP, requestCounter, username));           
+            this.resultList.add(connection.getServerStub().findServerWithDbForUser(originIP, requestCounter, username));           
         } catch (RemoteException | SQLException ex) {
             Logger.getLogger(FindUserDataFlooding.class.getName()).log(Level.SEVERE, null, ex);
         }

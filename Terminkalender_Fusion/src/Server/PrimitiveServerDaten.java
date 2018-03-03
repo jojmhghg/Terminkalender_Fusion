@@ -14,15 +14,26 @@ public class PrimitiveServerDaten {
     public final String ownIP;
     public int requestCounter;
     public int sitzungscounter;
+    //Hierarchisch:
+    public String serverID;  
+    public int childCounter;
     
-    public PrimitiveServerDaten(String ownIP){
+    public PrimitiveServerDaten(String ownIP, String serverID){
         this.requestCounter = 0;  
         this.sitzungscounter = 1;
         this.ownIP = ownIP;
+        this.serverID = serverID;
+        this.childCounter = 0;
     }
     
     public void setRequestCounter(int requestCounter){
         this.requestCounter = requestCounter;  
+    }
+    
+    public String getNewChildId(){
+        String id = serverID + childCounter;
+        childCounter++;
+        return id;
     }
     
 }

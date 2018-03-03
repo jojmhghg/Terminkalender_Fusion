@@ -9,6 +9,8 @@ import Server.Utilities.Verbindung;
 import Server.Utilities.DBHandler;
 import Server.Utilities.Sitzung;
 import Server.Threads.VerbindungstestsThread;
+import Server.Utilities.UserAnServer;
+import Utilities.BenutzerException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -22,6 +24,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -29,24 +33,47 @@ import java.util.Map;
  */
 public class ServerDaten {
     
-    //Liste mit Server-Server-Verbindungen
-    public final LinkedList<Verbindung> connectionList; 
+    /* ---- Allgemein: ---- */
+    //gibt an, ob Server ein Rootserver ist
+    public final boolean isRoot;
     //Datenbank
     public final DBHandler datenbank;
-    //Liste mit bereits behandelten Anfragen
-    public Map<String, LinkedList> requestTable;
     //Liste mit aktiven Sitzungen (eingeloggte User des Servers)
     public final LinkedList<Sitzung> aktiveSitzungen;    
     public PrimitiveServerDaten primitiveDaten;
-          
-    public ServerDaten(String ownIP) throws ClassNotFoundException, SQLException, NoSuchAlgorithmException{
-        this.connectionList = new LinkedList<>();    
-        this.requestTable = new HashMap<>();
-        this.aktiveSitzungen = new LinkedList<>();             
-        this.datenbank = new DBHandler(aktiveSitzungen, connectionList, primitiveDaten); 
-        this.primitiveDaten = new PrimitiveServerDaten(ownIP);
-        startDB();    
+    //Liste mit Server-Server-Verbindungen oder mit parent-Verbindung
+    public final LinkedList<Verbindung> connectionList; 
+       
+    /* ---- P2P: ---- */   
+    //Liste mit bereits behandelten Anfragen
+    public Map<String, LinkedList> requestTable;
+    
+    /* ---- Hierarchisch: ---- */
+    //Verbindungen zu childs
+    public LinkedList<Verbindung> childConnection;
+    //liste mit anzahl usern an childservern
+    public final LinkedList<UserAnServer> userAnServerListe; 
+             
+    public ServerDaten(String[] args) throws ClassNotFoundException, SQLException, NoSuchAlgorithmException{
+        this.connectionList = new LinkedList<>();
+        this.childConnection = new LinkedList<>();
+        this.aktiveSitzungen = new LinkedList<>();
         
+        if (args[1].equals("root")) {
+            this.requestTable = new HashMap<>();
+            this.isRoot = true;
+            primitiveDaten = new PrimitiveServerDaten(args[0], "0");
+            datenbank = new DBHandler(aktiveSitzungen, childConnection, primitiveDaten);
+            datenbank.getConnection(0); 
+            userAnServerListe = new LinkedList<>();
+        } else {
+            this.isRoot = false;
+            primitiveDaten = new PrimitiveServerDaten(args[0], null);
+            datenbank = null; 
+            userAnServerListe = null;
+        }
+
+        startDB();           
         int requestCounter = this.datenbank.getRequestCounter();  
         this.primitiveDaten.setRequestCounter(requestCounter);
     }
@@ -80,6 +107,49 @@ public class ServerDaten {
         }    
         
         
+    }
+    
+    /**
+     * baut Verbindungen zu einem anderen Server auf
+     *
+     * @param parentIP
+     * @throws RemoteException
+     * @throws IOException
+     */
+    public void connectToParent(String parentIP) throws IOException {
+        ServerStub serverStub;
+        Registry registry;
+
+        try {
+            //baut Verbindung zu Parent auf
+            registry = LocateRegistry.getRegistry(parentIP, 1100);
+            serverStub = (ServerStub) registry.lookup("ServerStub");
+
+            //lässt anderen Server Verbindung zu diesem aufbauen
+            this.primitiveDaten.serverID = serverStub.initConnection(this.primitiveDaten.ownIP);
+            
+            //fügt Verbindung zur Liste der Verbindungen hinzu
+            this.parent = new Verbindung(serverStub, parentIP, serverStub.getServerID());
+
+            //Ausgabe im Terminal
+            System.out.println("LOG * ---> Verbindung zu Parent " + parent.getIP() + " hergestellt!");
+            System.out.println("LOG * ---> Server wurde die ServerID:" + this.primitiveDaten.serverID + " zugewiesen!");
+            
+            //Starte Threads, die die Verbindung zu anderen Servern testen
+            new VerbindungstestsParentThread(this, this.parent).start();
+                 
+        } catch (NotBoundException ex) {
+            Logger.getLogger(ServerDaten.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public String getServerIdByUsername(String username) throws BenutzerException{
+        for(UserAnServer uas : userAnServerListe){
+            if(uas.username.equals(username)){
+                return uas.serverID;
+            }
+        }
+        throw new BenutzerException("Username nicht in userAnServerListe");
     }
     
     /**

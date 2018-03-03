@@ -25,22 +25,20 @@ public class TerminkalenderMain {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args){        
-        try {  
-            if(args.length == 1){
+    public static void main(String[] args){   
+        
+        if (args.length == 2) {
+            System.out.println("LOG * ");
+
+            try {      
                 Server server = new Server(args);
-                server.start();   
-            }
-            else{
-                System.out.println("Bitte IP als Argument beim Start mitgeben!");
-            }
-              
-            
-        } catch (RemoteException | AlreadyBoundException | NotBoundException | UnknownHostException | DatenbankException | SQLException ex) {
-            Logger.getLogger(TerminkalenderMain.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException | NoSuchAlgorithmException | IOException ex) {
-            Logger.getLogger(TerminkalenderMain.class.getName()).log(Level.SEVERE, null, ex);
-        }
+                server.start();
+            } catch (ClassNotFoundException | SQLException | NoSuchAlgorithmException | AlreadyBoundException | IOException | DatenbankException | NotBoundException ex) {
+                Logger.getLogger(TerminkalenderMain.class.getName()).log(Level.SEVERE, null, ex);
+            }              
+        } else {
+            System.out.println("Eingabeparameter: <Eigene IP> <Parent IP>");
+        }    
      
     }      
     

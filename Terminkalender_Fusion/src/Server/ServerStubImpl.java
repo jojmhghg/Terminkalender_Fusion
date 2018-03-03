@@ -6,7 +6,9 @@ import Server.Utilities.Sitzung;
 import Server.Threads.FindIdForUserFloodingThread;
 import Server.Threads.FindUserDataFlooding;
 import Server.Threads.FindUserProfilFloodingThread;
+import Server.Threads.VerbindungstestsChildsThread;
 import Server.Threads.VerbindungstestsThread;
+import Server.Utilities.ServerIdUndAnzahlUser;
 import Utilities.Anfrage;
 import Utilities.BenutzerException;
 import Utilities.Meldung;
@@ -35,7 +37,25 @@ public class ServerStubImpl implements ServerStub {
     ServerStubImpl(ServerDaten serverDaten) {
         this.serverDaten = serverDaten;
     }
-
+   
+    /**
+     * ändert die ID des Servers bei dem die Methode aufgerufen wird
+     * wird verwendet um teilbaum neu zu strukturieren
+     * 
+     * @param newID
+     * @throws RemoteException 
+     */
+    @Override
+    public void setID(String newID) throws RemoteException{
+        System.out.println("Neue ServerID zugewiesen: " + newID);
+        this.serverDaten.primitiveDaten.serverID = newID;
+        int counter = 0;
+        for(Verbindung child : this.serverDaten.childConnection){
+            child.getServerStub().setID(this.serverDaten.primitiveDaten.serverID + counter);
+            counter++;
+        }
+    }
+    
     /**
      * gibt Server die IP-Adresse und den Port eines Servers mit dem er sich verbinden soll
      * dient der Erzeugung einer beidseitigen Verbindung / ungerichteten Verbindung
@@ -53,7 +73,7 @@ public class ServerStubImpl implements ServerStub {
             ServerStub stub = (ServerStub) registry.lookup("ServerStub");
             
             //fügt Verbindung zur Liste der Verbindungen hinzu
-            Verbindung verbindung = new Verbindung(stub, ip);
+            Verbindung verbindung = new Verbindung(stub, ip, "0");
             this.serverDaten.connectionList.add(verbindung);
             
             //Starte Threads, die die Verbindung zu anderen Servern testen
@@ -66,6 +86,42 @@ public class ServerStubImpl implements ServerStub {
         } catch (NotBoundException | IOException e) {
             return false;
         }
+    }
+    
+    /**
+     * gibt Server die IP-Adresse und den Port eines Servers mit dem er sich
+     * verbinden soll dient der Erzeugung einer beidseitigen Verbindung /
+     * ungerichteten Verbindung
+     *
+     * @param childIP
+     * @return childID Die neue ID wird zurückgegeben
+     * @throws RemoteException
+     * @throws AccessException
+     */
+    @Override
+    public String initConnectionToChild(String childIP) throws RemoteException {
+        try {
+            String childID = this.serverDaten.primitiveDaten.getNewChildId();
+            
+            //baut Verbindung zu Server auf
+            Registry registry = LocateRegistry.getRegistry(childIP, 1100);
+            ServerStub stub = (ServerStub) registry.lookup("ServerStub");
+            Verbindung verbindung = new Verbindung(stub, childIP, childID);
+
+            this.serverDaten.childConnection.add(verbindung);
+            
+            // Starte Thread, der die Verbindung zu anderen Servern testet
+            new VerbindungstestsChildsThread(this.serverDaten, verbindung).start();
+
+            //Ausgabe im Terminal
+            System.out.println("LOG * ---> Verbindung zu KindServer: ID  " + childID + " hergestellt!");
+              
+            return childID;
+        } catch (NotBoundException | IOException e) {
+            System.out.println("LOG * ---> Verbindung zu KindServer Fehler!");
+            return null;
+        }
+              
     }
 
 
@@ -85,6 +141,27 @@ public class ServerStubImpl implements ServerStub {
         }
         return false;
     }   
+    
+    /**
+     * Gibt die ID des Servers zurueck
+     * @return
+     * @throws java.rmi.RemoteException
+     */
+    @Override
+     public String getServerID() throws RemoteException{
+        return this.serverDaten.primitiveDaten.serverID;         
+    }
+     
+     /**
+      * gibt die anzahl eingeloggter Benutzer des Server zurück
+      * 
+      * @return
+      * @throws RemoteException 
+      */
+    @Override
+    public int getAnzahlUser() throws RemoteException{
+        return this.serverDaten.aktiveSitzungen.size();
+    }
       
     /**
      * sucht den server mit der db eines bestimmten users und gibt ip des servers zurueck
@@ -97,7 +174,7 @@ public class ServerStubImpl implements ServerStub {
      * @throws java.sql.SQLException 
      */
     @Override
-    public String findServerForUser(String originIP, int requestCounter, String username) throws RemoteException, SQLException{
+    public String findServerWithDbForUser(String originIP, int requestCounter, String username) throws RemoteException, SQLException{
         // war die Anfrage schonmal hier
         if(!checkRequest(originIP, requestCounter) && !originIP.equals(this.serverDaten.primitiveDaten.ownIP)){
             //suche in db nach username
@@ -132,6 +209,26 @@ public class ServerStubImpl implements ServerStub {
             }
         }
         return "false";
+    }
+    
+    @Override
+    public ServerIdUndAnzahlUser findServerForUser() throws RemoteException{
+        int tmp;
+        int min = this.serverDaten.aktiveSitzungen.size();
+        String minServerIP = this.serverDaten.primitiveDaten.ownIP ;
+        String serverID = this.serverDaten.primitiveDaten.serverID;
+        
+        //suche server mit wenigstern usern und gib ip dessen zurück
+        for(Verbindung child : this.serverDaten.childConnection){
+            tmp = child.getServerStub().getAnzahlUser();
+            if(tmp < min){
+                min = tmp;
+                minServerIP = child.getIP();
+                serverID = child.getID();
+            }
+        }
+        
+        return new ServerIdUndAnzahlUser(min, serverID, minServerIP);
     }
     
     /**

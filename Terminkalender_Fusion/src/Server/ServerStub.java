@@ -5,6 +5,7 @@
  */
 package Server;
 
+import Server.Utilities.ServerIdUndAnzahlUser;
 import Utilities.Anfrage;
 import Utilities.Termin;
 import java.rmi.Remote;
@@ -18,11 +19,16 @@ import java.util.LinkedList;
  */
 public interface ServerStub extends Remote{
     
+    public void setID(String newID) throws RemoteException;
     public boolean initConnection(String ip) throws RemoteException;
+    public String initConnectionToChild(String ip) throws RemoteException;
     public boolean ping(String senderIP) throws RemoteException; 
+    public String getServerID() throws RemoteException; 
+    public int getAnzahlUser() throws RemoteException;
     
     //Datensuche
-    public String findServerForUser(String originIP, int requestCounter, String username) throws RemoteException, SQLException;
+    public String findServerWithDbForUser(String originIP, int requestCounter, String username) throws RemoteException, SQLException;
+    public ServerIdUndAnzahlUser findServerForUser() throws RemoteException;
     public int findIdForUser(String originIP, int requestCounter, String username) throws RemoteException, SQLException;
     public LinkedList<String> findUserProfil(String originIP, int requestCounter, int userID) throws RemoteException, SQLException;
     

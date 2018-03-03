@@ -15,15 +15,18 @@ public class Verbindung {
     
     private final ServerStub stub;
     private final String ip;
+    private final String id;
     
     /**
      *
      * @param stub
      * @param ip
+     * @param id
      */
-    public Verbindung(ServerStub stub, String ip){
+    public Verbindung(ServerStub stub, String ip, String id){
         this.stub = stub;
         this.ip = ip;
+        this.id = id;
     }
     
     public ServerStub getServerStub(){
@@ -32,6 +35,10 @@ public class Verbindung {
     
     public String getIP(){
         return this.ip;
+    }
+    
+    public String getID(){
+        return this.id;
     }
     
     public boolean equals(String ip){
