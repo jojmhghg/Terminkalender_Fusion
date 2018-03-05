@@ -5,6 +5,7 @@
  */
 package Server.Threads;
 
+import Server.ChildServerDaten;
 import Server.ServerStub;
 import java.rmi.RemoteException;
 import Server.ServerDaten;
@@ -28,7 +29,7 @@ public class PingThread extends Thread{
     @Override 
     public void run(){
         try {          
-            if(this.serverStub.ping(serverDaten.primitiveDaten.ownIP)){
+            if(this.serverStub.ping(((ChildServerDaten)serverDaten).primitiveDaten.ownIP)){
                 //pingtest kam an, alles gut, resete counter
                 counter.resetCounter();
             }

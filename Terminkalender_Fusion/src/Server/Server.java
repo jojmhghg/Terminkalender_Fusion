@@ -27,7 +27,16 @@ public class Server {
     private final String[] args;
     
     public Server(String[] args) throws ClassNotFoundException, SQLException, NoSuchAlgorithmException{        
-        this.serverDaten = new ServerDaten(args);
+        if (args[1].equals("root")) {
+            this.serverDaten = new RootServerDaten(args);
+            System.out.println("LOG * Starte Root-Server");
+
+        }
+        else{
+            this.serverDaten = new ChildServerDaten(args);
+            System.out.println("LOG * Starte Child-Server");
+
+        }
         this.args = args;
         System.setProperty("java.rmi.server.hostname", args[0]);
     }
@@ -44,14 +53,7 @@ public class Server {
      * @throws IOException 
      */
     public void start() throws RemoteException, AlreadyBoundException, NotBoundException, UnknownHostException, SQLException, DatenbankException, IOException{
-        
-        if (!args[1].equals("root")) {          
-            System.out.println("LOG * Starte Leaf-Server");
-        }
-        else{
-            System.out.println("LOG * Starte Root-Server");
-        }     
-        System.out.println("LOG * Server-IP: " + serverDaten.primitiveDaten.ownIP);
+        System.out.println("LOG * Server-IP: " + args[0] );
         System.out.println("LOG * ");
               
         //initialisiere Stubs für Server & Clients     
@@ -59,17 +61,20 @@ public class Server {
         initClientStub();
         System.out.println("LOG * ");
         
-        //baut Verbindung zu Parent auf
-        if (!args[1].equals("root")) {          
-            this.serverDaten.connectToParent(args[1]);
-        }
-        else{
+        //falls Server ein Root-Server
+        if(this.serverDaten instanceof RootServerDaten){
             //baue bis zu 2 dauerhafte Verbindungen zu anderen Servern auf
             System.out.println("LOG * Erste Verbindung wird aufgebaut");
-            if(this.serverDaten.connectToServer()){
+            if(((RootServerDaten)this.serverDaten).connectToServer()){
                 System.out.println("LOG * Zweite Verbindung wird aufgebaut");
-                this.serverDaten.connectToServer();
+                ((RootServerDaten)this.serverDaten).connectToServer();
             }
+        }
+        
+        //falls Server ein Child-Server
+        if(this.serverDaten instanceof ChildServerDaten){
+            //baut Verbindung zu Parent auf
+            ((ChildServerDaten)this.serverDaten).connectToParent(args[1]);
         }
 
         System.out.println("LOG * ");

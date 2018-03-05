@@ -5,6 +5,8 @@
  */
 package Server.Threads;
 
+import Server.ChildServerDaten;
+import Server.RootServerDaten;
 import Server.ServerDaten;
 import Server.Utilities.Verbindung;
 import java.io.BufferedReader;
@@ -76,10 +78,10 @@ public class VerbindungstestsParentThread extends Thread{
             if((line = bufferedReader.readLine()) != null) { 
                 rootIP = line;
 
-                this.serverDaten.connectToParent(rootIP);
+                ((ChildServerDaten)this.serverDaten).connectToParent(rootIP);
                 int counter = 0;
                 for(Verbindung child : this.serverDaten.childConnection){
-                    child.getServerStub().setID(this.serverDaten.primitiveDaten.serverID + counter);
+                    child.getServerStub().setID(((RootServerDaten)this.serverDaten).primitiveDaten.serverID + counter);
                     counter++;
                 }
                 

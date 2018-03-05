@@ -5,6 +5,7 @@
  */
 package Server.Threads;
 
+import Server.RootServerDaten;
 import Server.ServerDaten;
 import Server.Utilities.Verbindung;
 import java.io.IOException;
@@ -43,13 +44,13 @@ public class VerbindungstestsThread extends Thread{
                 //test ob keine verbindung mehr zu anderem server
                 if(counter.getValue() == 0){
                     //Verbindung löschen
-                    this.serverDaten.connectionList.remove(this.verbindung);
+                    ((RootServerDaten)this.serverDaten).connectionList.remove(this.verbindung);
                     System.out.println("--->> Verbindung zu " + this.verbindung.getIP() + " wurde beendet");
                     
                     //teste ob noch genug Verbindungen vorhanden sind
-                    if(this.serverDaten.connectionList.size() < 2){
+                    if(((RootServerDaten)this.serverDaten).connectionList.size() < 2){
                         //lass Server eine weitere Verbindung aufbauen
-                        this.serverDaten.connectToServer();
+                        ((RootServerDaten)this.serverDaten).connectToServer();
                     }                   
                     
                     //beende Schleife

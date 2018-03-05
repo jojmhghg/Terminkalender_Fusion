@@ -1644,13 +1644,21 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
     }//GEN-LAST:event_jPanel11MouseClicked
 
     private void jLabel14MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel14MouseClicked
-        // TODO add your handling code here:
-        ausloggen();
+        try {
+            // TODO add your handling code here:
+            ausloggen();
+        } catch (BenutzerException ex) {
+            Logger.getLogger(Hauptfenster.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jLabel14MouseClicked
 
     private void jPanel12MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel12MouseClicked
-        // TODO add your handling code here:
-        ausloggen();
+        try {
+            // TODO add your handling code here:
+            ausloggen();
+        } catch (BenutzerException ex) {
+            Logger.getLogger(Hauptfenster.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jPanel12MouseClicked
 
     private void zumProfilMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_zumProfilMouseClicked
@@ -1740,7 +1748,7 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         startVersion.setVisible(true);
     }//GEN-LAST:event_jLabel1MouseClicked
 
-    public void ausloggen() {
+    public void ausloggen() throws BenutzerException {
         try {
 
             stub.ausloggen(sitzungsID);
