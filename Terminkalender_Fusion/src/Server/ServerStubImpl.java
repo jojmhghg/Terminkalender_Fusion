@@ -379,7 +379,7 @@ public class ServerStubImpl implements ServerStub {
                 //ändere termin auf server
                 for(Sitzung sitzung : serverDaten.aktiveSitzungen){
                     try {
-                        if(sitzung.getEingeloggterBenutzer().getTerminkalender().updateTermin(termin, termin.getOwner(), sitzung.getEingeloggterBenutzer().getUserID())){
+                        if(sitzung.getEingeloggterBenutzer().getTerminkalender().updateTermin(termin, termin.getOwner())){
                             sitzung.getEingeloggterBenutzer().getTerminkalender().getTerminByID(termin.getID()).setTimestemp(termin.getTimestemp());
                         }
                     } catch (TerminException ex) {}

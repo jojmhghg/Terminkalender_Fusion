@@ -224,7 +224,7 @@ public class Benutzer implements Serializable{
      */
     public void deleteAnfrage(int terminID) throws BenutzerException{  
         int counter = 0;
-        int index = 0;
+        int index = -1;
         for(Meldung meldung : meldungen){
             if(meldung instanceof Anfrage){
                 if(((Anfrage) meldung).getTermin().getID() == terminID){

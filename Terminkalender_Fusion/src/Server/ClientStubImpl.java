@@ -506,7 +506,7 @@ public class ClientStubImpl implements ClientStub{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);
  
         //ändere Termin bei user (testet ob user editierrechte hat)
-        eingeloggterBenutzer.getTerminkalender().updateTermin(termin, eingeloggterBenutzer.getUsername(), eingeloggterBenutzer.getUserID());
+        eingeloggterBenutzer.getTerminkalender().updateTermin(termin, eingeloggterBenutzer.getUsername());
         eingeloggterBenutzer.getTerminkalender().getTerminByID(termin.getID()).incTimestemp();
         eingeloggterBenutzer.getTerminkalender().getTerminByID(termin.getID()).setEditorID(eingeloggterBenutzer.getUserID());
         

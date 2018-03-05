@@ -98,7 +98,7 @@ public class Terminkalender implements Serializable{
         return wochenauszug;
     }
 
-    public boolean updateTermin(Termin termin, String username, int userID) throws TerminException{
+    public boolean updateTermin(Termin termin, String username) throws TerminException{
         for(Termin alterTermin : terminkalender){
             if(alterTermin.getID() == termin.getID()){
                 try{

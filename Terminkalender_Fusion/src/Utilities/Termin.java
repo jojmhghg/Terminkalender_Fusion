@@ -13,7 +13,7 @@ import java.util.LinkedList;
  * @author Tim Meyer
  */
 public class Termin implements Serializable{   
-    
+   //Variablen Deklaration und Initialisierung
     private final int terminID;
     private Datum datum;
     private Zeit beginn;
@@ -29,6 +29,16 @@ public class Termin implements Serializable{
     private int timestemp;
     private int editorID;
       
+    /**
+     * Konstruktor
+     * @param datum
+     * @param beginn
+     * @param ende
+     * @param titel
+     * @param terminID
+     * @param username
+     * @throws TerminException 
+     */
     public Termin(Datum datum, Zeit beginn, Zeit ende, String titel, int terminID, String username) throws TerminException{
         if(!anfangVorEnde(beginn, ende)){
             throw new TerminException("Startzeitpunkt darf nicht nach dem Endzeitpunkt liegen!");
@@ -53,6 +63,19 @@ public class Termin implements Serializable{
         this.editorID = 0;
     }
     
+    /**
+     * Konstruktor
+     * @param datum
+     * @param beginn
+     * @param ende
+     * @param titel
+     * @param id
+     * @param owner
+     * @param ort
+     * @param notiz
+     * @param editierbar
+     * @throws TerminException 
+     */
     public Termin(Datum datum, Zeit beginn, Zeit ende, String titel, int id, String owner, String ort, String notiz, Boolean editierbar) throws TerminException{
         if(!anfangVorEnde(beginn, ende)){
             throw new TerminException("Startzeitpunkt darf nicht nach dem Endzeitpunkt liegen!");
@@ -89,69 +112,169 @@ public class Termin implements Serializable{
         teilnehmer.add(new Teilnehmer(username));
     }
     
-    //Getter 
+    /**
+     * -------------Getter-------------
+     */
+    
+    
+    /**
+     * Methode, um Rechte zum editieren zu bekommen
+     * @return 
+     */
     public boolean getEditierbar(){
         return editierbar;
     }
+    
+    /**
+     * Methode, um Besitzer zu bekommen
+     * @return 
+     */
     public String getOwner(){
         return owner;
     }
+    
+    /**
+     * Methode, um ID zu bekommen
+     * @return 
+     */
     public int getID(){
         return terminID;
     }
+    
+    /**
+     * Methode, um Datum zu bekommen
+     * @return 
+     */
     public Datum getDatum(){
         return datum;
     }
+    
+    /**
+     * Methode, um Beginn des Termins zu bekommen
+     * @return 
+     */
     public Zeit getBeginn(){
         return beginn;
     }
+    
+    /**
+     * Methode, um Ende des Termins zu bekommen
+     * @return 
+     */
     public Zeit getEnde(){
         return ende;
     }
+    
+    /**
+     * Methode, um Titel des Termins zu bekommen
+     * @return 
+     */
     public String getTitel(){
         return titel;
     }
+    
+    /**
+     * Methode, um Notiz des Termins zu bekommen
+     * @return 
+     */
     public String getNotiz(){
         return notiz;
     }
+    
+    /**
+     * Methode, um Ort des Termins zu bekommen
+     * @return 
+     */
     public String getOrt(){
         return ort;
     }
+    
+    /**
+     * Methode, um Zeitpunkt des Termins zu bekommen
+     * @return 
+     */
     public int getTimestemp(){
         return timestemp;
     }
+    
+    /**
+     * Methode, um Editor-ID des Termins zu bekommen
+     * @return 
+     */
     public int getEditorID(){
         return editorID;
     }
+    
+    /**
+     * Methode, um Teilnehmerliste des Termins zu bekommen
+     * @return 
+     */
     public final LinkedList<Teilnehmer> getTeilnehmerliste(){
         return teilnehmer;
     }
     
-    // Setter
+    /**
+     * -------------Setter-------------
+     */
+    
+    /**
+     * Methode, um Termin editierbar zu machen
+     * @param editierbar
+     * @param username
+     * @throws TerminException 
+     */
     public void setEditierbar(boolean editierbar, String username) throws TerminException{
         if(!username.equals(this.owner)){
             throw new TerminException("Nur der Ersteller des Termins kann die Rechte aendern!");
         }
         this.editierbar = editierbar;
     }
+    
+    /**
+     * Methode, um in Termin eine Notiz hinzuzufügen
+     * @param notiz
+     * @param username
+     * @throws TerminException 
+     */
     public void setNotiz(String notiz, String username) throws TerminException{
         if(!username.equals(this.owner) && !editierbar){
             throw new TerminException("Nur der Ersteller des Termins kann die Notiz ändern!");
         }
         this.notiz = notiz;
-    }   
+    } 
+    
+    /**
+     * Methode, um in Termin einen Ort zu setzen
+     * @param ort
+     * @param username
+     * @throws TerminException 
+     */
     public void setOrt(String ort, String username) throws TerminException{
         if(!username.equals(this.owner) && !editierbar){
             throw new TerminException("Nur der Ersteller des Termins kann den Ort ändern!");
         }
         this.ort = ort;
     }
+    
+    /**
+     * Methode, um in Termin einen neuen Titel zu setzen
+     * @param neuerTitel
+     * @param username
+     * @throws TerminException 
+     */
     public void setTitel(String neuerTitel, String username) throws TerminException{
         if(!username.equals(this.owner) && !editierbar){
             throw new TerminException("Nur der Ersteller des Termins kann den Titel ändern!");
         }
         titel = neuerTitel;
     }
+    
+    /**
+     * Methode, um in Termin ein Beginn zu setzen
+     * @param neuerBeginn
+     * @param username
+     * @throws TerminException 
+     */
     public void setBeginn(Zeit neuerBeginn, String username) throws TerminException{
         if(!username.equals(this.owner) && !editierbar){
             throw new TerminException("Nur der Ersteller des Termins kann den Beginn ändern!");
@@ -161,6 +284,13 @@ public class Termin implements Serializable{
         }
         beginn = neuerBeginn;
     }
+    
+    /**
+     * Methode, um in Termin ein Ende zu setzen
+     * @param neuesEnde
+     * @param username
+     * @throws TerminException 
+     */
     public void setEnde(Zeit neuesEnde, String username) throws TerminException{
         if(!username.equals(this.owner) && !editierbar){
             throw new TerminException("Nur der Ersteller des Termins kann das Ende ändern!");
@@ -170,18 +300,39 @@ public class Termin implements Serializable{
         }
         ende = neuesEnde;
     }
+    
+    /**
+     * Methode, um in Termin ein Datum zu setzen
+     * @param neuesDatum
+     * @param username
+     * @throws TerminException 
+     */
     public void setDatum(Datum neuesDatum, String username) throws TerminException{
         if(!username.equals(this.owner) && !editierbar){
             throw new TerminException("Nur der Ersteller des Termins kann das Datum ändern!");
         }
         datum = neuesDatum;
     }
+    
+    /**
+     * Methode, um in Termin eine Editor-ID zu setzen
+     * @param editorID 
+     */
     public void setEditorID(int editorID){
         this.editorID = editorID;
     }
+    
+    /**
+     * Methode, um in Termin einen Zeitpunkt zu setzen
+     * @param timestemp 
+     */
     public void setTimestemp(int timestemp){
         this.timestemp = timestemp;
     }
+    
+    /**
+     * Methode, um in Termin die Dauer zu erhöhen
+     */
     public void incTimestemp(){
         this.timestemp++;
     }
@@ -240,6 +391,10 @@ public class Termin implements Serializable{
         return result;
     }
     
+    /**
+     * toSting-Methode
+     * @return 
+     */
     @Override
     public String toString(){
         return "ID: " + terminID
