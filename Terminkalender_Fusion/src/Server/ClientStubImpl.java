@@ -196,7 +196,7 @@ public class ClientStubImpl implements ClientStub{
                 }
             }
             else{
-                this.serverDaten.parent.getServerStub().removeUserFromRootList(username);
+                ((ChildServerDaten)this.serverDaten).parent.getServerStub().removeUserFromRootList(username);
             }
         }
     }
@@ -281,7 +281,7 @@ public class ClientStubImpl implements ClientStub{
     public void addTermin(Datum datum, Zeit beginn, Zeit ende, String titel, int sitzungsID) throws BenutzerException, TerminException, SQLException, RemoteException{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);     
         
-        int terminID = this.serverDaten.parent.getServerStub().addNewTermin(datum, beginn, ende, titel, eingeloggterBenutzer.getUserID());
+        int terminID = ((ChildServerDaten)this.serverDaten).parent.getServerStub().addNewTermin(datum, beginn, ende, titel, eingeloggterBenutzer.getUserID());
         eingeloggterBenutzer.addTermin(new Termin(datum, beginn, ende, titel, terminID, eingeloggterBenutzer.getUsername()));
     }
     
@@ -307,7 +307,7 @@ public class ClientStubImpl implements ClientStub{
                             + eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID).getDatum().toString()
                             + " gelöscht";
             
-            this.serverDaten.parent.getServerStub().deleteTerminAlsOwner(eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID), eingeloggterBenutzer.getUsername(), text);    
+            ((ChildServerDaten)this.serverDaten).parent.getServerStub().deleteTerminAlsOwner(eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID), eingeloggterBenutzer.getUsername(), text);    
         }
         else{  
             String text = eingeloggterBenutzer.getUsername() 
@@ -317,7 +317,7 @@ public class ClientStubImpl implements ClientStub{
                             + eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID).getDatum().toString()
                             + " teil";
             
-            this.serverDaten.parent.getServerStub().deleteTerminNichtOwner(eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID), eingeloggterBenutzer.getUsername(), text);
+            ((ChildServerDaten)this.serverDaten).parent.getServerStub().deleteTerminNichtOwner(eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID), eingeloggterBenutzer.getUsername(), text);
             eingeloggterBenutzer.deleteAnfrage(terminID);
             eingeloggterBenutzer.getTerminkalender().removeTerminByID(terminID);
         }  
@@ -337,7 +337,7 @@ public class ClientStubImpl implements ClientStub{
     public void changeEditierrechte(Termin termin, int sitzungsID) throws TerminException, BenutzerException, SQLException, RemoteException{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);
    
-        this.serverDaten.parent.getServerStub().changeEditierrechteDB(termin, eingeloggterBenutzer.getUserID());            
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeEditierrechteDB(termin, eingeloggterBenutzer.getUserID());            
     }
     
     /**
@@ -456,7 +456,7 @@ public class ClientStubImpl implements ClientStub{
     public void changeTermin(Termin termin, int sitzungsID) throws BenutzerException, TerminException, SQLException, RemoteException{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);
  
-        this.serverDaten.parent.getServerStub().changeTerminDB(termin, eingeloggterBenutzer.getUserID());            
+       ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeTerminDB(termin, eingeloggterBenutzer.getUserID());            
     }
     
     /**
@@ -474,7 +474,7 @@ public class ClientStubImpl implements ClientStub{
     public void addTerminteilnehmer(int terminID, String username, int sitzungsID) throws BenutzerException, TerminException, SQLException, RemoteException{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);   
         
-        this.serverDaten.parent.getServerStub().addTerminTeilnehmerDB(eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID), username, eingeloggterBenutzer.getUsername());  
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().addTerminTeilnehmerDB(eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID), username, eingeloggterBenutzer.getUsername());  
     }
     
     /**
@@ -499,7 +499,7 @@ public class ClientStubImpl implements ClientStub{
                             + eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID).getDatum().toString()
                             + " teil";
         
-        this.serverDaten.parent.getServerStub().teilnehmerNimmtTeil(eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID), eingeloggterBenutzer.getUsername(), text);
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().teilnehmerNimmtTeil(eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID), eingeloggterBenutzer.getUsername(), text);
         eingeloggterBenutzer.deleteAnfrage(terminID);
     }
      
@@ -525,7 +525,7 @@ public class ClientStubImpl implements ClientStub{
                         + eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID).getDatum().toString()
                         + " abgelehnt";
         
-        this.serverDaten.parent.getServerStub().deleteTerminNichtOwner(eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID), eingeloggterBenutzer.getUsername(), text);
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().deleteTerminNichtOwner(eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID), eingeloggterBenutzer.getUsername(), text);
         eingeloggterBenutzer.deleteAnfrage(terminID);
         eingeloggterBenutzer.getTerminkalender().removeTerminByID(terminID);
     }
@@ -548,7 +548,7 @@ public class ClientStubImpl implements ClientStub{
         }
         eingeloggterBenutzer.setPasswort(neuesPW);
         
-        serverDaten.parent.getServerStub().changePasswort(neuesPW, eingeloggterBenutzer.getUsername());
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().changePasswort(neuesPW, eingeloggterBenutzer.getUsername());
     }
     
     /**
@@ -565,7 +565,7 @@ public class ClientStubImpl implements ClientStub{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);
         eingeloggterBenutzer.setVorname(neuerVorname);
         
-        serverDaten.parent.getServerStub().changeVorname(neuerVorname, eingeloggterBenutzer.getUsername());
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeVorname(neuerVorname, eingeloggterBenutzer.getUsername());
     }
     
     /**
@@ -582,7 +582,7 @@ public class ClientStubImpl implements ClientStub{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);
         eingeloggterBenutzer.setNachname(neuerNachname);
         
-        serverDaten.parent.getServerStub().changeNachname(neuerNachname, eingeloggterBenutzer.getUsername());
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeNachname(neuerNachname, eingeloggterBenutzer.getUsername());
     }
     
     /**
@@ -599,7 +599,7 @@ public class ClientStubImpl implements ClientStub{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);
         eingeloggterBenutzer.setEmail(neueEmail);
         
-        serverDaten.parent.getServerStub().changeEmail(neueEmail, eingeloggterBenutzer.getUsername());
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeEmail(neueEmail, eingeloggterBenutzer.getUsername());
     }
     
     /**
@@ -614,11 +614,11 @@ public class ClientStubImpl implements ClientStub{
      */
     @Override
     public void addKontakt(String username, int sitzungsID) throws BenutzerException, SQLException, RemoteException{       
-        this.serverDaten.parent.getServerStub().findIdForUser(username);
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().findIdForUser(username);
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);            
         eingeloggterBenutzer.addKontakt(username);
         
-        serverDaten.parent.getServerStub().addKontakt(username, eingeloggterBenutzer.getUserID());
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().addKontakt(username, eingeloggterBenutzer.getUserID());
     }
 
     /**
@@ -632,11 +632,11 @@ public class ClientStubImpl implements ClientStub{
      */
     @Override
     public void removeKontakt(String username, int sitzungsID) throws BenutzerException, SQLException, RemoteException{
-        this.serverDaten.parent.getServerStub().findIdForUser(username);
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().findIdForUser(username);
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);
         eingeloggterBenutzer.removeKontakt(username);
         
-        serverDaten.parent.getServerStub().removeKontakt(username, eingeloggterBenutzer.getUserID());
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().removeKontakt(username, eingeloggterBenutzer.getUserID());
     }
     
     /**
@@ -777,7 +777,7 @@ public class ClientStubImpl implements ClientStub{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);       
         eingeloggterBenutzer.deleteMeldung(meldungsID);
         
-        serverDaten.parent.getServerStub().deleteMeldung(meldungsID);
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().deleteMeldung(meldungsID);
     }
     
     /**
@@ -800,7 +800,7 @@ public class ClientStubImpl implements ClientStub{
             }     
         }
         
-        serverDaten.parent.getServerStub().setMeldungenGelesen(meldungsID);
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().setMeldungenGelesen(meldungsID);
     }
     
     /**
@@ -814,8 +814,8 @@ public class ClientStubImpl implements ClientStub{
      */
     @Override
     public LinkedList<String> getProfil(String username) throws BenutzerException, SQLException, RemoteException{
-        int userID = this.serverDaten.parent.getServerStub().findIdForUser(username);
-        return this.serverDaten.parent.getServerStub().findUserProfil(userID);
+        int userID = ((ChildServerDaten)this.serverDaten).parent.getServerStub().findIdForUser(username);
+        return ((ChildServerDaten)this.serverDaten).parent.getServerStub().findUserProfil(userID);
     }
     
     
