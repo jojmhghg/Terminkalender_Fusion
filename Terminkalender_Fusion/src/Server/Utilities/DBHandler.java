@@ -5,10 +5,6 @@
  */
 package Server.Utilities;
 
-/**
- *
- * @author timtim
- */
 import Server.PrimitiveServerDaten;
 import Utilities.Anfrage;
 import Utilities.Benutzer;
@@ -38,6 +34,12 @@ public class DBHandler {
     private final LinkedList<Verbindung> connectionList;
     public PrimitiveServerDaten primitiveDaten;
     
+    /**
+     * Konstruktur
+     * @param aktiveSitzungen
+     * @param connectionlist
+     * @param primitiveDaten 
+     */
     public DBHandler(LinkedList<Sitzung> aktiveSitzungen, LinkedList<Verbindung> connectionlist, PrimitiveServerDaten primitiveDaten){
         abfrage = true;
         hasData = false;
@@ -47,6 +49,13 @@ public class DBHandler {
         this.primitiveDaten = primitiveDaten;
     }   
     
+    /**
+     * Stellt Verbindung zur Datenbank her
+     * @param serverID
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     * @throws NoSuchAlgorithmException 
+     */
     public void getConnection(int serverID) throws ClassNotFoundException, SQLException, NoSuchAlgorithmException {       
         if(con == null){
             Class.forName("org.sqlite.JDBC");
@@ -127,8 +136,6 @@ public class DBHandler {
                 Statement stateKontaktliste = con.createStatement();
                 stateKontaktliste.execute("CREATE TABLE kontaktliste(userID integer,"
                         + "kontaktname varchar(60),"
-                        + "foreign key(userID) references benutzer(userID),"
-                        + "foreign key(kontaktname) references benutzer(username),"
                         + "primary key(userID, kontaktname))");
             }
             
@@ -157,26 +164,24 @@ public class DBHandler {
                 Statement stateAnfragen = con.createStatement();
                 stateAnfragen.execute("CREATE TABLE counters(reihe integer,"
                         + "userCounter integer,"
-                        + "terminCounter integer,"                        
-                        + "requestCounter integer,"
+                        + "terminCounter integer,"
                         + "meldungsCounter integer,"
                         + "serverID integer,"
                         + "primary key(reihe))");
                 
-                PreparedStatement prepuser = con.prepareStatement("INSERT INTO counters values(?,?,?,?,?,?);");        
+                PreparedStatement prepuser = con.prepareStatement("INSERT INTO counters values(?,?,?,?,?);");        
                 prepuser.setInt(1, 1);
-                prepuser.setInt(2, serverID * 10000 + 1);
-                prepuser.setInt(3, serverID * 1000000 + 1);
-                prepuser.setInt(4, serverID * 1000000 + 1);
-                prepuser.setInt(5, serverID * 1000000 + 1);
-                prepuser.setInt(6, serverID);
+                prepuser.setInt(2, serverID * 1000 + 1);
+                prepuser.setInt(3, serverID * 1000 + 1);
+                prepuser.setInt(4, serverID * 1000 + 1);
+                prepuser.setInt(5, serverID);
                 prepuser.execute(); 
             }
         }
     }
     
     /**
-     * fügt der DB einen neuen User hinzu & erhöht den UserIdCounter in der DB um 1
+     * fügt der DB einen neuen User hinzu und erhöht den UserIdCounter in der DB um 1
      * 
      * 
      * @param username username des neuen Users
@@ -254,13 +259,13 @@ public class DBHandler {
      * ändert den vornamen eines users
      * 
      * @param neuerVorname neuer vorname
-     * @param userID id des users
+     * @param username name des users
      * @throws SQLException 
      */
-    public void changeVorname(String neuerVorname, int userID) throws SQLException{
-        PreparedStatement prepChangeVorname = con.prepareStatement("UPDATE benutzer SET name = ? WHERE userID = ?");
+    public void changeVorname(String neuerVorname, String username) throws SQLException{
+        PreparedStatement prepChangeVorname = con.prepareStatement("UPDATE benutzer SET name = ? WHERE username = ?");
         prepChangeVorname.setString(1, neuerVorname);
-        prepChangeVorname.setInt(2, userID);
+        prepChangeVorname.setString(2, username);
         prepChangeVorname.execute(); 
     }
     
@@ -268,13 +273,13 @@ public class DBHandler {
      * ändert den nachnamen eines users
      * 
      * @param neuerNachname neuer Nachname
-     * @param userID ID des Users
+     * @param username username des Users
      * @throws SQLException 
      */
-    public void changeNachname(String neuerNachname, int userID) throws SQLException{
-        PreparedStatement prepChangeNachname = con.prepareStatement("UPDATE benutzer SET lastname = ? WHERE userID = ?");
+    public void changeNachname(String neuerNachname, String username) throws SQLException{
+        PreparedStatement prepChangeNachname = con.prepareStatement("UPDATE benutzer SET lastname = ? WHERE username = ?");
         prepChangeNachname.setString(1, neuerNachname);
-        prepChangeNachname.setInt(2, userID);
+        prepChangeNachname.setString(2, username);
         prepChangeNachname.execute(); 
     }
     
@@ -282,18 +287,18 @@ public class DBHandler {
      * Ändert die Email Adresse eines Users
      * 
      * @param neueEmail neue Email Adresse
-     * @param userID ID des Users
+     * @param username username des Users
      * @throws SQLException 
      */
-    public void changeEmail(String neueEmail, int userID) throws SQLException{
-        PreparedStatement prepChangeEmail = con.prepareStatement("UPDATE benutzer SET email = ? WHERE userID = ?");
+    public void changeEmail(String neueEmail, String username) throws SQLException{
+        PreparedStatement prepChangeEmail = con.prepareStatement("UPDATE benutzer SET email = ? WHERE username = ?");
         prepChangeEmail.setString(1, neueEmail);
-        prepChangeEmail.setInt(2, userID);
+        prepChangeEmail.setString(2, username);
         prepChangeEmail.execute(); 
     }
     
     /**
-     * erstellt einen neuen Termin & gibt TerminID zurück
+     * erstellt einen neuen Termin und gibt TerminID zurück
      * der termin sollte vorher auf dem server schonmal angelegt werden
      * 
      * @param datum datum des termins
@@ -671,6 +676,32 @@ public class DBHandler {
     }
     
     /**
+     * löscht eine meldung
+     * 
+     * @param terminID id des termins zu dem die anfrage gehört
+     * @throws SQLException 
+     */
+    public void deleteAnfrageByTerminID(int terminID) throws SQLException{
+        PreparedStatement deleteAnfrage, deleteMeldung;
+        Statement state = con.createStatement();
+        ResultSet resSet = state.executeQuery("Select * From anfragen " +
+                    "Where terminID = " + terminID);
+        
+        while(resSet.next()){
+            int meldungsID = resSet.getInt("meldungsID");
+        
+            deleteAnfrage = con.prepareStatement("DELETE FROM anfragen WHERE meldungsID = ?");
+            deleteAnfrage.setInt(1, meldungsID);
+            deleteAnfrage.execute();
+
+
+            deleteMeldung = con.prepareStatement("DELETE FROM meldungen WHERE meldungsID = ?");
+            deleteMeldung.setInt(1, meldungsID);
+            deleteMeldung.execute();
+        }     
+    }
+    
+    /**
      * setzt eine meldung als gelesen
      * 
      * @param meldungsID id der meldung
@@ -699,13 +730,36 @@ public class DBHandler {
     }
     
     /**
+     * Methode, die einen Termin für einen User auf seinem Client nicht mehr sichtbar macht
+     * @param terminID
+     * @param username
+     * @throws SQLException 
+     */
+    public void removeAnfrageForUserByTerminID(int terminID, String username) throws SQLException{
+        Statement state = con.createStatement();
+        ResultSet resSet = state.executeQuery("Select * FROM meldungen JOIN anfragen ON " +
+                "meldungen.meldungsID = anfragen.meldungsID " +
+                "Where meldungen.username = \"" + username + "\" AND anfragen.terminID = " + terminID);
+        
+        if(resSet.next()){
+            PreparedStatement removeStatement = con.prepareStatement("DELETE FROM meldungen WHERE meldungsID = ?;");      
+            removeStatement.setInt(1, resSet.getInt("meldungsID"));
+            removeStatement.execute(); 
+
+            removeStatement = con.prepareStatement("DELETE FROM anfragen WHERE meldungsID = ?;");      
+            removeStatement.setInt(1, resSet.getInt("meldungsID"));
+            removeStatement.execute(); 
+        }  
+    }
+    
+    /**
      * Methode, die Teilnehmerliste eines Termins aktualisiert.
      * @param username name des Users bei dem die Teilnehmerliste aktualisiert
      * @param terminID Die Id des Termins der aktualisiert werden soll
      * @throws SQLException 
      */
     public void removeTeilnehmer(String username, int terminID) throws SQLException{
-        PreparedStatement removeStatement = con.prepareStatement("DELETE FROM terminkalender WHERE username = ? AND terminID = ?;");
+        PreparedStatement removeStatement = con.prepareStatement("DELETE FROM terminkalender WHERE username = ? AND terminID = ?");
         removeStatement.setString(1, username);
         removeStatement.setInt(2, terminID);
         removeStatement.execute();
@@ -714,6 +768,7 @@ public class DBHandler {
         ResultSet resSet = state.executeQuery("Select * FROM meldungen JOIN  anfragen ON " +
                 "meldungen.meldungsID = anfragen.meldungsID " +
                 "Where meldungen.username = \"" + username + "\" AND anfragen.terminID = " + terminID);
+        
         while(resSet.next()){
             removeStatement = con.prepareStatement("DELETE FROM meldungen WHERE meldungsID = ?;");      
             removeStatement.setInt(1, resSet.getInt("meldungsID"));
@@ -722,8 +777,7 @@ public class DBHandler {
             removeStatement = con.prepareStatement("DELETE FROM anfragen WHERE meldungsID = ?;");      
             removeStatement.setInt(1, resSet.getInt("meldungsID"));
             removeStatement.execute(); 
-        } 
-        
+        }    
     }
     
     /**
@@ -804,7 +858,7 @@ public class DBHandler {
     }
     
     /**
-     * gibt den meldungsCounter zurück & inkrementiert ihn danach um 1
+     * gibt den meldungsCounter zurück und inkrementiert ihn danach um 1
      * 
      * @return
      * @throws SQLException 
@@ -819,31 +873,6 @@ public class DBHandler {
         prepIncCounter.execute();
         
         return res.getInt("meldungsCounter");      
-    }
-    
-    /**
-     * gibt den meldungsCounter zurück & inkrementiert ihn danach um 1
-     * 
-     * @return
-     * @throws SQLException 
-     */
-    public int getRequestCounter() throws SQLException{
-        Statement state = con.createStatement();
-        ResultSet res = state.executeQuery("Select * FROM counters " +
-                "Where reihe = 1");
-        res.next();
-        
-        return res.getInt("requestCounter");      
-    }
-    
-    /**
-     * inkrementiert den request counter in der db
-     * 
-     * @throws SQLException 
-     */
-    public void incRequestCounter() throws SQLException{
-        PreparedStatement prepIncCounter = con.prepareStatement("UPDATE counters SET requestCounter = requestCounter + 1 WHERE reihe = 1");
-        prepIncCounter.execute();
     }
     
     /**
@@ -1221,6 +1250,12 @@ public class DBHandler {
     
     // ****************************** Hilfsmethoden ****************************** //
     
+    /**
+     * Hilfsmethode um Username anhand der UserID zu bekommen
+     * @param userID
+     * @return
+     * @throws SQLException 
+     */
     private String getUsernameByUserID(int userID) throws SQLException{
         String username;
         Statement state = con.createStatement();
@@ -1235,6 +1270,12 @@ public class DBHandler {
         return null; 
     }
     
+    /**
+     * Hilfsmethode um Teilnemer dem Termin hinzuzufügen 
+     * @param terminID
+     * @return
+     * @throws SQLException 
+     */
     private ResultSet getTeilnehmerSet(int terminID) throws SQLException{
         Statement state = con.createStatement();
         ResultSet resSet = state.executeQuery("Select * From terminkalender " +
@@ -1243,6 +1284,13 @@ public class DBHandler {
         return resSet;
     }
 
+    /**
+     * Hilfsmethode um User am Termin teilnehmen zu lassen
+     * @param username
+     * @param terminID
+     * @return
+     * @throws SQLException 
+     */
     private boolean testUserNimmtTeil(String username, int terminID) throws SQLException {
         Statement state = con.createStatement();
         ResultSet resSet = state.executeQuery("Select * From terminkalender " +
