@@ -281,7 +281,9 @@ public class ClientStubImpl implements ClientStub{
     public void addTermin(Datum datum, Zeit beginn, Zeit ende, String titel, int sitzungsID) throws BenutzerException, TerminException, SQLException, RemoteException{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);     
         
+        //füge den neu erstellten Termin der db des roots hinzu
         int terminID = ((ChildServerDaten)this.serverDaten).parent.getServerStub().addNewTermin(datum, beginn, ende, titel, eingeloggterBenutzer.getUserID());
+        //füge ihn jetzt auf dem server hinzu
         eingeloggterBenutzer.addTermin(new Termin(datum, beginn, ende, titel, terminID, eingeloggterBenutzer.getUsername()));
     }
     
@@ -336,8 +338,11 @@ public class ClientStubImpl implements ClientStub{
     @Override
     public void changeEditierrechte(Termin termin, int sitzungsID) throws TerminException, BenutzerException, SQLException, RemoteException{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);
-   
-        ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeEditierrechteDB(termin, eingeloggterBenutzer.getUserID());            
+        
+        //ändere editierrechte auf server (in termin des users)     
+        
+        //ändere editierrechte auf anderen servern (roots & childs)
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeEditierrechte(termin, eingeloggterBenutzer.getUserID()); 
     }
     
     /**
@@ -456,7 +461,7 @@ public class ClientStubImpl implements ClientStub{
     public void changeTermin(Termin termin, int sitzungsID) throws BenutzerException, TerminException, SQLException, RemoteException{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);
  
-       ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeTerminDB(termin, eingeloggterBenutzer.getUserID());            
+       ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeTermin(termin, eingeloggterBenutzer.getUserID());            
     }
     
     /**
@@ -614,10 +619,14 @@ public class ClientStubImpl implements ClientStub{
      */
     @Override
     public void addKontakt(String username, int sitzungsID) throws BenutzerException, SQLException, RemoteException{       
+        //existiert user überhaupt?
         ((ChildServerDaten)this.serverDaten).parent.getServerStub().findIdForUser(username);
+        
+        //adde kontakt auf server
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);            
         eingeloggterBenutzer.addKontakt(username);
         
+        //adde konkakt in db des roots
         ((ChildServerDaten)this.serverDaten).parent.getServerStub().addKontakt(username, eingeloggterBenutzer.getUserID());
     }
 
@@ -632,10 +641,14 @@ public class ClientStubImpl implements ClientStub{
      */
     @Override
     public void removeKontakt(String username, int sitzungsID) throws BenutzerException, SQLException, RemoteException{
+        //existiert user überhaupt?
         ((ChildServerDaten)this.serverDaten).parent.getServerStub().findIdForUser(username);
+        
+        //entferne kontakt auf server
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);
         eingeloggterBenutzer.removeKontakt(username);
         
+        //entferne kontakt aus db des roots
         ((ChildServerDaten)this.serverDaten).parent.getServerStub().removeKontakt(username, eingeloggterBenutzer.getUserID());
     }
     
@@ -775,8 +788,9 @@ public class ClientStubImpl implements ClientStub{
     @Override
     public void deleteMeldung(int meldungsID, int sitzungsID) throws BenutzerException, SQLException, RemoteException{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);       
+        //entferne meldung auf server
         eingeloggterBenutzer.deleteMeldung(meldungsID);
-        
+        //entferne meldung aus db des roots
         ((ChildServerDaten)this.serverDaten).parent.getServerStub().deleteMeldung(meldungsID);
     }
     
@@ -792,6 +806,7 @@ public class ClientStubImpl implements ClientStub{
     @Override
     public void setMeldungenGelesen(int meldungsID, int sitzungsID) throws BenutzerException, SQLException, RemoteException{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);
+        //setze meldung auf server als gelesen
         LinkedList<Meldung> meldungen = eingeloggterBenutzer.getMeldungen();
         for(Meldung meldung : meldungen){
             if(meldungsID == meldung.meldungsID){
@@ -799,7 +814,7 @@ public class ClientStubImpl implements ClientStub{
                 break;
             }     
         }
-        
+        //setze meldung auf db des roots als gelesen
         ((ChildServerDaten)this.serverDaten).parent.getServerStub().setMeldungenGelesen(meldungsID);
     }
     

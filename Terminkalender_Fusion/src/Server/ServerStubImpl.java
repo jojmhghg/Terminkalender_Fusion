@@ -260,7 +260,7 @@ public class ServerStubImpl implements ServerStub {
     }
     
     /**
-     * Methode um das Passwort einen Users zurückzusetzen
+     * Methode um das Passwort einen Users in der DB des Root zu ändern
      * 
      * @param passwort
      * @param username
@@ -269,9 +269,11 @@ public class ServerStubImpl implements ServerStub {
      */
     @Override
     public void changePasswort(String passwort, String username) throws RemoteException, SQLException{
+        //wird methode an root aufgerufen?
         if(this.serverDaten instanceof RootServerDaten){
             ((RootServerDaten)this.serverDaten).datenbank.changePasswort(username, passwort);
         }
+        //falls nicht, wird aufruf an root weitergeleitet
         else{
             ((ChildServerDaten)this.serverDaten).parent.getServerStub().changePasswort(passwort, username);
         }           
@@ -436,41 +438,56 @@ public class ServerStubImpl implements ServerStub {
     * @throws BenutzerException 
     */
     @Override
-    public void changeEditierrechteDB(Termin termin, int userID) throws RemoteException, SQLException, BenutzerException{
+    public void changeEditierrechte(Termin termin, int userID) throws RemoteException, SQLException, BenutzerException{
+        //ist server ein root server?
         if(this.serverDaten instanceof RootServerDaten){
+      
+        /* --- falls mehr als ein teilnehmer am termin teilnimmt, dann wird die änderung an alle root-server-nachbarn weitergesendet --- */
+        
+            if(termin.getTeilnehmerliste().size() > 1){
+                int tmpRC1 = ((RootServerDaten)this.serverDaten).primitiveDaten.requestCounter;
+                //Flooding weiterleitung
+                for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
+                    new Thread(() ->{
+                        try {
+                            connection.getServerStub().changeEditierrechteRoots(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP, tmpRC1, termin, userID);
+                        } catch (RemoteException | SQLException ex) { }
+                    }).start();
+                }     
+                ((RootServerDaten)this.serverDaten).incRequestCounter();
+            }
+            
+        /* --- ändere Daten auf DB des Servers --- */
+                       
             //trage aktuallisierte Daten ein
             ((RootServerDaten)serverDaten).datenbank.changeEditierrechte(termin.getEditierbar(), termin.getID());
             //erneure zeitstempel und editorID
             ((RootServerDaten)serverDaten).datenbank.incTimestemp(termin.getID());
             ((RootServerDaten)serverDaten).datenbank.updateEditorID(termin.getID(), userID);
           
-             //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
-                for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
-                    for(Verbindung child : this.serverDaten.childConnection){
-                        try{ 
-                            child.getServerStub().changeEditierrechteChilds(termin, ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername()), teilnehmer.getUsername());
-                        } catch (BenutzerException ex){}
-                    }
-                }    
-            
-             //teste ob weitere Benutzer am Termin teilnehmen
-            if(termin.getTeilnehmerliste().size() > 1){
-                int tmpRC1 = ((RootServerDaten)serverDaten).primitiveDaten.requestCounter;
-                //Flooding weiterleitung
-                for(Verbindung connection : ((RootServerDaten)serverDaten).connectionList){             
-                    new Thread(() ->{
-                        try {
-                            connection.getServerStub().changeEditierrechteRoots(((RootServerDaten)serverDaten).primitiveDaten.ownIP, tmpRC1, termin, userID);
-                        } catch (RemoteException | SQLException ex) { }
-                    }).start();
-                }     
-                ((RootServerDaten)serverDaten).incRequestCounter();
-            }  
-
-                      
+        /* --- ändere Daten auf den child-servern --- */
+        
+            //mit dieser Liste merkt man sich serverIDs die bereits einen änderungsaufruf bekommen
+            //so werden nicht dem selben server mehrere änderungen geschickt
+            LinkedList<String> bereitsAngesteuerteServer = new LinkedList<>();
+            //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
+            for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
+                for(Verbindung child : this.serverDaten.childConnection){
+                    try{ 
+                        String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
+                        if(!bereitsAngesteuerteServer.contains(serverID)){
+                            child.getServerStub().changeEditierrechteChilds(termin, serverID, teilnehmer.getUsername());
+                            bereitsAngesteuerteServer.add(serverID);
+                        }
+                        
+                    } catch (BenutzerException ex){}
+                }
+            }   
+                          
         }
+        //wenn nicht, leite an dessen parten weiter (bis man an root ankommt)
         else{
-            ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeEditierrechteDB(termin, userID);
+            ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeEditierrechte(termin, userID);
         }
     }
     
@@ -487,31 +504,47 @@ public class ServerStubImpl implements ServerStub {
     public void changeEditierrechteRoots(String originIP, int requestCounter, Termin termin, int userID) throws RemoteException, SQLException{
         // war die Anfrage schonmal hier
         if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
-            //suche in db nach termin
+        
+        /* --- änderung wird an alle root-server-nachbarn weitergesendet --- */
+            //Flooding weiterleitung
+            for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
+                new Thread(() ->{
+                    try {
+                        connection.getServerStub().changeEditierrechteRoots(originIP, requestCounter, termin, userID);
+                    } catch (RemoteException | SQLException ex) { }
+                }).start();
+            }     
+ 
+            //existiert termin überhaupt auf db?
             if(((RootServerDaten)this.serverDaten).datenbank.terminExists(termin.getID())){
+                           
+        /* --- ändere Daten auf DB des Servers --- */
+                       
                 //trage aktuallisierte Daten ein
                 ((RootServerDaten)serverDaten).datenbank.changeEditierrechte(termin.getEditierbar(), termin.getID());
                 //erneure zeitstempel und editorID
                 ((RootServerDaten)serverDaten).datenbank.incTimestemp(termin.getID());
                 ((RootServerDaten)serverDaten).datenbank.updateEditorID(termin.getID(), userID);
-                
-                 //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
+          
+        /* --- ändere Daten auf den child-servern --- */
+        
+                //mit dieser Liste merkt man sich serverIDs die bereits einen änderungsaufruf bekommen
+                //so werden nicht dem selben server mehrere änderungen geschickt
+                LinkedList<String> bereitsAngesteuerteServer = new LinkedList<>();
+                //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
                 for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
                     for(Verbindung child : this.serverDaten.childConnection){
                         try{ 
-                            child.getServerStub().changeEditierrechteChilds(termin, ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername()), teilnehmer.getUsername());
+                            String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
+                            if(!bereitsAngesteuerteServer.contains(serverID)){
+                                child.getServerStub().changeEditierrechteChilds(termin, serverID, teilnehmer.getUsername());
+                                bereitsAngesteuerteServer.add(serverID);
+                            }
+
                         } catch (BenutzerException ex){}
                     }
-                }    
+                } 
             }
-            //Flooding weiterleitung
-            for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
-                new Thread(() ->{
-                    try {
-                        connection.getServerStub().updateTerminRoots(originIP, requestCounter, termin, userID);
-                    } catch (RemoteException | SQLException ex) { }
-                }).start();
-            }  
         }
     }
     
@@ -558,8 +591,27 @@ public class ServerStubImpl implements ServerStub {
      * @throws BenutzerException 
      */
     @Override
-    public void changeTerminDB(Termin termin, int userID) throws RemoteException, SQLException, BenutzerException{
+    public void changeTermin(Termin termin, int userID) throws RemoteException, SQLException, BenutzerException{
+        //ist server ein root server?
         if(this.serverDaten instanceof RootServerDaten){
+      
+        /* --- falls mehr als ein teilnehmer am termin teilnimmt, dann wird die änderung an alle root-server-nachbarn weitergesendet --- */
+        
+            if(termin.getTeilnehmerliste().size() > 1){
+                //Flooding weiterleitung
+                int tmpRC1 = ((RootServerDaten)serverDaten).primitiveDaten.requestCounter;
+                for(Verbindung connection : ((RootServerDaten)serverDaten).connectionList){             
+                    new Thread(() ->{
+                        try {
+                            connection.getServerStub().changeTerminRoots(((RootServerDaten)serverDaten).primitiveDaten.ownIP, tmpRC1, termin, userID);
+                        } catch (RemoteException | SQLException ex) { }
+                    }).start();
+                }     
+                ((RootServerDaten)serverDaten).incRequestCounter();
+            }  
+            
+        /* --- ändere Daten auf DB des Servers --- */
+                       
             //trage aktuallisierte Daten ein
             ((RootServerDaten)serverDaten).datenbank.changeTerminbeginn(termin.getID(), termin.getBeginn());
             ((RootServerDaten)serverDaten).datenbank.changeTerminende(termin.getID(), termin.getEnde());
@@ -570,33 +622,30 @@ public class ServerStubImpl implements ServerStub {
             //erneure zeitstempel und editorID
             ((RootServerDaten)serverDaten).datenbank.incTimestemp(termin.getID());
             ((RootServerDaten)serverDaten).datenbank.updateEditorID(termin.getID(), userID);
-
-             //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
+          
+        /* --- ändere Daten auf den child-servern --- */
+        
+            //mit dieser Liste merkt man sich serverIDs die bereits einen änderungsaufruf bekommen
+            //so werden nicht dem selben server mehrere änderungen geschickt
+            LinkedList<String> bereitsAngesteuerteServer = new LinkedList<>();
+            //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
             for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
                 for(Verbindung child : this.serverDaten.childConnection){
-                    try {
-                        child.getServerStub().updateTerminChilds(termin, ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername()), teilnehmer.getUsername());
+                    try{ 
+                        String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
+                        if(!bereitsAngesteuerteServer.contains(serverID)){
+                            child.getServerStub().changeTerminChilds(termin, ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername()), teilnehmer.getUsername());
+                            bereitsAngesteuerteServer.add(serverID);
+                        }
+                        
                     } catch (BenutzerException ex){}
                 }
-            } 
-                
-            //teste ob weitere Benutzer am Termin teilnehmen
-            if(termin.getTeilnehmerliste().size() > 1){
-                //Flooding weiterleitung
-                int tmpRC1 = ((RootServerDaten)serverDaten).primitiveDaten.requestCounter;
-                for(Verbindung connection : ((RootServerDaten)serverDaten).connectionList){             
-                    new Thread(() ->{
-                        try {
-                            connection.getServerStub().updateTerminRoots(((RootServerDaten)serverDaten).primitiveDaten.ownIP, tmpRC1, termin, userID);
-                        } catch (RemoteException | SQLException ex) { }
-                    }).start();
-                }     
-                ((RootServerDaten)serverDaten).incRequestCounter();
-            }        
-                      
+            }   
+                          
         }
+        //wenn nicht, leite an dessen parten weiter (bis man an root ankommt)
         else{
-            ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeTerminDB(termin, userID);
+            ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeEditierrechte(termin, userID);
         }
     }
     
@@ -611,11 +660,25 @@ public class ServerStubImpl implements ServerStub {
      * @throws SQLException
      */
     @Override
-    public void updateTerminRoots(String originIP, int requestCounter, Termin termin, int userID) throws RemoteException, SQLException{
+    public void changeTerminRoots(String originIP, int requestCounter, Termin termin, int userID) throws RemoteException, SQLException{
         // war die Anfrage schonmal hier
         if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
-            //suche in db nach termin
+        
+        /* --- änderung wird an alle root-server-nachbarn weitergesendet --- */
+            //Flooding weiterleitung
+            for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
+                new Thread(() ->{
+                    try {
+                        connection.getServerStub().changeTerminRoots(originIP, requestCounter, termin, userID);
+                    } catch (RemoteException | SQLException ex) { }
+                }).start();
+            }     
+ 
+            //existiert termin überhaupt auf db?
             if(((RootServerDaten)this.serverDaten).datenbank.terminExists(termin.getID())){
+        
+        /* --- ändere Daten auf DB des Servers --- */
+                       
                 //trage aktuallisierte Daten ein
                 ((RootServerDaten)serverDaten).datenbank.changeTerminbeginn(termin.getID(), termin.getBeginn());
                 ((RootServerDaten)serverDaten).datenbank.changeTerminende(termin.getID(), termin.getEnde());
@@ -626,25 +689,27 @@ public class ServerStubImpl implements ServerStub {
                 //erneure zeitstempel und editorID
                 ((RootServerDaten)serverDaten).datenbank.incTimestemp(termin.getID());
                 ((RootServerDaten)serverDaten).datenbank.updateEditorID(termin.getID(), userID);
-                
+          
+        /* --- ändere Daten auf den child-servern --- */
+        
+                //mit dieser Liste merkt man sich serverIDs die bereits einen änderungsaufruf bekommen
+                //so werden nicht dem selben server mehrere änderungen geschickt
+                LinkedList<String> bereitsAngesteuerteServer = new LinkedList<>();
                 //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
                 for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
                     for(Verbindung child : this.serverDaten.childConnection){
-                        try {
-                            child.getServerStub().updateTerminChilds(termin, ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername()), teilnehmer.getUsername());
+                        try{ 
+                            String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
+                            if(!bereitsAngesteuerteServer.contains(serverID)){
+                                child.getServerStub().changeTerminChilds(termin, ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername()), teilnehmer.getUsername());
+                                bereitsAngesteuerteServer.add(serverID);
+                            }
+
                         } catch (BenutzerException ex){}
                     }
                 } 
             }
-            //Flooding weiterleitung
-            for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
-                new Thread(() ->{
-                    try {
-                        connection.getServerStub().updateTerminRoots(originIP, requestCounter, termin, userID);
-                    } catch (RemoteException | SQLException ex) { }
-                }).start();
-            }  
-        }
+        }                
     }
     
     /**
@@ -657,7 +722,7 @@ public class ServerStubImpl implements ServerStub {
      * @throws SQLException
      */
     @Override
-    public void updateTerminChilds(Termin termin, String serverID, String username) throws RemoteException, SQLException{
+    public void changeTerminChilds(Termin termin, String serverID, String username) throws RemoteException, SQLException{
         //ist man schon am richtigen server? (serverID gleich)
         if(serverID.equals(((RootServerDaten)serverDaten).primitiveDaten.serverID)){
             for(Sitzung sitzung : ((ChildServerDaten)serverDaten).aktiveSitzungen){
@@ -676,7 +741,7 @@ public class ServerStubImpl implements ServerStub {
         //ist man auf dem richtigen weg? (serverID ersten x ziffern gleich)
         else if(serverID.startsWith(((RootServerDaten)serverDaten).primitiveDaten.serverID)){          
             for(Verbindung child : this.serverDaten.childConnection){
-                child.getServerStub().updateTerminChilds(termin, serverID, username);
+                child.getServerStub().changeTerminChilds(termin, serverID, username);
             }           
         }
     }
