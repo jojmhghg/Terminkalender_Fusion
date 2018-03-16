@@ -909,53 +909,70 @@ public class ServerStubImpl implements ServerStub {
      * @throws BenutzerException 
      */
     @Override
-    public void addTerminTeilnehmerDB(Termin termin, String username, String einlader) throws RemoteException, SQLException, BenutzerException{
+    public void addTeilnehmer(Termin termin, String username, String einlader) throws RemoteException, SQLException, BenutzerException{
+        //ist server ein root server?
         if(this.serverDaten instanceof RootServerDaten){
-            //1. teste ob user hier oder auf anderem root existiert
-            if(!findServerForUser(username).equals("false")){              
-                //suche in db nach termin           
-                if(((RootServerDaten)serverDaten).datenbank.terminExists(termin.getID())){
-                    //Füge dem Termin den neuen Teilnehmer in der DB hinzu
-                    ((RootServerDaten)serverDaten).datenbank.addTeilnehmer(termin.getID(), username);
-
-                    String text = einlader + " lädt sie zu einem Termin am ";
-                    Anfrage anfrage = new Anfrage(text, termin, einlader, ((RootServerDaten)this.serverDaten).datenbank.getMeldungsCounter());
-
-                    if(((RootServerDaten)serverDaten).datenbank.userExists(username)){ 
-                        //Füge der DB die Anfrage hinzu
-                        ((RootServerDaten)serverDaten).datenbank.addAnfrage(username, termin.getID(), einlader, text);                   
-                    }
-
-                    //jedem Teilnehmer des Termins wird der neue Teilnehmer dem Termin hinzugefügt
-                    for(Teilnehmer teilnehmer : anfrage.getTermin().getTeilnehmerliste()){
-                        for(Verbindung child : this.serverDaten.childConnection){
-                            try{   
-                                child.getServerStub().addTeilnehmerChilds(anfrage.getTermin().getID(), teilnehmer.getUsername(), username, ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername()));
-                            } catch (BenutzerException ex){}
-                        }
-                    }  
-                    //Füge dem neuen Teilnehmer
-                    for(Verbindung child : this.serverDaten.childConnection){
-                        try{
-                            child.getServerStub().addTermin(anfrage, ((RootServerDaten)this.serverDaten).getServerIdByUsername(username), username);
-                        } catch (BenutzerException ex){}
-                    } 
-
-                     //Flooding weiterleitung
-                    int tmpRQ1 = ((RootServerDaten)serverDaten).primitiveDaten.requestCounter;
-                    for(Verbindung connection : ((RootServerDaten)serverDaten).connectionList){             
-                        new Thread(() ->{
-                            try { 
-                                connection.getServerStub().addTeilnehmerRoots(((RootServerDaten)serverDaten).primitiveDaten.ownIP, tmpRQ1, termin.getID(), username, anfrage);
-                            } catch (RemoteException | SQLException ex) { }
-                        }).start();
-                    }  
-                    ((RootServerDaten)serverDaten).incRequestCounter();                  
+      
+        /* --- falls mehr als ein teilnehmer am termin teilnimmt, dann wird die änderung an alle root-server-nachbarn weitergesendet --- */
+        
+            if(termin.getTeilnehmerliste().size() > 1){
+                int tmpRC1 = ((RootServerDaten)this.serverDaten).primitiveDaten.requestCounter;
+                //Flooding weiterleitung
+                for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
+                    new Thread(() ->{
+                        try {
+                            connection.getServerStub().addTeilnehmerRoots(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP, tmpRC1, termin, username, einlader);
+                        } catch (RemoteException | SQLException ex) { }
+                    }).start();
+                }     
+                ((RootServerDaten)this.serverDaten).incRequestCounter();
+            }
+            
+        /* --- ändere Daten auf DB des Servers --- */
+                       
+            //Füge dem Termin den neuen Teilnehmer in der DB hinzu
+            ((RootServerDaten)serverDaten).datenbank.addTeilnehmer(termin.getID(), username);
+            
+            
+        /* --- Falls der eingeladene User zu dieser DB gehört, füge der DB & dem Server, 
+                    an dem er eingeloggt ist, eine Anfrage und den Termin dem User hinzu --- */
+        
+            if(((RootServerDaten)serverDaten).datenbank.userExists(username)){ 
+                String text = einlader + " lädt sie zu einem Termin am ";
+                Anfrage anfrage = new Anfrage(text, termin, einlader, ((RootServerDaten)this.serverDaten).datenbank.getMeldungsCounter());
+                
+                //Füge der DB die Anfrage hinzu
+                ((RootServerDaten)serverDaten).datenbank.addAnfrage(username, termin.getID(), einlader, text); 
+                
+                //Füge dem neuen Teilnehmer den Termin hinzu (auf dem Server)
+                for(Verbindung child : this.serverDaten.childConnection){
+                    try{
+                        child.getServerStub().addTermin(anfrage, ((RootServerDaten)this.serverDaten).getServerIdByUsername(username), username);
+                    } catch (BenutzerException ex){}
+                } 
+            }
+          
+        /* --- ändere Daten auf den child-servern --- */
+        
+            //mit dieser Liste merkt man sich serverIDs die bereits einen änderungsaufruf bekommen
+            //so werden nicht dem selben server mehrere änderungen geschickt
+            LinkedList<String> bereitsAngesteuerteServer = new LinkedList<>();
+            //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
+            for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
+                for(Verbindung child : this.serverDaten.childConnection){
+                    try{ 
+                        String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
+                        if(!bereitsAngesteuerteServer.contains(serverID)){
+                            child.getServerStub().addTeilnehmerChilds(termin.getID(), teilnehmer.getUsername(), username, serverID); 
+                            bereitsAngesteuerteServer.add(serverID);
+                        }              
+                    } catch (BenutzerException ex){}
                 }
-            }                        
+            }                            
         }
+        //wenn nicht, leite an dessen parten weiter (bis man an root ankommt)
         else{
-            ((ChildServerDaten)this.serverDaten).parent.getServerStub().addTerminTeilnehmerDB(termin, username, einlader);
+            ((ChildServerDaten)this.serverDaten).parent.getServerStub().addTeilnehmer(termin, username, einlader);
         }
     }
     
@@ -964,47 +981,72 @@ public class ServerStubImpl implements ServerStub {
      * 
      * @param originIP Ip-Adresse des Initialen senders
      * @param requestCounter counter der die Anfrage eindeitig identifitiert
-     * @param terminID id des termins
+     * @param termin
      * @param username username des hinzuzufügenden teilnehmers
-     * @param anfrage
+     * @param einlader
      * @throws RemoteException
      * @throws SQLException 
      */
     @Override
-    public void addTeilnehmerRoots(String originIP, int requestCounter, int terminID, String username, Anfrage anfrage) throws RemoteException, SQLException{
+    public void addTeilnehmerRoots(String originIP, int requestCounter, Termin termin, String username, String einlader) throws RemoteException, SQLException{
         // war die Anfrage schonmal hier
         if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
-            //suche in db nach termin
-            if(((RootServerDaten)this.serverDaten).datenbank.terminExists(terminID)){
-                ((RootServerDaten)this.serverDaten).datenbank.addTeilnehmer(terminID, username);
-                if(((RootServerDaten)serverDaten).datenbank.userExists(username)){ 
-                    //Füge der DB die Anfrage hinzu
-                    ((RootServerDaten)serverDaten).datenbank.addAnfrage(username, anfrage.getTermin().getID(), anfrage.getAbsender(), anfrage.getText());                   
-                }
+        
+        /* --- änderung wird an alle root-server-nachbarn weitergesendet --- */
+        
+            //Flooding weiterleitung
+            for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
+                new Thread(() ->{
+                    try {
+                        connection.getServerStub().addTeilnehmerRoots(originIP, requestCounter, termin, username, einlader);                        
+                    } catch (RemoteException | SQLException ex) { }
+                }).start();
+            }     
+ 
+            //existiert termin überhaupt auf db?
+            if(((RootServerDaten)this.serverDaten).datenbank.terminExists(termin.getID())){
+                           
+        /* --- ändere Daten auf DB des Servers --- */
+                       
+            //Füge dem Termin den neuen Teilnehmer in der DB hinzu
+            ((RootServerDaten)serverDaten).datenbank.addTeilnehmer(termin.getID(), username);
+            
+        /* --- Falls der eingeladene User zu dieser DB gehört, füge der DB & dem Server, 
+                an dem er eingeloggt ist, eine Anfrage und den Termin dem User hinzu --- */
+        
+            if(((RootServerDaten)serverDaten).datenbank.userExists(username)){ 
+                String text = einlader + " lädt sie zu einem Termin am ";
+                Anfrage anfrage = new Anfrage(text, termin, einlader, ((RootServerDaten)this.serverDaten).datenbank.getMeldungsCounter());
                 
-                //jedem Teilnehmer des Termins wird der neue Teilnehmer dem Termin hinzugefügt
-                for(Teilnehmer teilnehmer : anfrage.getTermin().getTeilnehmerliste()){
-                    for(Verbindung child : this.serverDaten.childConnection){
-                        try{   
-                            child.getServerStub().addTeilnehmerChilds(anfrage.getTermin().getID(), teilnehmer.getUsername(), username, ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername()));
-                        } catch (BenutzerException ex){}
-                    }
-                }  
-                //Füge dem neuen Teilnehmer
+                //Füge der DB die Anfrage hinzu
+                ((RootServerDaten)serverDaten).datenbank.addAnfrage(username, termin.getID(), einlader, text); 
+                
+                //Füge dem neuen Teilnehmer den Termin hinzu (auf dem Server)
                 for(Verbindung child : this.serverDaten.childConnection){
                     try{
                         child.getServerStub().addTermin(anfrage, ((RootServerDaten)this.serverDaten).getServerIdByUsername(username), username);
                     } catch (BenutzerException ex){}
                 } 
             }
-            //Flooding weiterleitung
-            for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
-                new Thread(() ->{
-                    try {
-                        connection.getServerStub().addTeilnehmerRoots(originIP, requestCounter, terminID, username, anfrage);
-                    } catch (RemoteException | SQLException ex) { }
-                }).start();
+          
+        /* --- ändere Daten auf den child-servern --- */
+        
+            //mit dieser Liste merkt man sich serverIDs die bereits einen änderungsaufruf bekommen
+            //so werden nicht dem selben server mehrere änderungen geschickt
+            LinkedList<String> bereitsAngesteuerteServer = new LinkedList<>();
+            //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
+            for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
+                for(Verbindung child : this.serverDaten.childConnection){
+                    try{ 
+                        String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
+                        if(!bereitsAngesteuerteServer.contains(serverID)){
+                            child.getServerStub().addTeilnehmerChilds(termin.getID(), teilnehmer.getUsername(), username, serverID); 
+                            bereitsAngesteuerteServer.add(serverID);
+                        }              
+                    } catch (BenutzerException ex){}
+                }
             }  
+            }
         }
     }
     
@@ -1025,7 +1067,6 @@ public class ServerStubImpl implements ServerStub {
             for(Sitzung sitzung : ((ChildServerDaten)serverDaten).aktiveSitzungen){
                 if(sitzung.getEingeloggterBenutzer().getUsername().equals(username)){
                     try {
-                        //ändere Termin bei user (testet ob user editierrechte hat)
                         sitzung.getEingeloggterBenutzer().getTerminkalender().getTerminByID(terminID).addTeilnehmer(kontakt);                        
                     } catch (TerminException ex) {
                         Logger.getLogger(ServerStubImpl.class.getName()).log(Level.SEVERE, null, ex);
@@ -1116,9 +1157,8 @@ public class ServerStubImpl implements ServerStub {
         
             Meldung meldung;
             int meldungsID;
-            //mit dieser Liste merkt man sich serverIDs die bereits einen änderungsaufruf bekommen
-            //so werden nicht dem selben server mehrere änderungen geschickt
-            LinkedList<String> bereitsAngesteuerteServer = new LinkedList<>();
+            //BEACHTE: hier wird der änderung auch mehrfach an einen server geschickt, da jeder teilnehmer eine meldung bekommen muss
+            
             //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
             for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
                 //gehört teilnehmer zu diesem server?
@@ -1129,11 +1169,7 @@ public class ServerStubImpl implements ServerStub {
                     for(Verbindung child : this.serverDaten.childConnection){
                         try{ 
                             String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
-                            if(!bereitsAngesteuerteServer.contains(serverID)){
-                                child.getServerStub().teilnehmerNimmtTeilChilds(termin.getID(), teilnehmer.getUsername(), username, ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername()), meldung);
-                                bereitsAngesteuerteServer.add(serverID);
-                            }
-
+                            child.getServerStub().teilnehmerNimmtTeilChilds(termin.getID(), teilnehmer.getUsername(), username, serverID, meldung);
                         } catch (BenutzerException ex){}
                     }
                 }                   
@@ -1153,61 +1189,58 @@ public class ServerStubImpl implements ServerStub {
      * @param termin termin
      * @param username identifiziert den user
      * @param status bestimmt ob user teilnimmt (true) oder nicht (false)
-     * @param meldungstext text der meldung
+     * @param text text der meldung
      * @throws RemoteException
      * @throws SQLException 
      */
     @Override
-    public void teilnehmerNimmtTeilRoots(String originIP, int requestCounter, Termin termin, String username, boolean status, String meldungstext) throws RemoteException, SQLException{
+    public void teilnehmerNimmtTeilRoots(String originIP, int requestCounter, Termin termin, String username, boolean status, String text) throws RemoteException, SQLException{
         // war die Anfrage schonmal hier
         if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
-            //suche in db nach termin
-            if(((RootServerDaten)this.serverDaten).datenbank.terminExists(termin.getID())){   
-                //aktualisiere Terminkalender in DB (nimmtTeil = 1 bzw lösche Eintrag von username)
-                if(status){
-                    ((RootServerDaten)this.serverDaten).datenbank.nimmtTeil(termin.getID(), username);
-                }
-                else{
-                    ((RootServerDaten)this.serverDaten).datenbank.removeTeilnehmer(username, termin.getID());
-                }
-                
-                //für jeden teilnehmer des termins
-                for (Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
-                    //ist teilnehmer auf db?
-                    if(((RootServerDaten)this.serverDaten).datenbank.userExists(teilnehmer.getUsername())){
-                        //generiere dem Teilnehmer eine meldung
-                        int meldungsID = ((RootServerDaten)this.serverDaten).datenbank.addMeldung(teilnehmer.getUsername(), meldungstext, false);
-                        //suche auf server nach dem termin
-                        for(Sitzung sitzung : ((RootServerDaten)this.serverDaten).aktiveSitzungen){ 
-                            if(sitzung.getEingeloggterBenutzer().getUsername().equals(teilnehmer.getUsername())){
-                                try {
-                                    //test ob eingeloggter user zu termin eingeladen ist oder daran teilnimmt
-                                    Termin terminAufServer = sitzung.getEingeloggterBenutzer().getTerminkalender().getTerminByID(termin.getID());
-
-                                    //füge den anderen teilnehmern die eingeloggt sind die meldung hinzu
-                                    sitzung.getEingeloggterBenutzer().addMeldung(new Meldung(meldungstext, meldungsID));
-                                    if(status){
-                                        //füge den anderen teilnehmern die info, dass ... an dem termin teilnimmt hinzu
-                                        terminAufServer.changeTeilnehmerNimmtTeil(username);
-                                    }
-                                    else{
-                                        //entferne teilnehmer von server
-                                        terminAufServer.removeTeilnehmer(username);
-                                    }                                  
-                                } catch (TerminException ex) { }  
-                            }  
-                        }
-                    }
-                }
-            }            
+            
+            /* --- falls mehr als ein teilnehmer am termin teilnimmt, dann wird die änderung an alle root-server-nachbarn weitergesendet --- */
+            
             //Flooding weiterleitung
             for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
                 new Thread(() ->{
                     try {
-                        connection.getServerStub().teilnehmerNimmtTeilRoots(originIP, requestCounter, termin, username, status, meldungstext);
+                        connection.getServerStub().teilnehmerNimmtTeilRoots(originIP, requestCounter, termin, username, status, text);
                     } catch (RemoteException | SQLException ex) { }
                 }).start();
-            }            
+            }     
+            
+            //existiert termin überhaupt auf db?
+            if(((RootServerDaten)this.serverDaten).datenbank.terminExists(termin.getID())){
+            
+            /* --- ändere Daten auf DB des Servers --- */
+                       
+                //Setze den teilnehmer für den termin auf nimmt teil
+                ((RootServerDaten)serverDaten).datenbank.nimmtTeil(termin.getID(), username);
+                //Anfrage aus DB löschen
+                ((RootServerDaten)serverDaten).datenbank.removeAnfrageForUserByTerminID(termin.getID(), username);
+          
+            /* --- ändere Daten auf den child-servern --- */
+        
+                Meldung meldung;
+                int meldungsID;
+                //BEACHTE: hier wird der änderung auch mehrfach an einen server geschickt, da jeder teilnehmer eine meldung bekommen muss
+                
+                //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
+                for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
+                    //gehört teilnehmer zu diesem server?
+                    if(((RootServerDaten)this.serverDaten).datenbank.userExists(teilnehmer.getUsername())){
+                        meldungsID = ((RootServerDaten)this.serverDaten).datenbank.addMeldung(teilnehmer.getUsername(), text, false);
+                        meldung = new Meldung(text, meldungsID);
+
+                        for(Verbindung child : this.serverDaten.childConnection){
+                            try{ 
+                                String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
+                                child.getServerStub().teilnehmerNimmtTeilChilds(termin.getID(), teilnehmer.getUsername(), username, serverID, meldung);
+                            } catch (BenutzerException ex){}
+                        }
+                    }                   
+                } 
+            }
         }
     }
    
@@ -1228,11 +1261,11 @@ public class ServerStubImpl implements ServerStub {
         if(serverID.equals(((ChildServerDaten)this.serverDaten).primitiveDaten.serverID)){
             for(Sitzung sitzung : ((ChildServerDaten)this.serverDaten).aktiveSitzungen){
                 if(sitzung.getEingeloggterBenutzer().getUsername().equals(username)){
-                    try {
-                        //setzt teilnehmer nimmt teil
-                        sitzung.getEingeloggterBenutzer().getTerminkalender().getTerminByID(terminID).changeTeilnehmerNimmtTeil(teilnehmer);
+                    try {                        
                         //fügt meldung hinzu
                         sitzung.getEingeloggterBenutzer().addMeldung(meldung);
+                        //setzt teilnehmer nimmt teil
+                        sitzung.getEingeloggterBenutzer().getTerminkalender().getTerminByID(terminID).changeTeilnehmerNimmtTeil(teilnehmer);
                     } catch (TerminException ex) {
                         Logger.getLogger(ServerStubImpl.class.getName()).log(Level.SEVERE, null, ex);
                     }     

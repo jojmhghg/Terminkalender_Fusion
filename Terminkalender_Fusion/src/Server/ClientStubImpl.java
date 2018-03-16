@@ -377,7 +377,7 @@ public class ClientStubImpl implements ClientStub{
     public void addTerminteilnehmer(int terminID, String username, int sitzungsID) throws BenutzerException, TerminException, SQLException, RemoteException{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);   
         
-        ((ChildServerDaten)this.serverDaten).parent.getServerStub().addTerminTeilnehmerDB(eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID), username, eingeloggterBenutzer.getUsername());  
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().addTeilnehmer(eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID), username, eingeloggterBenutzer.getUsername());  
     }
     
     /**

@@ -62,19 +62,19 @@ public void removeUserFromRootList(String username) throws RemoteException, Benu
     public void changeTerminRoots(String originIP, int requestCounter, Termin termin, int userID) throws RemoteException, SQLException;
     public void changeTerminChilds(Termin termin, String serverID, String username) throws RemoteException, SQLException;
 
-public void addTerminTeilnehmerDB(Termin termin, String username, String einlader) throws RemoteException, SQLException, BenutzerException;
-public void addTeilnehmerChilds(int terminID, String username, String kontakt, String serverID) throws RemoteException, SQLException;
-public void addTeilnehmerRoots(String originIP, int requestCounter, int terminID, String username, Anfrage anfrage) throws RemoteException, SQLException;    
-public void addTermin(Anfrage anfrage, String serverID, String username) throws RemoteException, SQLException;
+    public void addTeilnehmer(Termin termin, String username, String einlader) throws RemoteException, SQLException, BenutzerException;
+    public void addTeilnehmerRoots(String originIP, int requestCounter, Termin termin, String username, String einlader) throws RemoteException, SQLException;    
+    public void addTeilnehmerChilds(int terminID, String username, String kontakt, String serverID) throws RemoteException, SQLException;
+    public void addTermin(Anfrage anfrage, String serverID, String username) throws RemoteException, SQLException;
 
 public void deleteTerminNichtOwner(Termin termin, String username, String text) throws RemoteException, SQLException, BenutzerException;  
 public void deleteTerminAlsOwner(Termin termin, String username, String text) throws RemoteException, SQLException;
 public void removeTeilnehmer(int terminID, String username, String teilnehmer, String serverID, Meldung meldung) throws RemoteException, SQLException;
 public void removeTermin(int terminID, String username, String serverID, Meldung meldung) throws RemoteException, SQLException;
 
-        public void teilnehmerNimmtTeil(Termin termin, String username, String text) throws RemoteException, SQLException; 
-        public void teilnehmerNimmtTeilRoots(String originIP, int requestCounter, Termin termin, String username, boolean status, String meldungstext) throws RemoteException, SQLException; 
-        public void teilnehmerNimmtTeilChilds(int terminID, String username, String teilnehmer, String serverID, Meldung meldung) throws RemoteException, SQLException;
+    public void teilnehmerNimmtTeil(Termin termin, String username, String text) throws RemoteException, SQLException; 
+    public void teilnehmerNimmtTeilRoots(String originIP, int requestCounter, Termin termin, String username, boolean status, String meldungstext) throws RemoteException, SQLException; 
+    public void teilnehmerNimmtTeilChilds(int terminID, String username, String teilnehmer, String serverID, Meldung meldung) throws RemoteException, SQLException;
 
 
 
