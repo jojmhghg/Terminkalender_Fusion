@@ -72,8 +72,9 @@ public void deleteTerminAlsOwner(Termin termin, String username, String text) th
 public void removeTeilnehmer(int terminID, String username, String teilnehmer, String serverID, Meldung meldung) throws RemoteException, SQLException;
 public void removeTermin(int terminID, String username, String serverID, Meldung meldung) throws RemoteException, SQLException;
 
-public void teilnehmerNimmtTeil(Termin termin, String username, String text) throws RemoteException, SQLException; 
-public void setNimmtTeil(int terminID, String username, String teilnehmer, String serverID, Meldung meldung) throws RemoteException, SQLException;
+        public void teilnehmerNimmtTeil(Termin termin, String username, String text) throws RemoteException, SQLException; 
+        public void teilnehmerNimmtTeilRoots(String originIP, int requestCounter, Termin termin, String username, boolean status, String meldungstext) throws RemoteException, SQLException; 
+        public void teilnehmerNimmtTeilChilds(int terminID, String username, String teilnehmer, String serverID, Meldung meldung) throws RemoteException, SQLException;
 
 
 
@@ -86,6 +87,5 @@ public LinkedList<String> findUserProfilP2P(String originIP, int requestCounter,
 public void addTerminP2P(String originIP, int requestCounter, int userID, Anfrage anfrage, String sendername) throws RemoteException, SQLException;
 public void deleteTerminP2P(String originIP, int requestCounter, Termin termin, String meldungsText) throws RemoteException, SQLException;
 public void removeTeilnehmerFromTerminP2P(String originIP, int requestCounter, Termin termin, String username, int userID) throws RemoteException, SQLException;
-public void teilnehmerChangeStatusP2P(String originIP, int requestCounter, Termin termin, String username, boolean status, String meldungstext) throws RemoteException, SQLException; 
 
 }
