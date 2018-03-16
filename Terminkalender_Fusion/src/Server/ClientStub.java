@@ -51,14 +51,6 @@ public interface ClientStub extends Remote{
     public void removeTermin(int terminID, int sitzungsID) throws RemoteException, BenutzerException, TerminException, SQLException;
 
     public void changeEditierrechte(Termin termin, int sitzungsID) throws TerminException, BenutzerException, RemoteException, SQLException;        
-    /*
-    public void changeTerminort(int terminID, String neuerOrt, int sitzungsID) throws BenutzerException, RemoteException, TerminException, SQLException;
-    public void changeTermintitel(int terminID, String neuerTitel, int sitzungsID) throws BenutzerException, RemoteException, TerminException, SQLException;
-    public void changeTerminnotiz(int terminID, String neueNotiz, int sitzungsID) throws BenutzerException, RemoteException, TerminException, SQLException;
-    public void changeTerminende(int terminID, Zeit neuesEnde, int sitzungsID) throws BenutzerException, TerminException, RemoteException, SQLException;
-    public void changeTerminbeginn(int terminID, Zeit neuerBeginn, int sitzungsID) throws BenutzerException, TerminException, RemoteException, SQLException;  
-    public void changeTermindatum(int terminID, Datum neuesDatum, int sitzungsID) throws BenutzerException, RemoteException, TerminException, SQLException;
-    */
     public void changeTermin(Termin termin, int sitzungsID) throws BenutzerException, RemoteException, TerminException, SQLException;
 
     public void addTerminteilnehmer(int terminID, String username, int sitzungsID) throws RemoteException, BenutzerException, TerminException, SQLException;
