@@ -165,6 +165,7 @@ public class DBHandler {
                 stateAnfragen.execute("CREATE TABLE counters(reihe integer,"
                         + "userCounter integer,"
                         + "terminCounter integer,"
+                        + "requestCounter integer,"
                         + "meldungsCounter integer,"
                         + "serverID integer,"
                         + "primary key(reihe))");
@@ -211,6 +212,31 @@ public class DBHandler {
         prepIncUserCounter.execute(); 
 
         return userID;       
+    }
+    
+    /**
+     * gibt den meldungsCounter zurück
+     * 
+     * @return
+     * @throws SQLException 
+     */
+    public int getRequestCounter() throws SQLException{
+        Statement state = con.createStatement();
+        ResultSet res = state.executeQuery("Select * FROM counters " +
+                "Where reihe = 1");
+        res.next();
+        
+        return res.getInt("requestCounter");      
+    }
+    
+    /**
+     * inkrementiert den request counter in der db
+     * 
+     * @throws SQLException 
+     */
+    public void incRequestCounter() throws SQLException{
+        PreparedStatement prepIncCounter = con.prepareStatement("UPDATE counters SET requestCounter = requestCounter + 1 WHERE reihe = 1");
+        prepIncCounter.execute();
     }
     
     /**

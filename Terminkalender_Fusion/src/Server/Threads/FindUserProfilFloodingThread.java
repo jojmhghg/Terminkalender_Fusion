@@ -34,7 +34,7 @@ public class FindUserProfilFloodingThread extends Thread{
     @Override
     public void run() {
         try {
-            this.resultList.add(connection.getServerStub().findUserProfil(originIP, requestCounter, userID));           
+            this.resultList.add(connection.getServerStub().findUserProfilRoots(originIP, requestCounter, userID));           
         } catch (RemoteException | SQLException ex) {
             Logger.getLogger(FindUserProfilFloodingThread.class.getName()).log(Level.SEVERE, null, ex);
         }

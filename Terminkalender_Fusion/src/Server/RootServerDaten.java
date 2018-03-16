@@ -56,8 +56,6 @@ public class RootServerDaten extends ServerDaten {
          userAnServerListe = new LinkedList<>();
 
         startDB();           
-        int requestCounter = this.datenbank.getRequestCounter();
-        this.primitiveDaten.setRequestCounter(requestCounter);
     }
     
     private void startDB() throws ClassNotFoundException, SQLException, NoSuchAlgorithmException{

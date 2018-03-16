@@ -34,7 +34,7 @@ public class FindIdForUserFloodingThread extends Thread{
     @Override
     public void run() {
         try {
-            this.resultList.add(connection.getServerStub().findIdForUser(originIP, requestCounter, username));           
+            this.resultList.add(connection.getServerStub().findIdForUserRoots(originIP, requestCounter, username));           
         } catch (RemoteException | SQLException ex) {
             Logger.getLogger(FindIdForUserFloodingThread.class.getName()).log(Level.SEVERE, null, ex);
         }
