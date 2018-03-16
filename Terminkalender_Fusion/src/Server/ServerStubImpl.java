@@ -52,10 +52,10 @@ public class ServerStubImpl implements ServerStub {
     @Override
     public void setID(String newID) throws RemoteException{
         System.out.println("Neue ServerID zugewiesen: " + newID);
-        ((RootServerDaten) this.serverDaten).primitiveDaten.serverID = newID;
+        this.serverDaten.primitiveDaten.serverID = newID;
         int counter = 0;
         for(Verbindung child : this.serverDaten.childConnection){
-            child.getServerStub().setID(((RootServerDaten) this.serverDaten).primitiveDaten.serverID + counter);
+            child.getServerStub().setID(this.serverDaten.primitiveDaten.serverID + counter);
             counter++;
         }
     }
@@ -72,9 +72,9 @@ public class ServerStubImpl implements ServerStub {
      * @throws AccessException
      */
     @Override
-    public String initConnection(String childIP) throws RemoteException {
+    public String initConnectionToChild(String childIP) throws RemoteException {
         try {
-            String childID = ((RootServerDaten) this.serverDaten).primitiveDaten.getNewChildId();
+            String childID = this.serverDaten.primitiveDaten.getNewChildId();
             
             //baut Verbindung zu Server auf
             Registry registry = LocateRegistry.getRegistry(childIP, 1100);
@@ -93,9 +93,39 @@ public class ServerStubImpl implements ServerStub {
         } catch (NotBoundException | IOException e) {
             System.out.println("LOG * ---> Verbindung zu KindServer Fehler!");
             return null;
+        }      
+    }
+    
+    /**
+     * gibt Server die IP-Adresse und den Port eines Servers mit dem er sich verbinden soll
+     * dient der Erzeugung einer beidseitigen Verbindung / ungerichteten Verbindung
+     * 
+     * @param ip
+     * @return 
+     * @throws RemoteException
+     * @throws AccessException 
+     */
+    @Override
+    public boolean initConnectionP2P(String ip) throws RemoteException{           
+        try {    
+            //baut Verbindung zu Server auf
+            Registry registry = LocateRegistry.getRegistry(ip, 1100);
+            ServerStub stub = (ServerStub) registry.lookup("ServerStub");
+            
+            //fügt Verbindung zur Liste der Verbindungen hinzu
+            Verbindung verbindung = new Verbindung(stub, ip, "0");
+            ((RootServerDaten)this.serverDaten).connectionList.add(verbindung);
+            
+            //Starte Threads, die die Verbindung zu anderen Servern testen
+            new VerbindungstestsThread(this.serverDaten, verbindung).start();
+            
+            //Ausgabe im Terminal            
+            System.out.println("Dauerhafte Verbindung zu Server " + ip + " hergestellt!");       
+            
+            return true;
+        } catch (NotBoundException | IOException e) {
+            return false;
         }
-        
-       
     }
 
     /**
@@ -114,9 +144,17 @@ public class ServerStubImpl implements ServerStub {
                 result = true;
             }
         }
-        if (((ChildServerDaten)this.serverDaten).parent != null
-                && ((ChildServerDaten)this.serverDaten).parent.getIP().equals(senderIP)) {
-            result = true;
+        
+        if(this.serverDaten instanceof RootServerDaten){
+            for(Verbindung verbindung : ((RootServerDaten)this.serverDaten).connectionList){
+                if(verbindung.getIP().equals(senderIP)){
+                    result = true;
+                }
+            }
+        }
+        else{
+            result = ((ChildServerDaten)this.serverDaten).parent.getIP().equals(senderIP);
+
         }
 
         return result;
@@ -130,7 +168,7 @@ public class ServerStubImpl implements ServerStub {
      */
     @Override
      public String getServerID() throws RemoteException{
-        return ((RootServerDaten) this.serverDaten).primitiveDaten.serverID;         
+        return this.serverDaten.primitiveDaten.serverID;         
     }
      
      /**
@@ -141,17 +179,22 @@ public class ServerStubImpl implements ServerStub {
       */
     @Override
     public int getAnzahlUser() throws RemoteException{
-        return ((ChildServerDaten) this.serverDaten).aktiveSitzungen.size();
+        if(this.serverDaten instanceof ChildServerDaten){
+            return ((ChildServerDaten) this.serverDaten).aktiveSitzungen.size();
+        }
+        else{
+            return -1;
+        }
     }      
     
     /**
-     * suche server mit wenigstern usern und gib ip dessen zurück
+     * suche server mit wenigsten usern und gib ip dessen zurück
      * 
      * @return minServerIP
      * @throws RemoteException 
      */
     @Override
-    public ServerIdUndAnzahlUser findServerForUser() throws RemoteException{
+    public ServerIdUndAnzahlUser findServerWithLeastUsers() throws RemoteException{
         int tmp;
         int min = ((ChildServerDaten) this.serverDaten).aktiveSitzungen.size();
         String minServerIP = ((RootServerDaten) this.serverDaten).primitiveDaten.ownIP ;
@@ -160,7 +203,7 @@ public class ServerStubImpl implements ServerStub {
         //suche server mit wenigstern usern und gib ip dessen zurück
         for(Verbindung child : this.serverDaten.childConnection){
             tmp = child.getServerStub().getAnzahlUser();
-            if(tmp < min){
+            if(tmp < min && tmp > 0){
                 min = tmp;
                 minServerIP = child.getIP();
                 serverID = child.getID();
@@ -168,6 +211,76 @@ public class ServerStubImpl implements ServerStub {
         }
         
         return new ServerIdUndAnzahlUser(min, serverID, minServerIP);
+    }
+    
+    /**
+     * sucht den server mit der db eines bestimmten users und gibt ip des servers zurueck
+     * 
+     * @param username Username der gesucht wird
+     * @param originIP Ip-Adresse des Initialen senders
+     * @param requestCounter counter der die Anfrage eindeitig identifitiert
+     * @return 
+     * @throws RemoteException 
+     * @throws java.sql.SQLException 
+     */
+    @Override
+    public String findServerWithDbForUser(String originIP, int requestCounter, String username) throws RemoteException, SQLException{
+        // war die Anfrage schonmal hier
+        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
+            //suche in db nach username, falls vorhanden, suche dort nach server mit wenigsten usern
+            if(((RootServerDaten)this.serverDaten).datenbank.userExists(username)){
+                ServerIdUndAnzahlUser tmp;
+                ServerIdUndAnzahlUser min = this.serverDaten.childConnection.getFirst().getServerStub().findServerWithLeastUsers();  
+
+                //teste ob user schon irgendwo eingeloggt
+                for(UserAnServer uas : ((RootServerDaten)this.serverDaten).userAnServerListe){
+                    if(uas.username.equals(username)){
+                        //wenn ja, gibt ip dieses servers zurück
+                        return uas.serverIP;
+                    }
+                }
+
+                //suche server mit wenigstern usern und gib ip dessen zurück
+                for(Verbindung child : this.serverDaten.childConnection){
+                    if(!this.serverDaten.childConnection.getFirst().equals(child)){
+                        tmp = child.getServerStub().findServerWithLeastUsers();
+                        if(tmp.anzahlUser < min.anzahlUser){
+                            min = tmp;
+                        }
+                    }           
+                }
+
+                ((RootServerDaten)this.serverDaten).userAnServerListe.add(new UserAnServer(min.serverID, username, min.serverIP));
+                return min.serverIP;
+            }
+            //wenn user nicht vorhanden--> Flooding weiterleitung
+            else{
+                LinkedList<String> resultList = new LinkedList<>();
+                int anzahlThreads = 0;
+                for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){    
+                    new FindUserDataFlooding(resultList, originIP, requestCounter,username,connection).start();
+                    anzahlThreads++;
+                }
+                while(resultList.size() < anzahlThreads){
+                    for(String result : resultList){
+                        if(!result.isEmpty()){
+                            return result;
+                        }
+                    }
+                    try {
+                        Thread.sleep(30);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(ServerStubImpl.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                for(String result : resultList){
+                    if(result != null && !result.equals("false")){
+                        return result;                   
+                    }              
+                }  
+            }
+        }
+        return "false";
     }
     
     /**
@@ -181,11 +294,88 @@ public class ServerStubImpl implements ServerStub {
     @Override
     public int findIdForUser(String username) throws RemoteException, SQLException{
         if(this.serverDaten instanceof RootServerDaten){
-            return ((RootServerDaten) this.serverDaten).datenbank.getUserID(username);
+            if(((RootServerDaten) this.serverDaten).datenbank.userExists(username)){
+                return ((RootServerDaten) this.serverDaten).datenbank.getUserID(username);
+            }
+            else{
+                int tmpRC1 = ((RootServerDaten)this.serverDaten).primitiveDaten.requestCounter;
+                ((RootServerDaten)this.serverDaten).incRequestCounter();
+                LinkedList<Integer> resultList = new LinkedList<>();
+                int anzahlThreads = 0;
+                for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
+                    new FindIdForUserFloodingThread(resultList, this.serverDaten.primitiveDaten.ownIP, tmpRC1, username, connection).start();
+                    anzahlThreads++;
+                }
+                while(resultList.size() < anzahlThreads){
+                    for(int result : resultList){
+                        if(result >= 0){
+                            return result;
+                        }
+                    }
+                    try {
+                        Thread.sleep(30);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(ServerStubImpl.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                for(int result : resultList){
+                    if(result != -1){
+                        return result;                   
+                    }              
+                } 
+                return -1;
+            }
         }
         else{
             return ((ChildServerDaten)this.serverDaten).parent.getServerStub().findIdForUser(username);
         }
+    }
+    
+    /**
+     * sucht den server mit der db eines bestimmten users und gibt die id des users zurück
+     * 
+     * @param username Username der gesucht wird
+     * @param originIP Ip-Adresse des Initialen senders
+     * @param requestCounter counter der die Anfrage eindeitig identifitiert
+     * @return 
+     * @throws RemoteException 
+     * @throws java.sql.SQLException 
+     */
+    @Override
+    public int findIdForUserRoots(String originIP,int requestCounter, String username) throws RemoteException, SQLException{       
+        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
+            //suche in db nach username
+            if(((RootServerDaten)this.serverDaten).datenbank.userExists(username)){
+                return ((RootServerDaten)this.serverDaten).datenbank.getUserID(username);
+            }
+            //wenn user nicht vorhanden--> Flooding weiterleitung
+            else{
+                LinkedList<Integer> resultList = new LinkedList<>();
+                int anzahlThreads = 0;
+                for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
+                    new FindIdForUserFloodingThread(resultList, originIP, requestCounter,username,connection).start();
+                    anzahlThreads++;
+                }
+                while(resultList.size() < anzahlThreads){
+                    for(int result : resultList){
+                        if(result >= 0){
+                            return result;
+                        }
+                    }
+                    try {
+                        Thread.sleep(30);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(ServerStubImpl.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                for(int result : resultList){
+                    if(result != -1){
+                        return result;                   
+                    }              
+                }  
+            }
+        }
+        return -1;
     }
     
     /**
@@ -199,12 +389,89 @@ public class ServerStubImpl implements ServerStub {
     @Override
     public LinkedList<String> findUserProfil(int userID) throws RemoteException, SQLException{
         if(this.serverDaten instanceof RootServerDaten){
-        //if(this.serverDaten.primitiveDaten.serverID.equals("0")){
-            return ((RootServerDaten)this.serverDaten).datenbank.getProfil(userID);
+            if(((RootServerDaten)this.serverDaten).datenbank.userExists(userID)){
+                return ((RootServerDaten)this.serverDaten).datenbank.getProfil(userID);
+            }
+            else{
+                int tmpRC1 = ((RootServerDaten)this.serverDaten).primitiveDaten.requestCounter;
+                ((RootServerDaten)this.serverDaten).incRequestCounter();
+                LinkedList<LinkedList<String>> resultList = new LinkedList<>();
+                int anzahlThreads = 0;
+                for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
+                    new FindUserProfilFloodingThread(resultList, this.serverDaten.primitiveDaten.ownIP, tmpRC1, userID, connection).start();
+                    anzahlThreads++;
+                }
+                while(resultList.size() < anzahlThreads){
+                    for(LinkedList<String> result : resultList){
+                        if(result.size() > 0){
+                            return result;
+                        }
+                    }
+                    try {
+                        Thread.sleep(30);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(ServerStubImpl.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                for(LinkedList<String> result : resultList){
+                    if(result.size() > 0){
+                        return result;                   
+                    }              
+                } 
+                return new LinkedList<>();
+            }
         }
         else{
             return ((ChildServerDaten)this.serverDaten).parent.getServerStub().findUserProfil(userID);
         }
+    }
+    
+    /**
+     * sucht den server mit der db eines bestimmten users und gibt dessen Profil zurück
+     * 
+     * @param userID id des gesuchten users
+     * @param originIP Ip-Adresse des Initialen senders
+     * @param requestCounter counter der die Anfrage eindeitig identifitiert
+     * @return userattribute als liste zurück
+     * @throws RemoteException 
+     * @throws java.sql.SQLException 
+     */
+    @Override
+    public LinkedList<String> findUserProfilRoots(String originIP, int requestCounter, int userID) throws RemoteException, SQLException{
+        // war die Anfrage schonmal hier
+        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
+            //suche in db nach username
+            if(((RootServerDaten)this.serverDaten).datenbank.userExists(userID)){
+                return ((RootServerDaten)this.serverDaten).datenbank.getProfil(userID);
+            }
+            //wenn user nicht vorhanden--> Flooding weiterleitung
+            else{
+                LinkedList<LinkedList<String>> resultList = new LinkedList<>();
+                int anzahlThreads = 0;
+                for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
+                    new FindUserProfilFloodingThread(resultList, originIP, requestCounter,userID,connection).start();
+                    anzahlThreads++;
+                }
+                while(resultList.size() < anzahlThreads){
+                    for(LinkedList<String> result : resultList){
+                        if(result.size() > 0){
+                            return result;
+                        }
+                    }
+                    try {
+                        Thread.sleep(30);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(ServerStubImpl.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                for(LinkedList<String> result : resultList){
+                    if(result.size() > 0){
+                        return result;                   
+                    }              
+                } 
+            }
+        }
+        return new LinkedList<>();
     }
     
     /**
@@ -757,39 +1024,56 @@ public class ServerStubImpl implements ServerStub {
      * @throws BenutzerException 
      */
     @Override
-    public void deleteTerminNichtOwner(Termin termin, String username, String text) throws RemoteException, SQLException, BenutzerException{
-        Meldung meldung;
-        int meldungsID;
+    public void deleteTerminAlsNichtOwner(Termin termin, String username, String text) throws RemoteException, SQLException, BenutzerException{
+        //ist server ein root server?
+        if(this.serverDaten instanceof RootServerDaten){
+      
+        /* --- falls mehr als ein teilnehmer am termin teilnimmt, dann wird die änderung an alle root-server-nachbarn weitergesendet --- */
+                   
+            int tmpRC1 = ((RootServerDaten)this.serverDaten).primitiveDaten.requestCounter;
+            //Flooding weiterleitung
+            for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
+                new Thread(() ->{
+                    try {
+                        connection.getServerStub().deleteTerminAlsNichtOwnerRoots(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP, tmpRC1, termin, username, text);
+                    } catch (RemoteException | SQLException ex) { }
+                }).start();
+            }     
+            ((RootServerDaten)this.serverDaten).incRequestCounter();
+            
+            
+        /* --- ändere Daten auf DB des Servers --- */
+                       
+            //Entferne Teilnehmer von dem Termin aus DB
+            ((RootServerDaten)serverDaten).datenbank.removeTeilnehmer(username, termin.getID());
+          
+        /* --- ändere Daten auf den child-servern --- */
         
-        if(this.serverDaten instanceof RootServerDaten){                      
-            //suche in db nach termin           
-            if(((RootServerDaten)serverDaten).datenbank.terminExists(termin.getID())){               
-                //Entferne Teilnehmer von dem Termin aus DB
-                ((RootServerDaten)serverDaten).datenbank.removeTeilnehmer(username, termin.getID());
-                
-                //jedem Teilnehmer des Termins wird der Teilnehmer aus dem Termin entfernt
-                //und jeder bekommt eine Meldung dazu
-                //die Meldung wird auch in der DB gespeichert
-                for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
+            Meldung meldung;
+            int meldungsID;       
+            //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
+            for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
+                for(Verbindung child : this.serverDaten.childConnection){
                     meldungsID = ((RootServerDaten)this.serverDaten).datenbank.addMeldung(teilnehmer.getUsername(), text, false);
                     meldung = new Meldung(text, meldungsID);
-                    
-                    for(Verbindung child : this.serverDaten.childConnection){
-                        try{
-                            child.getServerStub().removeTeilnehmer(termin.getID(), teilnehmer.getUsername(), username, ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername()), meldung);
-                        } catch (BenutzerException ex){}
-                    }
-                }                    
-            }                     
+                    try{ 
+                        String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
+                        child.getServerStub().removeTeilnehmerChilds(termin.getID(), teilnehmer.getUsername(), username, serverID, meldung);                                                    
+                    } catch (BenutzerException ex){}
+                }
+            }   
+                          
         }
+        //wenn nicht, leite an dessen parten weiter (bis man an root ankommt)
         else{
-            ((ChildServerDaten)this.serverDaten).parent.getServerStub().deleteTerminNichtOwner(termin, username, text);
-        }
+            ((ChildServerDaten)this.serverDaten).parent.getServerStub().deleteTerminAlsNichtOwner(termin, username, text);
+        }       
     }
     
     /**
-     * entfernt den termin als Owner aus der Datenbank
      * 
+     * @param originIP
+     * @param requestCounter
      * @param termin
      * @param username
      * @param text
@@ -797,36 +1081,45 @@ public class ServerStubImpl implements ServerStub {
      * @throws SQLException 
      */
     @Override
-    public void deleteTerminAlsOwner(Termin termin, String username, String text) throws RemoteException, SQLException{
-        Meldung meldung;
-        int meldungsID;
+    public void deleteTerminAlsNichtOwnerRoots(String originIP, int requestCounter, Termin termin, String username, String text) throws RemoteException, SQLException{
+        // war die Anfrage schonmal hier
+        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
         
-        if(this.serverDaten instanceof RootServerDaten){ 
-            //suche in db nach termin           
-            if(((RootServerDaten)serverDaten).datenbank.terminExists(termin.getID())){  
+        /* --- änderung wird an alle root-server-nachbarn weitergesendet --- */
+            //Flooding weiterleitung
+            for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
+                new Thread(() ->{
+                    try {
+                        connection.getServerStub().deleteTerminAlsNichtOwnerRoots(originIP, requestCounter, termin, username, text);
+                    } catch (RemoteException | SQLException ex) { }
+                }).start();
+            }      
+ 
+            //existiert termin überhaupt auf db?
+            if(((RootServerDaten)this.serverDaten).datenbank.terminExists(termin.getID())){
+                           
+        /* --- ändere Daten auf DB des Servers --- */
+                       
                 //Entferne Teilnehmer von dem Termin aus DB
-                ((RootServerDaten)serverDaten).datenbank.deleteTermin(termin.getID());
-                //Entferne alle Anfragen zu dem Termin
-                ((RootServerDaten)serverDaten).datenbank.deleteAnfrageByTerminID(termin.getID());
-                
-                //jedem Teilnehmer des Termins wird der Termin entfernt
-                //und jeder bekommt eine Meldung dazu
-                //die Meldung wird auch in der DB gespeichert
+                ((RootServerDaten)serverDaten).datenbank.removeTeilnehmer(username, termin.getID());
+          
+        /* --- ändere Daten auf den child-servern --- */
+        
+                Meldung meldung;
+                int meldungsID;       
+                //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
                 for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
-                    meldungsID = ((RootServerDaten)serverDaten).datenbank.addMeldung(teilnehmer.getUsername(), text, false);
-                    meldung = new Meldung(text, meldungsID);
-                    
                     for(Verbindung child : this.serverDaten.childConnection){
-                        try{
-                            child.getServerStub().removeTermin(termin.getID(), teilnehmer.getUsername(), ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername()), meldung);
+                        meldungsID = ((RootServerDaten)this.serverDaten).datenbank.addMeldung(teilnehmer.getUsername(), text, false);
+                        meldung = new Meldung(text, meldungsID);
+                        try{ 
+                            String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
+                            child.getServerStub().removeTeilnehmerChilds(termin.getID(), teilnehmer.getUsername(), username, serverID, meldung);                                                    
                         } catch (BenutzerException ex){}
                     }
-                }                    
-            }                     
-        }
-        else{
-            ((ChildServerDaten)this.serverDaten).parent.getServerStub().deleteTerminAlsOwner(termin, username, text);
-        }
+                } 
+            }
+        }        
     }
     
     /**
@@ -841,7 +1134,7 @@ public class ServerStubImpl implements ServerStub {
      * @throws SQLException 
      */
     @Override
-    public void removeTeilnehmer(int terminID, String username, String teilnehmer, String serverID, Meldung meldung) throws RemoteException, SQLException{
+    public void removeTeilnehmerChilds(int terminID, String username, String teilnehmer, String serverID, Meldung meldung) throws RemoteException, SQLException{
         //ist man schon am richtigen server? (serverID gleich)
         if(serverID.equals(((RootServerDaten)serverDaten).primitiveDaten.serverID)){            
             for(Sitzung sitzung : ((ChildServerDaten)serverDaten).aktiveSitzungen){
@@ -858,9 +1151,121 @@ public class ServerStubImpl implements ServerStub {
         //ist man auf dem richtigen weg? (serverID ersten x ziffern gleich)
         else if(serverID.startsWith(((RootServerDaten)serverDaten).primitiveDaten.serverID)){          
             for(Verbindung child : this.serverDaten.childConnection){
-                child.getServerStub().removeTeilnehmer(terminID, username, teilnehmer, serverID, meldung);
+                child.getServerStub().removeTeilnehmerChilds(terminID, username, teilnehmer, serverID, meldung);
             }           
         }
+    }
+    
+    /**
+     * entfernt den termin als Owner aus der Datenbank
+     * 
+     * @param termin
+     * @param username
+     * @param text
+     * @throws RemoteException
+     * @throws SQLException 
+     */
+    @Override
+    public void deleteTerminAlsOwner(Termin termin, String username, String text) throws RemoteException, SQLException{
+        //ist server ein root server?
+        if(this.serverDaten instanceof RootServerDaten){
+      
+        /* --- falls mehr als ein teilnehmer am termin teilnimmt, dann wird die änderung an alle root-server-nachbarn weitergesendet --- */
+                   
+            int tmpRC1 = ((RootServerDaten)this.serverDaten).primitiveDaten.requestCounter;
+            //Flooding weiterleitung
+            for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
+                new Thread(() ->{
+                    try {
+                        connection.getServerStub().deleteTerminAlsOwnerRoots(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP, tmpRC1, termin, username, text);
+                    } catch (RemoteException | SQLException ex) { }
+                }).start();
+            }     
+            ((RootServerDaten)this.serverDaten).incRequestCounter();
+            
+            
+        /* --- ändere Daten auf DB des Servers --- */
+                       
+            //Entferne Teilnehmer von dem Termin aus DB
+            ((RootServerDaten)serverDaten).datenbank.deleteTermin(termin.getID());
+            //Entferne alle Anfragen zu dem Termin
+            ((RootServerDaten)serverDaten).datenbank.deleteAnfrageByTerminID(termin.getID());
+          
+        /* --- ändere Daten auf den child-servern --- */
+        
+            Meldung meldung;
+            int meldungsID;       
+            //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
+            for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
+                for(Verbindung child : this.serverDaten.childConnection){
+                    meldungsID = ((RootServerDaten)this.serverDaten).datenbank.addMeldung(teilnehmer.getUsername(), text, false);
+                    meldung = new Meldung(text, meldungsID);
+                    try{ 
+                        String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
+                        child.getServerStub().removeTermin(termin.getID(), teilnehmer.getUsername(), serverID, meldung);                                                   
+                    } catch (BenutzerException ex){}
+                }
+            }   
+                          
+        }
+        //wenn nicht, leite an dessen parten weiter (bis man an root ankommt)
+        else{
+            ((ChildServerDaten)this.serverDaten).parent.getServerStub().deleteTerminAlsOwner(termin, username, text);
+        }       
+    }
+     
+    /**
+     * 
+     * @param originIP
+     * @param requestCounter
+     * @param termin
+     * @param username
+     * @param text
+     * @throws RemoteException
+     * @throws SQLException 
+     */
+    @Override
+    public void deleteTerminAlsOwnerRoots(String originIP, int requestCounter, Termin termin, String username, String text) throws RemoteException, SQLException{
+        // war die Anfrage schonmal hier
+        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
+        
+        /* --- änderung wird an alle root-server-nachbarn weitergesendet --- */
+            //Flooding weiterleitung
+            for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
+                new Thread(() ->{
+                    try {
+                        connection.getServerStub().deleteTerminAlsOwnerRoots(originIP, requestCounter, termin, username, text);
+                    } catch (RemoteException | SQLException ex) { }
+                }).start();
+            }    
+ 
+            //existiert termin überhaupt auf db?
+            if(((RootServerDaten)this.serverDaten).datenbank.terminExists(termin.getID())){
+                           
+        /* --- ändere Daten auf DB des Servers --- */
+                       
+                //Entferne Teilnehmer von dem Termin aus DB
+                ((RootServerDaten)serverDaten).datenbank.deleteTermin(termin.getID());
+                //Entferne alle Anfragen zu dem Termin
+                ((RootServerDaten)serverDaten).datenbank.deleteAnfrageByTerminID(termin.getID());
+          
+        /* --- ändere Daten auf den child-servern --- */
+        
+                Meldung meldung;
+                int meldungsID;       
+                //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
+                for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
+                    for(Verbindung child : this.serverDaten.childConnection){
+                        meldungsID = ((RootServerDaten)this.serverDaten).datenbank.addMeldung(teilnehmer.getUsername(), text, false);
+                        meldung = new Meldung(text, meldungsID);
+                        try{ 
+                            String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
+                            child.getServerStub().removeTermin(termin.getID(), teilnehmer.getUsername(), serverID, meldung);                                                   
+                        } catch (BenutzerException ex){}
+                    }
+                }   
+            }
+        }   
     }
     
     /**
@@ -1278,348 +1683,7 @@ public class ServerStubImpl implements ServerStub {
                 child.getServerStub().teilnehmerNimmtTeilChilds(terminID, username, teilnehmer, serverID, meldung);
             }           
         }
-    }
-    
-    /**
-     * gibt Server die IP-Adresse und den Port eines Servers mit dem er sich verbinden soll
-     * dient der Erzeugung einer beidseitigen Verbindung / ungerichteten Verbindung
-     * 
-     * @param ip
-     * @return 
-     * @throws RemoteException
-     * @throws AccessException 
-     */
-    @Override
-    public boolean initConnectionP2P(String ip) throws RemoteException{           
-        try {    
-            //baut Verbindung zu Server auf
-            Registry registry = LocateRegistry.getRegistry(ip, 1100);
-            ServerStub stub = (ServerStub) registry.lookup("ServerStub");
-            
-            //fügt Verbindung zur Liste der Verbindungen hinzu
-            Verbindung verbindung = new Verbindung(stub, ip, "0");
-            ((RootServerDaten)this.serverDaten).connectionList.add(verbindung);
-            
-            //Starte Threads, die die Verbindung zu anderen Servern testen
-            new VerbindungstestsThread(this.serverDaten, verbindung).start();
-            
-            //Ausgabe im Terminal            
-            System.out.println("Dauerhafte Verbindung zu Server " + ip + " hergestellt!");       
-            
-            return true;
-        } catch (NotBoundException | IOException e) {
-            return false;
-        }
-    }
-
-
-    /**
-     * Methode um zu testen, ob noch eine Verbindung zum Server besteht
-     * 
-     * @param senderIP
-     * @return 
-     * @throws RemoteException 
-     */
-    @Override
-    public boolean pingP2P(String senderIP) throws RemoteException {
-        for(Verbindung verbindung : ((RootServerDaten)this.serverDaten).connectionList){
-            if(verbindung.getIP().equals(senderIP)){
-                return true;
-            }
-        }
-        return false;
-    }   
-      
-    /**
-     * sucht den server mit der db eines bestimmten users und gibt ip des servers zurueck
-     * 
-     * @param username Username der gesucht wird
-     * @param originIP Ip-Adresse des Initialen senders
-     * @param requestCounter counter der die Anfrage eindeitig identifitiert
-     * @return 
-     * @throws RemoteException 
-     * @throws java.sql.SQLException 
-     */
-    @Override
-    public String findServerForUserP2P(String originIP, int requestCounter, String username) throws RemoteException, SQLException{
-        // war die Anfrage schonmal hier
-        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
-            //suche in db nach username
-            if(((RootServerDaten)this.serverDaten).datenbank.userExists(username)){
-                return ((RootServerDaten)this.serverDaten).primitiveDaten.ownIP;
-            }
-            //wenn user nicht vorhanden--> Flooding weiterleitung
-            else{
-                LinkedList<String> resultList = new LinkedList<>();
-                int anzahlThreads = 0;
-                for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){    
-                    new FindUserDataFlooding(resultList, originIP, requestCounter,username,connection).start();
-                    anzahlThreads++;
-                }
-                while(resultList.size() < anzahlThreads){
-                    for(String result : resultList){
-                        if(!result.isEmpty()){
-                            return result;
-                        }
-                    }
-                    try {
-                        Thread.sleep(30);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(ServerStubImpl.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                for(String result : resultList){
-                    if(result != null && !result.equals("false")){
-                        return result;                   
-                    }              
-                }  
-            }
-        }
-        return "false";
-    }
-    
-    /**
-     * sucht den server mit der db eines bestimmten users und gibt die id des users zurück
-     * 
-     * @param username Username der gesucht wird
-     * @param originIP Ip-Adresse des Initialen senders
-     * @param requestCounter counter der die Anfrage eindeitig identifitiert
-     * @return 
-     * @throws RemoteException 
-     * @throws java.sql.SQLException 
-     */
-    @Override
-    public int findIdForUserP2P(String originIP,int requestCounter, String username) throws RemoteException, SQLException{       
-        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
-            //suche in db nach username
-            if(((RootServerDaten)this.serverDaten).datenbank.userExists(username)){
-                return ((RootServerDaten)this.serverDaten).datenbank.getUserID(username);
-            }
-            //wenn user nicht vorhanden--> Flooding weiterleitung
-            else{
-                LinkedList<Integer> resultList = new LinkedList<>();
-                int anzahlThreads = 0;
-                for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
-                    new FindIdForUserFloodingThread(resultList, originIP, requestCounter,username,connection).start();
-                    anzahlThreads++;
-                }
-                while(resultList.size() < anzahlThreads){
-                    for(int result : resultList){
-                        if(result >= 0){
-                            return result;
-                        }
-                    }
-                    try {
-                        Thread.sleep(30);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(ServerStubImpl.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                for(int result : resultList){
-                    if(result != -1){
-                        return result;                   
-                    }              
-                }  
-            }
-        }
-        return -1;
-    }
-    
-    /**
-     * sucht den server mit der db eines bestimmten users und gibt dessen Profil zurück
-     * 
-     * @param userID id des gesuchten users
-     * @param originIP Ip-Adresse des Initialen senders
-     * @param requestCounter counter der die Anfrage eindeitig identifitiert
-     * @return userattribute als liste zurück
-     * @throws RemoteException 
-     * @throws java.sql.SQLException 
-     */
-    @Override
-    public LinkedList<String> findUserProfilP2P(String originIP, int requestCounter, int userID) throws RemoteException, SQLException{
-        // war die Anfrage schonmal hier
-        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
-            //suche in db nach username
-            if(((RootServerDaten)this.serverDaten).datenbank.userExists(userID)){
-                return ((RootServerDaten)this.serverDaten).datenbank.getProfil(userID);
-            }
-            //wenn user nicht vorhanden--> Flooding weiterleitung
-            else{
-                LinkedList<LinkedList<String>> resultList = new LinkedList<>();
-                int anzahlThreads = 0;
-                for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
-                    new FindUserProfilFloodingThread(resultList, originIP, requestCounter,userID,connection).start();
-                    anzahlThreads++;
-                }
-                while(resultList.size() < anzahlThreads){
-                    for(LinkedList<String> result : resultList){
-                        if(result.size() > 0){
-                            return result;
-                        }
-                    }
-                    try {
-                        Thread.sleep(30);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(ServerStubImpl.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                for(LinkedList<String> result : resultList){
-                    if(result.size() > 0){
-                        return result;                   
-                    }              
-                } 
-            }
-        }
-        return new LinkedList<>();
-    }
-      
-    /**
-     * 
-     * @param originIP
-     * @param requestCounter
-     * @param termin
-     * @param meldungsText
-     * @throws RemoteException
-     * @throws SQLException 
-     */
-    @Override
-    public void deleteTerminP2P(String originIP, int requestCounter, Termin termin, String meldungsText) throws RemoteException, SQLException{
-        // war die Anfrage schonmal hier
-       
-        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
-            //suche in db nach termin
-            if(((RootServerDaten)this.serverDaten).datenbank.terminExists(termin.getID())){
-                //lösche aus db
-                ((RootServerDaten)this.serverDaten).datenbank.deleteTermin(termin.getID());
-                //lösche von server
-                for (Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
-                    if(((RootServerDaten)this.serverDaten).datenbank.userExists(teilnehmer.getUsername())){
-                        int meldungsID = ((RootServerDaten)this.serverDaten).datenbank.addMeldung(teilnehmer.getUsername(), meldungsText, false);
-                        for(Sitzung sitzung : ((RootServerDaten)this.serverDaten).aktiveSitzungen){
-                            if(teilnehmer.getUsername().equals(sitzung.getEingeloggterBenutzer().getUsername())){
-                                try {
-                                    sitzung.getEingeloggterBenutzer().getTerminkalender().removeTerminByID(termin.getID());
-                                    sitzung.getEingeloggterBenutzer().addMeldung(new Meldung(meldungsText, meldungsID));
-                                    //und entferne falls vorhanden die Anfrage zu diesem Termin
-                                    sitzung.getEingeloggterBenutzer().deleteAnfrage(termin.getID());
-                                }catch (TerminException | BenutzerException ex) {}
-                            
-                            }
-                        }
-                    }
-                }
-            }
-            //Flooding weiterleitung
-            for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
-                new Thread(() ->{
-                    try {
-                        connection.getServerStub().deleteTerminP2P(originIP, requestCounter, termin, meldungsText);
-                    } catch (RemoteException | SQLException ex) { }
-                }).start();
-            }  
-        }
-    }
-    
-    /**
-     * 
-     * @param originIP
-     * @param requestCounter
-     * @param termin
-     * @param username
-     * @param userID
-     * @throws RemoteException
-     * @throws SQLException 
-     */
-    @Override
-    public void removeTeilnehmerFromTerminP2P(String originIP, int requestCounter, Termin termin, String username, int userID) throws RemoteException, SQLException{
-            String text = username 
-                            + " nimmt nicht mehr an dem  Termin '" 
-                            + termin.getTitel()
-                            + "' am "
-                            + termin.getDatum().toString()
-                            + " teil";
-        // war die Anfrage schonmal hier       
-        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
-            //suche in db nach termin
-            if(((RootServerDaten)this.serverDaten).datenbank.terminExists(termin.getID())){
-                //entferne teilnehmer von db
-                ((RootServerDaten)this.serverDaten).datenbank.removeTeilnehmer(username, termin.getID());
-                //entferne teilnehmer vom server
-                for (Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
-                    if(((RootServerDaten)this.serverDaten).datenbank.userExists(teilnehmer.getUsername())){
-                        int meldungsID = ((RootServerDaten)this.serverDaten).datenbank.addMeldung(teilnehmer.getUsername(), text, false);
-                        for(Sitzung sitzung : ((RootServerDaten)this.serverDaten).aktiveSitzungen){
-                            if(teilnehmer.getUsername().equals(sitzung.getEingeloggterBenutzer().getUsername())){
-                                try {
-                                    sitzung.getEingeloggterBenutzer().addMeldung(new Meldung(text, meldungsID));
-                                    sitzung.getEingeloggterBenutzer().getTerminkalender().getTerminByID(termin.getID()).removeTeilnehmer(username);                                   
-                                }catch (TerminException ex) {}                           
-                            }
-                        }
-                    }
-                }
-            }
-            //Flooding weiterleitung
-            for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
-                new Thread(() ->{
-                    try {
-                        connection.getServerStub().removeTeilnehmerFromTerminP2P(originIP, requestCounter, termin, username, userID);
-                    } catch (RemoteException | SQLException ex) { }
-                }).start();
-            }  
-        }
-    }
-    
-    
-    
-    
-    /**
-     *
-     * @param originIP Die IP-Adresse des Initiators der Flooding Anfrage
-     * @param requestCounter identifizert die request eindeutig (eines servers)
-     * @param userID  UserID des Users bei dem der Termin hinzugefügt werden soll
-     * @param anfrage Anfrage in Form einer Meldung
-     * @param sendername Name des Senders der Anfrage wenn per flooding gesendet wird
-     * @throws RemoteException
-     * @throws SQLException
-     */
-    @Override
-    public void addTerminP2P(String originIP, int requestCounter, int userID, Anfrage anfrage, String sendername) throws RemoteException, SQLException{
-        // war die Anfrage schonmal hier
-        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
-            //suche in db nach termin
-            if(((RootServerDaten)this.serverDaten).datenbank.userExists(userID)){   
-                if(!((RootServerDaten)this.serverDaten).datenbank.terminExists(anfrage.getTermin().getID())){                   
-                    //füge Termin der DB hinzu                   
-                    ((RootServerDaten)this.serverDaten).datenbank.addExistingTermin(anfrage.getTermin());
-                }
-                //füge die anfrage der db hinzu
-                int meldungsID = ((RootServerDaten)this.serverDaten).datenbank.addAnfrage(serverDaten.datenbank.getUsernameById(userID), anfrage.getTermin().getID(), sendername, anfrage.getText());
-
-                //suche auf server nach dem user
-                for(Sitzung sitzung : ((RootServerDaten)this.serverDaten).aktiveSitzungen){                   
-                    if(sitzung.getEingeloggterBenutzer().getUserID() == userID){
-                        //füge dem user den termin hinzu
-                        sitzung.getEingeloggterBenutzer().getTerminkalender().addTermin(anfrage.getTermin());
-                        //füge dem user die anfrage hinzu
-                        sitzung.getEingeloggterBenutzer().addAnfrage(new Anfrage(anfrage.text, anfrage.getTermin(), anfrage.getAbsender(), meldungsID));
-                    }     
-                }
-            } 
-            else{
-                //Flooding weiterleitung
-                for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
-                    new Thread(() ->{
-                        try {
-                            connection.getServerStub().addTerminP2P(originIP, requestCounter, userID, anfrage, sendername);
-                        } catch (RemoteException | SQLException ex) { }
-                    }).start();
-                } 
-            }
-        }
-    }
-    
-    
+    }    
     
     /**
      * testet ob Anfrage bereits behandelt wurde, wenn ja: gibt true zurück,
@@ -1648,45 +1712,4 @@ public class ServerStubImpl implements ServerStub {
         }
     }
     
-    /**
-     * suche server an dem die db des users liegt
-     * 
-     * @param username des einzuloggenden users
-     * @return true, falls client am richtigen server, false falls server nicht
-     * vorhanden, sonst die ip des servers an dem die db liegt
-     * @throws SQLException 
-     */
-    private String findServerForUser(String username) throws SQLException{
-        if(((RootServerDaten)serverDaten).datenbank.userExists(username)){
-            return "true";          
-        }
-        //wenn user nicht vorhanden--> Flooding weiterleitung
-        else{
-            LinkedList<String> resultList = new LinkedList<>();
-            int anzahlThreads = 0;
-            for(Verbindung connection : ((RootServerDaten)serverDaten).connectionList){             
-                new FindUserDataFlooding(resultList, ((RootServerDaten)serverDaten).primitiveDaten.ownIP, ((RootServerDaten)serverDaten).primitiveDaten.requestCounter, username, connection).start();
-                anzahlThreads++;
-            }
-            ((RootServerDaten)serverDaten).incRequestCounter();
-            while(resultList.size() < anzahlThreads){
-                for(String result : resultList){
-                    if(result != null && !result.equals("false")){
-                        return result;
-                    }
-                }
-                try {
-                    Thread.sleep(30);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(ServerStubImpl.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            for(String result : resultList){
-                if(result != null && !result.equals("false")){
-                    return result;                   
-                }              
-            }            
-        }
-        return "false";
-    }
 }

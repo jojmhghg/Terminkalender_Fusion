@@ -18,12 +18,16 @@ public class PrimitiveServerDaten {
     public String serverID;  
     public int childCounter;
     
-    public PrimitiveServerDaten(String ownIP, String serverID){
+    public PrimitiveServerDaten(String ownIP){
         this.requestCounter = 0;  
         this.sitzungscounter = 1;
         this.ownIP = ownIP;
-        this.serverID = serverID;
+        this.serverID = null;
         this.childCounter = 0;
+    }
+    
+    public void setServerID(String serverID){
+        this.serverID = serverID;
     }
     
     public void setRequestCounter(int requestCounter){

@@ -23,17 +23,13 @@ import java.util.logging.Logger;
  */
 public class ChildServerDaten extends ServerDaten {
     
-    public Verbindung parent;
-    
+    public Verbindung parent;   
     public final LinkedList<Sitzung> aktiveSitzungen; 
-    public PrimitiveServerDaten primitiveDaten;
-    
-    
+        
     public ChildServerDaten(String[] args) throws ClassNotFoundException, SQLException, NoSuchAlgorithmException {
         super(args);
         this.parent = null;
         this.aktiveSitzungen = new LinkedList<>();
-        primitiveDaten = new PrimitiveServerDaten(args[0], null);
     }
     
       /**
@@ -52,7 +48,7 @@ public class ChildServerDaten extends ServerDaten {
             serverStub = (ServerStub) registry.lookup("ServerStub");
 
             //lässt anderen Server Verbindung zu diesem aufbauen
-            this.primitiveDaten.serverID = serverStub.initConnection(this.primitiveDaten.ownIP);
+            this.primitiveDaten.serverID = serverStub.initConnectionToChild(this.primitiveDaten.ownIP);
             
             //fügt Verbindung zur Liste der Verbindungen hinzu
             this.parent = new Verbindung(serverStub, parentIP, serverStub.getServerID());

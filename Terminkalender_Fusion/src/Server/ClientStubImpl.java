@@ -1,6 +1,7 @@
 package Server;
 
 
+import Server.Threads.FindUserDataFlooding;
 import Server.Utilities.DatenbankException;
 import Server.Utilities.EMailService;
 import Server.Utilities.ServerIdUndAnzahlUser;
@@ -18,6 +19,8 @@ import java.rmi.RemoteException;
 import java.security.SecureRandom;
 import java.sql.SQLException;
 import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Implementierung von der Klasse ClientStub Interface
@@ -62,7 +65,7 @@ public class ClientStubImpl implements ClientStub{
     }
     
     /**
-     * suche server an dem die db des users liegt
+     * suche server mit den wenigsten usern um sich mit diesem zu verbinden
      * 
      * @param username des einzuloggenden users
      * @return true, falls client am richtigen server, false falls server nicht
@@ -73,30 +76,64 @@ public class ClientStubImpl implements ClientStub{
      */
     @Override
     public String findServerForUser(String username) throws SQLException, RemoteException, BenutzerException{
+        //teste ob man mit einem root verbunden -> sonst fehler
         if(this.serverDaten instanceof RootServerDaten){
-            ServerIdUndAnzahlUser tmp;
-            ServerIdUndAnzahlUser min = this.serverDaten.childConnection.getFirst().getServerStub().findServerForUser();  
+            
+            //suche in db nach username, falls vorhanden, suche dort nach server mit wenigsten usern
+            if(((RootServerDaten)this.serverDaten).datenbank.userExists(username)){
+                ServerIdUndAnzahlUser tmp;
+                ServerIdUndAnzahlUser min = this.serverDaten.childConnection.getFirst().getServerStub().findServerWithLeastUsers();  
 
-            //teste ob user schon irgendwo eingeloggt
-            for(UserAnServer uas : ((RootServerDaten)this.serverDaten).userAnServerListe){
-                if(uas.username.equals(username)){
-                    //wenn ja, gibt ip dieses servers zurück
-                    return uas.serverIP;
-                }
-            }
-
-            //suche server mit wenigstern usern und gib ip dessen zurück
-            for(Verbindung child : this.serverDaten.childConnection){
-                if(!this.serverDaten.childConnection.getFirst().equals(child)){
-                    tmp = child.getServerStub().findServerForUser();
-                    if(tmp.anzahlUser < min.anzahlUser){
-                        min = tmp;
+                //teste ob user schon irgendwo eingeloggt
+                for(UserAnServer uas : ((RootServerDaten)this.serverDaten).userAnServerListe){
+                    if(uas.username.equals(username)){
+                        //wenn ja, gibt ip dieses servers zurück
+                        return uas.serverIP;
                     }
-                }           
-            }
+                }
 
-            ((RootServerDaten)this.serverDaten).userAnServerListe.add(new UserAnServer(min.serverID, username, min.serverIP));
-            return min.serverIP;
+                //suche server mit wenigstern usern und gib ip dessen zurück
+                for(Verbindung child : this.serverDaten.childConnection){
+                    if(!this.serverDaten.childConnection.getFirst().equals(child)){
+                        tmp = child.getServerStub().findServerWithLeastUsers();
+                        if(tmp.anzahlUser < min.anzahlUser){
+                            min = tmp;
+                        }
+                    }           
+                }
+
+                ((RootServerDaten)this.serverDaten).userAnServerListe.add(new UserAnServer(min.serverID, username, min.serverIP));
+                return min.serverIP;
+            }
+            //sonst suche per flooding nach server mit wenigsten usern
+            else{
+                int tmpRC1 = ((RootServerDaten)this.serverDaten).primitiveDaten.requestCounter;
+                ((RootServerDaten)this.serverDaten).incRequestCounter();
+                LinkedList<String> resultList = new LinkedList<>();
+                int anzahlThreads = 0;
+                for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){    
+                    new FindUserDataFlooding(resultList, this.serverDaten.primitiveDaten.ownIP, tmpRC1, username, connection).start();
+                    anzahlThreads++;
+                }
+                while(resultList.size() < anzahlThreads){
+                    for(String result : resultList){
+                        if(!result.isEmpty()){
+                            return result;
+                        }
+                    }
+                    try {
+                        Thread.sleep(30);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(ServerStubImpl.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                for(String result : resultList){
+                    if(result != null && !result.equals("false")){
+                        return result;                   
+                    }              
+                }   
+            }
+            return "false";
         }
         else{
             throw new BenutzerException("Client nicht mit dem Root-Server verbunden!");
@@ -319,7 +356,7 @@ public class ClientStubImpl implements ClientStub{
                             + eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID).getDatum().toString()
                             + " teil";
             
-            ((ChildServerDaten)this.serverDaten).parent.getServerStub().deleteTerminNichtOwner(eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID), eingeloggterBenutzer.getUsername(), text);
+            ((ChildServerDaten)this.serverDaten).parent.getServerStub().deleteTerminAlsNichtOwner(eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID), eingeloggterBenutzer.getUsername(), text);
             eingeloggterBenutzer.deleteAnfrage(terminID);
             eingeloggterBenutzer.getTerminkalender().removeTerminByID(terminID);
         }  
@@ -428,7 +465,7 @@ public class ClientStubImpl implements ClientStub{
                         + eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID).getDatum().toString()
                         + " abgelehnt";
         
-        ((ChildServerDaten)this.serverDaten).parent.getServerStub().deleteTerminNichtOwner(eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID), eingeloggterBenutzer.getUsername(), text);
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().deleteTerminAlsNichtOwner(eingeloggterBenutzer.getTerminkalender().getTerminByID(terminID), eingeloggterBenutzer.getUsername(), text);
         eingeloggterBenutzer.deleteAnfrage(terminID);
         eingeloggterBenutzer.getTerminkalender().removeTerminByID(terminID);
     }

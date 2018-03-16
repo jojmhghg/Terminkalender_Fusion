@@ -30,20 +30,12 @@ import java.util.Map;
  */
 public class RootServerDaten extends ServerDaten {
     
-    /* ---- Allgemein: ---- */
     //Datenbank
     public final DBHandler datenbank;
-
     //Liste mit Server-Server-Verbindungen
-    public final LinkedList<Verbindung> connectionList;
-    public PrimitiveServerDaten primitiveDaten;
-       
-    /* ---- P2P: ---- */   
+    public final LinkedList<Verbindung> connectionList;           
     //Liste mit bereits behandelten Anfragen
     public Map<String, LinkedList> requestTable;
-    
-    /* ---- Hierarchisch: ---- */
-    
     //liste mit anzahl usern an childservern
     public final LinkedList<UserAnServer> userAnServerListe; 
              
@@ -66,7 +58,6 @@ public class RootServerDaten extends ServerDaten {
         startDB();           
         int requestCounter = this.datenbank.getRequestCounter();
         this.primitiveDaten.setRequestCounter(requestCounter);
-
     }
     
     private void startDB() throws ClassNotFoundException, SQLException, NoSuchAlgorithmException{
@@ -170,7 +161,7 @@ public class RootServerDaten extends ServerDaten {
                         serverStub = (ServerStub) registry.lookup("ServerStub");
 
                         //lässt anderen Server Verbindung zu diesem aufbauen
-                        serverStub.initConnection(this.primitiveDaten.ownIP);
+                        serverStub.initConnectionToChild(this.primitiveDaten.ownIP);
 
                         //fügt Verbindung zur Liste der Verbindungen hinzu
                         verbindung = new Verbindung(serverStub, tmpIP, "0");
