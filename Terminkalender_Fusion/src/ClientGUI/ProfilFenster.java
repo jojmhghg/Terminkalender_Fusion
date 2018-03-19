@@ -29,6 +29,8 @@ public class ProfilFenster extends javax.swing.JFrame {
     private Color momentanFarbe1;
     private Color momentanFarbe2;
     private Color momentanFarbe3;
+    
+    private int farbset;
 
     /**
      * Creates new form Profil
@@ -41,6 +43,7 @@ public class ProfilFenster extends javax.swing.JFrame {
         this.stub = stub;
         this.sitzungsID = sitzungsID;
         setColor();
+        farbset = -1;
     }
     
     private void setColor() throws RemoteException, BenutzerException{
@@ -546,9 +549,12 @@ public class ProfilFenster extends javax.swing.JFrame {
         altesPW = new String(altesPWField.getPassword());
         neuesPW = new String(neuesPWField.getPassword());
         
-       // Benutzer pw = new Benutzer();
+        //Benutzer pw = new Benutzer();
         //altesPW = pw.getPasswort();
         try {
+            if(farbset != -1){
+                stub.changeColor(farbset, sitzungsID);
+            }
             if (neuerNachname.length() != 0 && !neuerNachname.equals(stub.getNachname(sitzungsID))) {
                 stub.changeNachname(neuerNachname, sitzungsID);
             }
@@ -593,6 +599,8 @@ public class ProfilFenster extends javax.swing.JFrame {
         
         //Middle
         jPanel3.setBackground(momentanFarbe2);
+        
+        farbset = 2;
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -614,6 +622,8 @@ public class ProfilFenster extends javax.swing.JFrame {
         
         //Middle
         jPanel3.setBackground(momentanFarbe2);
+        
+        farbset = 3;
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
@@ -635,6 +645,8 @@ public class ProfilFenster extends javax.swing.JFrame {
         
         //Middle
         jPanel3.setBackground(momentanFarbe2);
+        
+        farbset = 0;
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -656,6 +668,8 @@ public class ProfilFenster extends javax.swing.JFrame {
         
         //Middle
         jPanel3.setBackground(momentanFarbe2);
+        
+        farbset = 1;
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
