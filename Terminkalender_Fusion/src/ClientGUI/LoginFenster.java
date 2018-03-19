@@ -39,14 +39,16 @@ public class LoginFenster extends javax.swing.JFrame {
      * Creates new form Fenster
      *
      * @param stub
+     * @throws java.rmi.RemoteException
+     * @throws Utilities.BenutzerException
      */
     public LoginFenster(ClientStub stub) throws RemoteException, BenutzerException {
         initComponents();
         this.stub = stub;
         infoBoxPanel.setVisible(false);
-        setColor();
+        //setColor();
     }
-    
+    /*
     private void setColor() throws RemoteException, BenutzerException{
         
         Color[] color = stub.getColor(sitzungsID);
@@ -78,7 +80,7 @@ public class LoginFenster extends javax.swing.JFrame {
 
         
     }
-
+*/
     private LoginFenster() {
         //initComponents();
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -469,8 +471,14 @@ public class LoginFenster extends javax.swing.JFrame {
     private void jLabel7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseClicked
         // TODO add your handling code here:
         jLabel7.setForeground(Color.WHITE);
-        RegistrierenFenster start = new RegistrierenFenster(stub);
-        start.setVisible(true);
+        RegistrierenFenster start;
+        try {
+            start = new RegistrierenFenster(stub);
+            start.setVisible(true);
+        } catch (RemoteException | BenutzerException ex) {
+            Logger.getLogger(LoginFenster.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }//GEN-LAST:event_jLabel7MouseClicked
 
     private void anmeldenLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_anmeldenLabelMouseClicked

@@ -22,7 +22,7 @@ public class PrimitiveServerDaten {
         this.requestCounter = 0;  
         this.sitzungscounter = 1;
         this.ownIP = ownIP;
-        this.serverID = null;
+        this.serverID = "0";
         this.childCounter = 0;
     }
     

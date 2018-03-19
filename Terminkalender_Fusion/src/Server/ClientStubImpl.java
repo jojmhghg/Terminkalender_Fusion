@@ -851,6 +851,9 @@ public class ClientStubImpl implements ClientStub{
      * @throws BenutzerException 
      */
     private Benutzer istEingeloggt(int sitzungsID) throws BenutzerException {
+        if(serverDaten instanceof RootServerDaten){
+            throw new BenutzerException("ungültige Sitzungs-ID");
+        }
         for(Sitzung sitzung : ((ChildServerDaten)serverDaten).aktiveSitzungen){
             if(sitzung.compareWithSitzungsID(sitzungsID)){
                 return sitzung.getEingeloggterBenutzer();
