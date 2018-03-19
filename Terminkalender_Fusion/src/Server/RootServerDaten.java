@@ -71,6 +71,7 @@ public class RootServerDaten extends ServerDaten {
             while ((line = bufferedReader.readLine()) != null) {              
                 if(line.equals(primitiveDaten.ownIP)){
                     this.datenbank.getConnection(linecounter);
+                    System.out.println("ServerID:" + linecounter);
                 }
                 linecounter++;
             }             
