@@ -6,8 +6,8 @@
  */
 package ClientGUI;
 
+import Client.GUI;
 import Server.ClientStub;
-import Server.ClientStubImpl;
 import Utilities.Anfrage;
 import Utilities.BenutzerException;
 import Utilities.Datum;
@@ -18,7 +18,14 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -42,7 +49,7 @@ import javax.swing.event.ListSelectionListener;
  */
 public class Hauptfenster extends javax.swing.JFrame implements ListSelectionListener {
 
-    private final ClientStub stub;
+    private ClientStub stub;
     private int sitzungsID;
     //private DefaultListModel listModel;
     DefaultListModel listModel = new DefaultListModel();
@@ -71,14 +78,18 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
      * @param stub
      * @param sitzungsID
      * @param fenster
+     * @throws java.rmi.RemoteException
+     * @throws Utilities.BenutzerException
      */
-    public Hauptfenster(ClientStub stub, int sitzungsID, LoginFenster fenster) {
+    public Hauptfenster(ClientStub stub, int sitzungsID, LoginFenster fenster) throws RemoteException, RemoteException, BenutzerException, BenutzerException, BenutzerException, BenutzerException {
         initComponents();
 
         this.stub = stub;
         this.sitzungsID = sitzungsID;
         this.fenster = fenster;
         this.meldungssize = 0;
+        
+        setColor();
         
         jList1.setModel(listModel);
         termineListe.setModel(termineListeModel);
@@ -98,6 +109,171 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         };
         timer = new Timer(1000, taskPerformer);
         timer.start();
+        
+    }
+    
+    private void setColor() throws RemoteException, BenutzerException{
+        
+        Color[] color = stub.getColor(sitzungsID);
+        Color color1 = color[0];
+        Color color2 = color[1];
+        Color color3 = color[2];
+        Color color4 = color[3];
+        
+        //Light
+        day1.setBackground(color1);
+        day2.setBackground(color1);
+        day3.setBackground(color1);
+        day4.setBackground(color1);
+        day5.setBackground(color1);
+        day6.setBackground(color1);
+        day7.setBackground(color1);
+        day8.setBackground(color1);
+        day9.setBackground(color1);
+        day10.setBackground(color1);
+        day11.setBackground(color1);
+        day12.setBackground(color1);
+        day13.setBackground(color1);
+        day14.setBackground(color1);
+        day15.setBackground(color1);
+        day16.setBackground(color1);
+        day17.setBackground(color1);
+        day18.setBackground(color1);
+        day19.setBackground(color1);
+        day20.setBackground(color1);
+        day21.setBackground(color1);
+        day22.setBackground(color1);
+        day23.setBackground(color1);
+        day24.setBackground(color1);
+        day25.setBackground(color1);
+        day26.setBackground(color1);
+        day27.setBackground(color1);
+        day28.setBackground(color1);
+        day29.setBackground(color1);
+        day30.setBackground(color1);
+        day31.setBackground(color1);
+        day32.setBackground(color1);
+        day33.setBackground(color1);
+        day34.setBackground(color1);
+        day35.setBackground(color1);
+        day36.setBackground(color1);
+        day37.setBackground(color1);
+        day38.setBackground(color1);
+        day39.setBackground(color1);
+        day40.setBackground(color1);
+        day41.setBackground(color1);
+        day42.setBackground(color1);
+        
+        jPanel7.setBackground(color1);
+        jPanel2.setBackground(color1);
+        jPanel1.setBackground(color1);
+        jPanel10.setBackground(color1);
+        jPanel14.setBackground(color1);
+        headerPanel.setBackground(color1);
+        jLabel16.setBackground(color1);
+        jLabel17.setBackground(color1);
+        jPanel11.setBackground(color1);
+        jPanel12.setBackground(color1);
+        jPanel13.setBackground(color1);
+        jPanel4.setBackground(color1);
+       
+        
+        //Middle
+        jPanel6.setBackground(color2);
+        contactUsernameField.setBackground(color2);
+        jList1.setBackground(color2);
+        showAddKontakt.setBackground(color2);
+        showRemoveKontakt.setBackground(color2);
+        benachList.setBackground(color2);
+        calendarPanel.setBackground(color2);
+        jPanel5.setBackground(color2);
+        
+        //Dark
+        mainPanel.setBackground(color3);
+        jPanel3.setBackground(color3);
+        montagLabel.setBackground(color3);
+        dienstagLabel.setBackground(color3);
+        mittwochLabel.setBackground(color3);
+        donnerstagLabel.setBackground(color3);
+        freitagLabel.setBackground(color3);
+        samstagLabel.setBackground(color3);
+        sonntagLabel.setBackground(color3);
+        
+        
+        //Font 
+        day1.setForeground(color4);
+        day2.setForeground(color4);
+        day3.setForeground(color4);
+        day4.setForeground(color4);
+        day5.setForeground(color4);
+        day6.setForeground(color4);
+        day7.setForeground(color4);
+        day8.setForeground(color4);
+        day9.setForeground(color4);
+        day10.setForeground(color4);
+        day11.setForeground(color4);
+        day12.setForeground(color4);
+        day13.setForeground(color4);
+        day14.setForeground(color4);
+        day15.setForeground(color4);
+        day16.setForeground(color4);
+        day17.setForeground(color4);
+        day18.setForeground(color4);
+        day19.setForeground(color4);
+        day20.setForeground(color4);
+        day21.setForeground(color4);
+        day22.setForeground(color4);
+        day23.setForeground(color4);
+        day24.setForeground(color4);
+        day25.setForeground(color4);
+        day26.setForeground(color4);
+        day27.setForeground(color4);
+        day28.setForeground(color4);
+        day29.setForeground(color4);
+        day30.setForeground(color4);
+        day31.setForeground(color4);
+        day32.setForeground(color4);
+        day33.setForeground(color4);
+        day34.setForeground(color4);
+        day35.setForeground(color4);
+        day36.setForeground(color4);
+        day37.setForeground(color4);
+        day38.setForeground(color4);
+        day39.setForeground(color4);
+        day40.setForeground(color4);
+        day41.setForeground(color4);
+        day42.setForeground(color4);
+        
+        jLabel2.setForeground(color4);
+        jLabel1.setForeground(color4);
+        jLabel8.setForeground(color4);
+        contactUsernameField.setForeground(color4);
+        showAddKontakt.setForeground(color4);
+        jList1.setForeground(color4);
+        showRemoveKontakt.setForeground(color4);
+        jLabel11.setForeground(color4);
+        benachList.setForeground(color4);
+        jLabel12.setForeground(color4);
+        eventMessage.setForeground(color4);
+        jLabel13.setForeground(color4);
+        jLabel14.setForeground(color4);
+        jLabel16.setForeground(color4);
+        dateLabel.setForeground(color4);
+        jLabel17.setForeground(color4);
+        zumProfil.setForeground(color4);
+        jLabel7.setForeground(color4);
+        termineListe.setForeground(color4);
+        jLabel14.setForeground(color4);
+        jLabel14.setForeground(color4);
+        
+        montagLabel.setForeground (color4);
+        dienstagLabel.setForeground (color4);
+        mittwochLabel.setForeground (color4);
+        donnerstagLabel.setForeground (color4);
+        freitagLabel.setForeground (color4);
+        samstagLabel.setForeground (color4);
+        sonntagLabel.setForeground (color4);
+        
         
     }
 
@@ -1635,7 +1811,16 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
     }//GEN-LAST:event_jLabel12MouseClicked
 
     private void jLabel13MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel13MouseClicked
-
+        try {
+            // TODO add your handling code here:
+            for(String kontakte : stub.getKontakte(sitzungsID)){
+                System.out.println(kontakte);
+            }
+        } catch (BenutzerException ex) {
+            Logger.getLogger(Hauptfenster.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (RemoteException ex) {
+            Logger.getLogger(Hauptfenster.class.getName()).log(Level.SEVERE, null, ex);
+        }
         refresh();
     }//GEN-LAST:event_jLabel13MouseClicked
 
@@ -1644,21 +1829,13 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
     }//GEN-LAST:event_jPanel11MouseClicked
 
     private void jLabel14MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel14MouseClicked
-        try {
-            // TODO add your handling code here:
-            ausloggen();
-        } catch (BenutzerException ex) {
-            Logger.getLogger(Hauptfenster.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        // TODO add your handling code here:
+        ausloggen();
     }//GEN-LAST:event_jLabel14MouseClicked
 
     private void jPanel12MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel12MouseClicked
-        try {
-            // TODO add your handling code here:
-            ausloggen();
-        } catch (BenutzerException ex) {
-            Logger.getLogger(Hauptfenster.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        // TODO add your handling code here:
+        ausloggen();
     }//GEN-LAST:event_jPanel12MouseClicked
 
     private void zumProfilMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_zumProfilMouseClicked
@@ -1748,22 +1925,69 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         startVersion.setVisible(true);
     }//GEN-LAST:event_jLabel1MouseClicked
 
-    public void ausloggen() throws BenutzerException {
+    public void ausloggen() {
         try {
 
             stub.ausloggen(sitzungsID);
+            verbindeMitRoot();
             //this.setVisible(false);
             this.dispose();
             this.fenster.setVisible(true);
-            
+            this.fenster.setStub(stub);
             this.timer.stop();
             /*GUI out = new GUI();
             out.startGUI();         */
         } catch (RemoteException ex) {
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Hauptfenster", JOptionPane.ERROR_MESSAGE);
+        } catch (BenutzerException ex) {
+            Logger.getLogger(Hauptfenster.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
+    private void verbindeMitRoot(){
+        Registry registry;     
+                
+        String rootIP;
+        String line;            
+        BufferedReader bufferedReader = null;
+
+        //liest IP-Adressen aller Server aus File und speichert sie in LinkedList
+        File file = new File(".\\src\\data\\serverlist.txt"); 
+        //für mac-pcs
+        if (!file.canRead() || !file.isFile()){
+            file = new File("./src/data/severlist.txt"); 
+        }
+        try { 
+            bufferedReader = new BufferedReader(new FileReader(file));  
+            if((line = bufferedReader.readLine()) != null) { 
+                rootIP = line;
+                
+                try {
+                    //baut Verbindung zu Server auf
+                    registry = LocateRegistry.getRegistry(rootIP, 1099);
+                    this.stub = (ClientStub) registry.lookup("ClientStub");
+                    System.out.println("LOG * ---> Verbindung zu Root-Server mit IP " + rootIP + " hergestellt!");
+
+                } catch (RemoteException | NotBoundException ex) {
+                    System.out.println("LOG * ---> Verbindung zu Root-Server mit IP " + rootIP + " konnte nicht hergestellt werden!");  
+                }
+            }      
+            else{
+                System.out.println("LOG * ---> Verbindung zu Root-Server konnte nicht hergestellt werden!");
+            }
+        } catch (IOException e) { 
+            e.printStackTrace(); 
+        } 
+        // zum schließen des readers
+        finally { 
+            if (bufferedReader != null) 
+                try { 
+                    bufferedReader.close(); 
+                } catch (IOException e) { 
+            } 
+        }  
+    }
+    
     /**
      * Fuele Kontaktliste auf
      */
@@ -1841,6 +2065,8 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(Hauptfenster.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 

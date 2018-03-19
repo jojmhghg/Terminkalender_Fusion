@@ -50,7 +50,9 @@ public class TerminBearbeitenFenster extends javax.swing.JFrame {
         this.stub = stub;
         this.sitzungsID = sitzungsID;
         this.termin = stub.getTermin(terminID, sitzungsID);
-             
+          
+        setColor();
+        
         tag1.setSelectedItem(Integer.toString(termin.getDatum().getTag()));
         monat1.setSelectedItem(Integer.toString(termin.getDatum().getMonat()));
         jahr1.setSelectedItem(Integer.toString(termin.getDatum().getJahr()));
@@ -81,6 +83,56 @@ public class TerminBearbeitenFenster extends javax.swing.JFrame {
             everyoneCanEditLabel.setVisible(false);
             jPanel7.setVisible(false);
         }
+    }
+    
+    private void setColor() throws RemoteException, BenutzerException{
+        
+        Color[] color = stub.getColor(sitzungsID);
+        Color color1 = color[0];
+        Color color2 = color[1];
+        Color color3 = color[2];
+        Color color4 = color[3];
+        
+        //Light
+        jPanel2.setBackground(color1);
+        jPanel3.setBackground(color1);
+        jPanel4.setBackground(color1);
+        jPanel6.setBackground(color1);
+        jPanel5.setBackground(color1);
+        jPanel7.setBackground(color1);
+        
+        
+        //Middle
+        jPanel1.setBackground(color2);
+        notiz.setBackground(color2);
+        teilnehmerliste.setBackground(color2);
+        
+        
+        //Font 
+        titel.setForeground(color4);
+        dateLabel.setForeground(color4);
+        startLabel.setForeground(color4);
+        endLabel.setForeground(color4);
+        ortLabel.setForeground(color4);
+        ownerLabel.setForeground(color4);
+        jLabel6.setForeground(color4);
+        notiz.setForeground(color4);
+        everyoneCanEditLabel.setForeground(color4);
+        bearbeitenLabel.setForeground(color4);
+        jLabel8.setForeground(color4);
+        tag1.setForeground(color4);
+        monat1.setForeground(color4);
+        jahr1.setForeground(color4);
+        stunde1.setForeground(color4);
+        stunde2.setForeground(color4);
+        minute1.setForeground(color4);
+        minute2.setForeground(color4);
+        jLabel4.setForeground(color4);
+        teilnehmerliste.setForeground(color4);
+        ortTextField.setForeground(color4);
+        ownerValueLabel.setForeground(color4);
+           
+        
     }
 
     /**
@@ -257,10 +309,10 @@ public class TerminBearbeitenFenster extends javax.swing.JFrame {
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(bearbeitenLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(25, 25, 25))
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(bearbeitenLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

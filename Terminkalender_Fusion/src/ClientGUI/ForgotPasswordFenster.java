@@ -7,6 +7,7 @@ package ClientGUI;
 
 import Server.ClientStub;
 import Utilities.BenutzerException;
+import java.awt.Color;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
@@ -29,6 +30,33 @@ public class ForgotPasswordFenster extends javax.swing.JFrame {
         initComponents();
         this.stub = stub;
         this.sitzungsID = sitzungsID;
+        
+        setColor();
+    }
+    
+    private void setColor() throws RemoteException, BenutzerException{
+        
+        Color[] color = stub.getColor(sitzungsID);
+        Color color1 = color[0];
+        Color color2 = color[1];
+        Color color3 = color[2];
+        Color color4 = color[3];
+        
+        //Light
+        jPanel3.setBackground(color1);
+        jPanel5.setBackground(color1);
+        
+        
+        //Middle
+        jPanel2.setBackground(color2);
+        
+        
+        //Font 
+        jLabel7.setForeground(color4);
+        jLabel1.setForeground(color4);
+        emailField.setForeground(color4);
+        jLabel11.setForeground(color4);
+        
     }
     
     /**
@@ -201,6 +229,8 @@ public class ForgotPasswordFenster extends javax.swing.JFrame {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(ForgotPasswordFenster.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         

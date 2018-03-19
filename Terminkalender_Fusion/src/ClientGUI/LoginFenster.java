@@ -12,14 +12,16 @@ import Utilities.Datum;
 import Utilities.TerminException;
 import Utilities.Zeit;
 import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.rmi.AccessException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -40,6 +42,38 @@ public class LoginFenster extends javax.swing.JFrame {
         initComponents();
         this.stub = stub;
         infoBoxPanel.setVisible(false);
+        setColor();
+    }
+    
+    private void setColor() throws RemoteException, BenutzerException{
+        
+        Color[] color = stub.getColor(sitzungsID);
+        Color color1 = color[0];
+        Color color2 = color[1];
+        Color color3 = color[2];
+        Color color4 = color[3];
+        
+        //Light
+        jPanel1.setBackground(color1);
+        anmeldenPanel.setBackground(color1);
+        beendenPanel.setBackground(color1);
+        jPanel7.setBackground(color1);
+        
+        
+        //Middle
+        jPanel2.setBackground(color2);
+        jPanel6.setBackground(color2);
+        
+        
+        //Font 
+        jLabel9.setForeground(color4);
+        jLabel5.setForeground(color4);
+        jBenutzernameField.setForeground(color4);
+        jPasswortField.setForeground(color4);
+        jLabel8.setForeground(color4);
+        anmeldenLabel.setForeground(color4);
+        beendenLabel.setForeground(color4);
+
         
     }
 
@@ -48,6 +82,9 @@ public class LoginFenster extends javax.swing.JFrame {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
+    public void setStub(ClientStub stub){
+        this.stub = stub;
+    }
 
     public void zuweisen(String username, String password) throws RemoteException, TerminException, Datum.DatumException, Zeit.ZeitException, SQLException, DatenbankException {
 
@@ -61,13 +98,13 @@ public class LoginFenster extends javax.swing.JFrame {
                     infoBoxPanel.setVisible(true);
                     return;                  
                 default:
-                    Registry registry = LocateRegistry.getRegistry(result, 1099);                             
+                    Registry registry = LocateRegistry.getRegistry(result, 1099);                   
                     try {
                         stub = (ClientStub) registry.lookup("ClientStub");
+                        System.out.println("-> Neue Verbindung zu " + result + " hergestellt");
                     } catch (NotBoundException | AccessException ex) {
-                        Logger.getLogger(LoginFenster.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    System.out.println("neue verbindung hergestellt");                                    
+
+                    }                   
             }  
             sitzungsID = stub.einloggen(username, password);
             if(sitzungsID < 0){
@@ -76,7 +113,7 @@ public class LoginFenster extends javax.swing.JFrame {
                 
                 //infoBoxPanel.setBackground(new Color(153,0,51));
                 infoBoxPanel.setVisible(true);
-                
+                verbindeMitRoot();
             
             }
             else{
@@ -94,13 +131,60 @@ public class LoginFenster extends javax.swing.JFrame {
                 start.fillMeldList();           
             }  
         }
-        catch(BenutzerException e){
+        catch(BenutzerException | DatenbankException e){
             //JOptionPane.showMessageDialog(null, e.getMessage(), "Anmelden", JOptionPane.ERROR_MESSAGE);
             infoBoxText.setText(e.getMessage());
             infoBoxPanel.setVisible(true);
+            JOptionPane.showMessageDialog(null,e.getMessage(), "Anmelden", JOptionPane.ERROR_MESSAGE);
+            verbindeMitRoot();
         }  
     }
 
+    private void verbindeMitRoot(){
+        Registry registry;     
+                
+        String rootIP;
+        String line;            
+        BufferedReader bufferedReader = null;
+
+        //liest IP-Adressen aller Server aus File und speichert sie in LinkedList
+        File file = new File(".\\src\\data\\serverlist.txt"); 
+        //für mac-pcs
+        if (!file.canRead() || !file.isFile()){
+            file = new File("./src/data/severlist.txt"); 
+        }
+        try { 
+            bufferedReader = new BufferedReader(new FileReader(file));  
+            if((line = bufferedReader.readLine()) != null) { 
+                rootIP = line;
+                
+                try {
+                    //baut Verbindung zu Server auf
+                    registry = LocateRegistry.getRegistry(rootIP, 1099);
+                    this.stub = (ClientStub) registry.lookup("ClientStub");
+                    System.out.println("LOG * ---> Verbindung zu Root-Server mit IP " + rootIP + " hergestellt!");
+
+                } catch (RemoteException | NotBoundException ex) {
+                    System.out.println("LOG * ---> Verbindung zu Root-Server mit IP " + rootIP + " konnte nicht hergestellt werden!");  
+                }
+            }      
+            else{
+                System.out.println("LOG * ---> Verbindung zu Root-Server konnte nicht hergestellt werden!");
+            }
+        } catch (IOException e) { 
+            e.printStackTrace(); 
+        } 
+        // zum schließen des readers
+        finally { 
+            if (bufferedReader != null) 
+                try { 
+                    bufferedReader.close(); 
+                } catch (IOException e) { 
+            } 
+        }  
+    }
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -458,6 +542,8 @@ public class LoginFenster extends javax.swing.JFrame {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(LoginFenster.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         

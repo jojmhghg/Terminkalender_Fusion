@@ -5,6 +5,10 @@
  */
 package ClientGUI;
 
+import Utilities.BenutzerException;
+import java.awt.Color;
+import java.rmi.RemoteException;
+
 /**
  *
  * @author niros
@@ -16,6 +20,31 @@ public class VersionsFenster extends javax.swing.JFrame {
      */
     public VersionsFenster() {
         initComponents();
+        setColor();
+    }
+    
+    private void setColor() throws RemoteException, BenutzerException{
+        
+        Color[] color = stub.getColor(sitzungsID);
+        Color color1 = color[0];
+        Color color2 = color[1];
+        Color color3 = color[2];
+        
+        //Light
+        jPanel2.setBackground(color1);
+        jPanel3.setBackground(color1);
+        
+        
+        //Middle
+        jPanel1.setBackground(color2);
+        
+        Color color4 = color[2];
+        //Font 
+        jLabel7.setForeground(color4);
+        jLabel1.setForeground(color4);
+        hinzufuegenlabel1.setForeground(color4);
+        userNameField.setForeground(color4);
+ 
     }
 
     /**
@@ -83,7 +112,7 @@ public class VersionsFenster extends javax.swing.JFrame {
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(240, 240, 240));
-        jLabel5.setText("1.872");
+        jLabel5.setText("Fusion 3.0");
         jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 110, -1, -1));
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
@@ -204,6 +233,8 @@ public class VersionsFenster extends javax.swing.JFrame {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(VersionsFenster.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         

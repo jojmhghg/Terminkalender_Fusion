@@ -7,6 +7,7 @@ package ClientGUI;
 
 import Server.ClientStub;
 import Utilities.BenutzerException;
+import java.awt.Color;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -29,6 +30,39 @@ public class RegistrierenFenster extends javax.swing.JFrame {
     public RegistrierenFenster(ClientStub stub) {
         initComponents();
         this.stub = stub;
+        setColor();
+    }
+    
+    private void setColor() throws RemoteException, BenutzerException{
+        
+        Color[] color = stub.getColor(sitzungsID);
+        Color color1 = color[0];
+        Color color2 = color[1];
+        Color color3 = color[2];
+        Color color4 = color[3];
+        
+        //Light
+        jPanel3.setBackground(color1);
+        jPanel6.setBackground(color1);
+        jPanel5.setBackground(color1);
+        
+        
+        //Middle
+        jPanel2.setBackground(color2);
+        
+        
+        //Font 
+        jLabel7.setForeground(color4);
+        jLabel12.setForeground(color4);
+        jLabel11.setForeground(color4);
+        jLabel7.setForeground(color4);
+        regEmail.setForeground(color4);
+        regEmailField.setForeground(color4);
+        regPassword.setForeground(color4);
+        regPasswordField.setForeground(color4);
+        regUsername.setForeground(color4);  
+        regUsernameField.setForeground(color4);        
+
     }
 
     private RegistrierenFenster() {
@@ -274,6 +308,8 @@ public class RegistrierenFenster extends javax.swing.JFrame {
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
         }
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         

@@ -7,9 +7,11 @@ package ClientGUI;
  */
 import Server.ClientStub;
 import Utilities.BenutzerException;
+import Utilities.Datum;
 import Utilities.Teilnehmer;
 import Utilities.Termin;
 import Utilities.TerminException;
+import Utilities.Zeit;
 import java.awt.Color;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
@@ -61,6 +63,8 @@ public class TerminAnzeigenFenster extends javax.swing.JFrame {
         this.sitzungsID = sitzungsID;
         this.termin = stub.getTermin(terminID, sitzungsID);
         
+        setColor();
+        
         datum.setText(termin.getDatum().toString());
         titel.setText(termin.getTitel());
         startZeit.setText(termin.getBeginn().toString() + " Uhr");
@@ -80,6 +84,56 @@ public class TerminAnzeigenFenster extends javax.swing.JFrame {
             jPanel8.setVisible(false);
             jPanel3.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 200, 180));
         }      
+    }
+    
+    private void setColor() throws RemoteException, BenutzerException{
+        
+        Color[] color = stub.getColor(sitzungsID);
+        Color color1 = color[0];
+        Color color2 = color[1];
+        Color color3 = color[2];
+        Color color4 = color[3];
+
+        
+        //Light
+        jPanel2.setBackground(color1);
+        jPanel3.setBackground(color1);
+        jPanel4.setBackground(color1);
+        jPanel6.setBackground(color1);
+        jPanel5.setBackground(color1);
+        jPanel7.setBackground(color1);
+        
+        
+        //Middle
+        jPanel1.setBackground(color2);
+        notiz.setBackground(color2);
+        teilnehmerliste.setBackground(color2);
+        
+        //Font 
+        titel.setForeground(color4);
+        jLabel2.setForeground(color4);
+        jLabel3.setForeground(color4);
+        jLabel4.setForeground(color4);
+        jLabel5.setForeground(color4);
+        jLabel1.setForeground(color4);
+        start.setForeground(color4);
+        jLabel6.setForeground(color4);
+        notiz.setForeground(color4);
+        jLabel8.setForeground(color4);
+        bearbeitenLabel.setForeground(color4);
+        jLabel9.setForeground(color4);
+        datum.setForeground(color4);
+        startZeit.setForeground(color4);
+        endZeit.setForeground(color4);
+        ort.setForeground(color4);
+        terminersteller.setForeground(color4);
+        datum.setForeground(color4);
+        kontakte.setForeground(color4);
+        addTeilnahmeLabel.setForeground(color4);
+        teilnehmerliste.setForeground(color4);
+        
+           
+        
     }
 
     private void fillTeilnehmerlist() throws RemoteException, BenutzerException, TerminException {
@@ -308,8 +362,8 @@ public class TerminAnzeigenFenster extends javax.swing.JFrame {
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(bearbeitenLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(25, 25, 25))
+                .addComponent(bearbeitenLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(16, 16, 16))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -478,6 +532,70 @@ public class TerminAnzeigenFenster extends javax.swing.JFrame {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(TerminAnzeigenFenster.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>

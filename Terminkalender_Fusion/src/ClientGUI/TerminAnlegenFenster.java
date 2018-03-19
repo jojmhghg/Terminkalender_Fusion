@@ -57,6 +57,45 @@ public class TerminAnlegenFenster extends javax.swing.JFrame {
         
         stunde2.setSelectedItem(timeStamp.substring(9, 11));
         minute2.setSelectedItem(timeStamp.substring(11, 13));
+        
+        setColor();
+    }
+    
+    private void setColor() throws RemoteException, BenutzerException{
+        
+        Color[] color = stub.getColor(sitzungsID);
+        Color color1 = color[0];
+        Color color2 = color[1];
+        Color color3 = color[2];
+        Color color4 = color[3];
+
+        
+        //Light
+        jPanel2.setBackground(color1);
+        jPanel3.setBackground(color1);
+        
+        
+        //Middle
+        jPanel1.setBackground(color2);
+        beschreibung.setBackground(color2);
+        
+        //Font 
+        titel.setForeground(color4);
+        jLabel2.setForeground(color4);
+        jLabel3.setForeground(color4);
+        jLabel4.setForeground(color4);
+        jLabel5.setForeground(color4);
+        beschreibung.setForeground(color4);
+        speichernLabel.setForeground(color4);
+        jLabel8.setForeground(color4);
+        tag1.setForeground(color4);
+        monat1.setForeground(color4);
+        jahr1.setForeground(color4);
+        minute1.setForeground(color4);
+        minute2.setForeground(color4);
+        stunde1.setForeground(color4);
+        stunde2.setForeground(color4);
+        
     }
 
     /**
@@ -230,8 +269,8 @@ public class TerminAnlegenFenster extends javax.swing.JFrame {
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(speichernLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(25, 25, 25))
+                .addComponent(speichernLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(17, 17, 17))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -265,14 +304,12 @@ public class TerminAnlegenFenster extends javax.swing.JFrame {
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
-                .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 2, Short.MAX_VALUE))
+            .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
         );
 
         jPanel1.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 370, 120, 30));

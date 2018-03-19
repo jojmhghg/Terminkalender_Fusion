@@ -7,6 +7,7 @@ package ClientGUI;
 
 import Server.ClientStub;
 import Utilities.BenutzerException;
+import java.awt.Color;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -33,7 +34,37 @@ public class KontaktProfilFenster extends javax.swing.JFrame {
         usernameField.setText(profil.get(0));
         emailField.setText(profil.get(1));
         vornameField.setText(profil.get(2));
-        nachnameField.setText(profil.get(3));        
+        nachnameField.setText(profil.get(3)); 
+        
+        setColor();
+    }
+    
+    private void setColor() throws RemoteException, BenutzerException{
+        
+        Color[] color = stub.getColor(sitzungsID);
+        Color color1 = color[0];
+        Color color2 = color[1];
+        Color color3 = color[2];
+        Color color4 = color[3];
+        
+        //Light
+        jPanel3.setBackground(color1);
+            
+        //Middle
+        jPanel2.setBackground(color2);
+        
+        
+        //Font 
+        jLabel7.setForeground(color4);
+        jLabel1.setForeground(color4);
+        jLabel2.setForeground(color4);
+        jLabel3.setForeground(color4);
+        jLabel4.setForeground(color4);
+        usernameField.setForeground(color4);
+        vornameField.setForeground(color4);
+        nachnameField.setForeground(color4);
+        emailField.setForeground(color4);
+        
     }
 
     private KontaktProfilFenster() {
@@ -242,6 +273,8 @@ public class KontaktProfilFenster extends javax.swing.JFrame {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(KontaktProfilFenster.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         
