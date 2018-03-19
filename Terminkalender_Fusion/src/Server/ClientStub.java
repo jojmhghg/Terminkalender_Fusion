@@ -12,6 +12,7 @@ import Utilities.Meldung;
 import Utilities.Termin;
 import Utilities.TerminException;
 import Utilities.Zeit;
+import java.awt.Color;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
@@ -44,6 +45,11 @@ public interface ClientStub extends Remote{
     public String getVorname(int sitzungsID) throws RemoteException, BenutzerException;
     public String getNachname(int sitzungsID) throws RemoteException, BenutzerException;
     public String getEmail(int sitzungsID) throws RemoteException, BenutzerException;
+    
+    /* GUI Farbe */
+    public Color[] getColor(int sitzungsID) throws RemoteException, BenutzerException;
+    public void changeColor(int color, int sitzungsID) throws RemoteException, BenutzerException, SQLException;
+    public Color[] returnColor(int sitzungsID)throws RemoteException;
 
     /* alles zu Terminen */
     public Termin getTermin(int TerminID, int sitzungsID) throws RemoteException, BenutzerException, TerminException;

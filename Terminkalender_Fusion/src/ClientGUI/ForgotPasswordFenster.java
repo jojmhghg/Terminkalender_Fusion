@@ -25,8 +25,10 @@ public class ForgotPasswordFenster extends javax.swing.JFrame {
      * Creates new form ForgotPassword
      * @param stub
      * @param sitzungsID
+     * @throws java.rmi.RemoteException
+     * @throws Utilities.BenutzerException
      */
-    public ForgotPasswordFenster(ClientStub stub, int sitzungsID) {
+    public ForgotPasswordFenster(ClientStub stub, int sitzungsID) throws RemoteException, BenutzerException {
         initComponents();
         this.stub = stub;
         this.sitzungsID = sitzungsID;

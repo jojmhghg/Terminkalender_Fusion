@@ -26,7 +26,7 @@ public class RemoveKontaktFenster extends javax.swing.JFrame {
      * @param stub
      * @param sitzungsID
      */
-    public RemoveKontaktFenster(ClientStub stub, int sitzungsID) {
+    public RemoveKontaktFenster(ClientStub stub, int sitzungsID) throws RemoteException, BenutzerException {
         initComponents();
         this.stub = stub;
         this.sitzungsID = sitzungsID;

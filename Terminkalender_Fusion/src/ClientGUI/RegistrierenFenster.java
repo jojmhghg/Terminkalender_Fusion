@@ -27,12 +27,13 @@ public class RegistrierenFenster extends javax.swing.JFrame {
      *
      * @param stub
      */
-    public RegistrierenFenster(ClientStub stub) {
+    public RegistrierenFenster(ClientStub stub) throws RemoteException, BenutzerException {
         initComponents();
         this.stub = stub;
-        setColor();
+        //setColor();
     }
     
+    /*
     private void setColor() throws RemoteException, BenutzerException{
         
         Color[] color = stub.getColor(sitzungsID);
@@ -62,8 +63,8 @@ public class RegistrierenFenster extends javax.swing.JFrame {
         regPasswordField.setForeground(color4);
         regUsername.setForeground(color4);  
         regUsernameField.setForeground(color4);        
-
     }
+    */
 
     private RegistrierenFenster() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

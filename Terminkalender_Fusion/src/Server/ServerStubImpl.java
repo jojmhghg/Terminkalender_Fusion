@@ -19,6 +19,7 @@ import Utilities.Teilnehmer;
 import Utilities.Termin;
 import Utilities.TerminException;
 import Utilities.Zeit;
+import java.awt.Color;
 import java.io.IOException;
 import java.rmi.AccessException;
 import java.rmi.NotBoundException;
@@ -1710,6 +1711,16 @@ public class ServerStubImpl implements ServerStub {
             ((RootServerDaten)this.serverDaten).requestTable.get(originIP).add(requestCounter);
             return false;
         }
+    }
+
+    @Override
+    public void changeColor(int color, int userID) throws RemoteException, SQLException {       
+        if(this.serverDaten instanceof RootServerDaten){
+            ((RootServerDaten)serverDaten).datenbank.changeColor(color, userID);
+        }
+        else{
+            ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeColor(color, userID);
+        }          
     }
     
 }

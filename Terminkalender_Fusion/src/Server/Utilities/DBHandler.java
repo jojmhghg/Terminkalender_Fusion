@@ -98,6 +98,7 @@ public class DBHandler {
                         + "name varchar(60),"
                         + "lastname varchar(60),"
                         + "password varchar(60),"
+                        + "color integer,"
                         + "PRIMARY KEY (username))");
             }
             
@@ -807,6 +808,20 @@ public class DBHandler {
     }
     
     /**
+     * Ändert die Farbe eines Users
+     * 
+     * @param color ist eine einzige Zahl, welche später zu einer Gruppe von Farben zugeordnet wird
+     * @param userID ID des Users
+     * @throws SQLException 
+     */
+    public void changeColor(int color, int userID) throws SQLException{
+        PreparedStatement prepChangeColor = con.prepareStatement("UPDATE benutzer SET color = ? WHERE userID = ?");
+        prepChangeColor.setInt(1, color);
+        prepChangeColor.setInt(2, userID);
+        prepChangeColor.execute();
+    }
+    
+    /**
      * updatet einen Termin der durch flooding geändert wird
      * testet ob timestemp aktueller bzw. ob editorID kleiner als alte (bei gleichem timestemp)
      * 
@@ -1113,7 +1128,8 @@ public class DBHandler {
                     user.getString("email"), 
                     user.getInt("userID"), 
                     user.getString("name"), 
-                    user.getString("lastname") 
+                    user.getString("lastname"), 
+                    user.getInt("color")
             );
             //jetzt die Listen
             //1. Termine

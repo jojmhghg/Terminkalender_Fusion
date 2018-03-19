@@ -1806,8 +1806,14 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
     private void jLabel12MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel12MouseClicked
         // TODO add your handling code here:
         jLabel12.setForeground(Color.white);
-        TerminAnlegenFenster startTA = new TerminAnlegenFenster(stub, sitzungsID, this);
-        startTA.setVisible(true);
+        TerminAnlegenFenster startTA;
+        try {
+            startTA = new TerminAnlegenFenster(stub, sitzungsID, this);
+            startTA.setVisible(true);
+        } catch (RemoteException | BenutzerException ex) {
+            Logger.getLogger(Hauptfenster.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }//GEN-LAST:event_jLabel12MouseClicked
 
     private void jLabel13MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel13MouseClicked
@@ -1842,9 +1848,14 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         // TODO add your handling code here:
         zumProfil.setForeground(Color.white);
         ProfilFenster profil;
-        profil = new ProfilFenster(stub, sitzungsID);
-        profil.fillProfil();
+        try {
+            profil = new ProfilFenster(stub, sitzungsID);
+            profil.fillProfil();
         profil.setVisible(true);
+        } catch (BenutzerException | RemoteException ex) {
+            Logger.getLogger(Hauptfenster.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }//GEN-LAST:event_zumProfilMouseClicked
 
     private void jPanel13MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel13MouseClicked
@@ -1921,8 +1932,13 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
 
     private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
         // TODO add your handling code here:
-        VersionsFenster startVersion = new VersionsFenster();
-        startVersion.setVisible(true);
+        VersionsFenster startVersion;
+        try {
+            startVersion = new VersionsFenster(stub, sitzungsID);
+            startVersion.setVisible(true);
+        } catch (RemoteException | BenutzerException ex) {
+            Logger.getLogger(Hauptfenster.class.getName()).log(Level.SEVERE, null, ex);
+        }        
     }//GEN-LAST:event_jLabel1MouseClicked
 
     public void ausloggen() {

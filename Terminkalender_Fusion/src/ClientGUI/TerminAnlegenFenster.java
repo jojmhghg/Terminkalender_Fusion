@@ -25,8 +25,8 @@ import javax.swing.JOptionPane;
 public class TerminAnlegenFenster extends javax.swing.JFrame {
 
     private final ClientStub stub;
-    private int sitzungsID;
-    private Hauptfenster hf;
+    private final int sitzungsID;
+    private final Hauptfenster hf;
     Datum datum;
     Zeit start;
     Zeit ende;
@@ -41,7 +41,7 @@ public class TerminAnlegenFenster extends javax.swing.JFrame {
      * @param sitzungsID
      * @param hf
      */
-    public TerminAnlegenFenster(ClientStub stub, int sitzungsID, Hauptfenster hf) {
+    public TerminAnlegenFenster(ClientStub stub, int sitzungsID, Hauptfenster hf) throws RemoteException, BenutzerException {
         initComponents();
         this.stub = stub;
         this.sitzungsID = sitzungsID;

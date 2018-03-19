@@ -18,6 +18,9 @@ import java.util.LinkedList;
  */
 public class KontaktProfilFenster extends javax.swing.JFrame {
 
+    private ClientStub stub;
+    private int sitzungsID;
+    
     /**
      * Creates new form KontaktProfil
      * @param stub
@@ -29,6 +32,9 @@ public class KontaktProfilFenster extends javax.swing.JFrame {
      */
     public KontaktProfilFenster(ClientStub stub, int sitzungsID, String kontakt) throws RemoteException, BenutzerException, SQLException {
         initComponents();
+        
+        this.stub = stub;
+        this.sitzungsID = sitzungsID;
         
         LinkedList<String> profil = stub.getProfil(kontakt);
         usernameField.setText(profil.get(0));

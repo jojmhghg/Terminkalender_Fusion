@@ -22,6 +22,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -38,7 +40,7 @@ public class LoginFenster extends javax.swing.JFrame {
      *
      * @param stub
      */
-    public LoginFenster(ClientStub stub) {
+    public LoginFenster(ClientStub stub) throws RemoteException, BenutzerException {
         initComponents();
         this.stub = stub;
         infoBoxPanel.setVisible(false);
@@ -506,8 +508,14 @@ public class LoginFenster extends javax.swing.JFrame {
     private void jLabel8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseClicked
         // TODO add your handling code here:
         jLabel8.setForeground(Color.WHITE);
-        ForgotPasswordFenster resetPW = new ForgotPasswordFenster(stub,sitzungsID);
-        resetPW.setVisible(true);
+        ForgotPasswordFenster resetPW;
+        try {
+            resetPW = new ForgotPasswordFenster(stub,sitzungsID);
+            resetPW.setVisible(true);
+        } catch (RemoteException | BenutzerException ex) {
+            Logger.getLogger(LoginFenster.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }//GEN-LAST:event_jLabel8MouseClicked
 
     private void anmeldenLabelKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_anmeldenLabelKeyPressed

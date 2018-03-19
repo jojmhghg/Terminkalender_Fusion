@@ -5,6 +5,7 @@
  */
 package ClientGUI;
 
+import Server.ClientStub;
 import Utilities.BenutzerException;
 import java.awt.Color;
 import java.rmi.RemoteException;
@@ -15,10 +16,20 @@ import java.rmi.RemoteException;
  */
 public class VersionsFenster extends javax.swing.JFrame {
 
+    private final ClientStub stub;
+    private final int sitzungsID;
+    
     /**
      * Creates new form Version
+     * @param stub
+     * @param sitzungsID
+     * @throws java.rmi.RemoteException
+     * @throws Utilities.BenutzerException
      */
-    public VersionsFenster() {
+    public VersionsFenster(ClientStub stub, int sitzungsID) throws RemoteException, BenutzerException {
+        this.stub = stub;
+        this.sitzungsID = sitzungsID;
+        
         initComponents();
         setColor();
     }
@@ -42,8 +53,6 @@ public class VersionsFenster extends javax.swing.JFrame {
         //Font 
         jLabel7.setForeground(color4);
         jLabel1.setForeground(color4);
-        hinzufuegenlabel1.setForeground(color4);
-        userNameField.setForeground(color4);
  
     }
 
@@ -214,37 +223,6 @@ public class VersionsFenster extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jLabel12MouseClicked
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(VersionsFenster.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> {
-            new VersionsFenster().setVisible(true);
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;

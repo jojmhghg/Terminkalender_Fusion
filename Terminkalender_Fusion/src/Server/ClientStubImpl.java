@@ -15,6 +15,7 @@ import Utilities.Meldung;
 import Utilities.Termin;
 import Utilities.TerminException;
 import Utilities.Zeit;
+import java.awt.Color;
 import java.rmi.RemoteException;
 import java.security.SecureRandom;
 import java.sql.SQLException;
@@ -28,6 +29,8 @@ import java.util.logging.Logger;
 */
 public class ClientStubImpl implements ClientStub{
 
+    private final Color[] colors;
+    
     private final ServerDaten serverDaten;
     /**
      * 
@@ -37,6 +40,17 @@ public class ClientStubImpl implements ClientStub{
      */
     public ClientStubImpl(ServerDaten serverDaten) throws SQLException, DatenbankException{
         this.serverDaten = serverDaten;
+        
+        this.colors = new Color[9];
+        colors[0] = new Color(0, 0, 0);
+        colors[1] = new Color(50, 50, 50);
+        colors[2] = new Color(50, 50, 0);
+        colors[3] = new Color(100, 250, 30);
+        colors[4] = new Color(220, 110, 50);
+        colors[5] = new Color(150, 220, 90);
+        colors[6] = new Color(80, 150, 10);
+        colors[7] = new Color(15, 66, 242);
+        colors[8] = new Color(234, 54, 9);
     }
     
     /**
@@ -652,6 +666,64 @@ public class ClientStubImpl implements ClientStub{
         return eingeloggterBenutzer.getEmail();
     }
     
+    
+    @Override
+    public void changeColor(int color, int sitzungsID) throws BenutzerException, SQLException, RemoteException{
+        Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);
+        eingeloggterBenutzer.setColor(color);
+        
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeColor(color, eingeloggterBenutzer.getUserID());
+    }
+    
+    /**
+     *
+     * @param sitzungsID
+     * @return
+     */
+    @Override
+    public Color[] returnColor(int sitzungsID){
+        return colors;
+    }
+   
+    /**
+     * Methode die die Color gibt
+     * 
+     * @param sitzungsID
+     * @return colors 
+     * @throws Utilities.BenutzerException
+     */
+    @Override
+    public Color[] getColor(int sitzungsID) throws BenutzerException{
+        Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);
+        Color[] color = new Color[3];
+        switch (eingeloggterBenutzer.getColor()){
+            case 0:
+                color[0] = this.colors[0];
+                color[1] = this.colors[1];
+                color[2] = this.colors[2];
+                break;
+                
+            case 1:
+                color[0] = this.colors[3];
+                color[1] = this.colors[4];
+                color[2] = this.colors[5];
+                break;
+                
+            case 2:
+                color[0] = this.colors[6];
+                color[1] = this.colors[7];
+                color[2] = this.colors[8];
+                break;   
+                
+            default:
+                color[0] = this.colors[0];
+                color[1] = this.colors[1];
+                color[2] = this.colors[2];
+                break;
+        }
+        return color;
+    }
+    
     /**
      * Gibt die Termine eines Users in einer bestimmten Kalenderwoche zurück
      * 
@@ -802,6 +874,5 @@ public class ClientStubImpl implements ClientStub{
         }
         throw new BenutzerException("ungültige Sitzungs-ID");
     }
-   
-     
+  
 }

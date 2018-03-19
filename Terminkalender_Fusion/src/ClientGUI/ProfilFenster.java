@@ -10,7 +10,6 @@ import Utilities.BenutzerException;
 import java.awt.Color;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
-import java.util.Arrays;
 import javax.swing.JOptionPane;
 import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
 
@@ -37,7 +36,7 @@ public class ProfilFenster extends javax.swing.JFrame {
      * @param stub
      * @param sitzungsID
      */
-    public ProfilFenster(ClientStub stub, int sitzungsID) {
+    public ProfilFenster(ClientStub stub, int sitzungsID) throws BenutzerException, RemoteException {
         initComponents();
         this.stub = stub;
         this.sitzungsID = sitzungsID;

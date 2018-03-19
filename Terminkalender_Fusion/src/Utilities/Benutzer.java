@@ -6,6 +6,7 @@
 package Utilities;
 
 import Server.Utilities.EMailService;
+import java.awt.Color;
 import java.util.LinkedList;
 import java.io.Serializable;
 import java.security.SecureRandom;
@@ -23,6 +24,8 @@ public class Benutzer implements Serializable{
     private String email;
     private String passwort;
     
+    private Integer color;
+    
     private final Terminkalender terminkalender;
     private LinkedList<String> kontaktliste; 
     private LinkedList<Meldung> meldungen;   
@@ -36,8 +39,9 @@ public class Benutzer implements Serializable{
      * @param userID
      * @param vorname
      * @param nachname
+     * @param color
      */
-    public Benutzer(String username, String passwort, String email, int userID, String vorname, String nachname){        
+    public Benutzer(String username, String passwort, String email, int userID, String vorname, String nachname, int color){        
         this.userID = userID;
         this.email = email;
         this.username = username;
@@ -47,7 +51,8 @@ public class Benutzer implements Serializable{
         
         this.terminkalender = new Terminkalender();
         this.kontaktliste = new LinkedList<>();
-        this.meldungen = new LinkedList<>();      
+        this.meldungen = new LinkedList<>(); 
+        this.color = color;
     }
     
     //Getter:
@@ -78,6 +83,9 @@ public class Benutzer implements Serializable{
     public int getUserID(){
         return this.userID;
     }
+    public int getColor(){
+        return color;
+    }
     
     //Setter:
     public void setNachname(String nachname){
@@ -88,6 +96,9 @@ public class Benutzer implements Serializable{
     }
     public void setEmail(String email){
         this.email = email;
+    }
+    public void setColor(Integer color){
+        this.color = color;
     }
     public void setPasswort(String neuesPasswort) throws BenutzerException{
         if(neuesPasswort.length() < 4 || neuesPasswort.length() > 12){

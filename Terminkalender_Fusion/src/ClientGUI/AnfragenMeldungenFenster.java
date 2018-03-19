@@ -34,8 +34,10 @@ public class AnfragenMeldungenFenster extends javax.swing.JFrame {
      * @param sitzungsID
      * @param meldung
      * @param hauptfenster
+     * @throws java.rmi.RemoteException
+     * @throws Utilities.BenutzerException
      */
-    public AnfragenMeldungenFenster(ClientStub stub, int sitzungsID, Meldung meldung, Hauptfenster hauptfenster) {
+    public AnfragenMeldungenFenster(ClientStub stub, int sitzungsID, Meldung meldung, Hauptfenster hauptfenster) throws RemoteException, BenutzerException {
         this.stub = stub;
         this.sitzungsID = sitzungsID;
         this.meldung = meldung;

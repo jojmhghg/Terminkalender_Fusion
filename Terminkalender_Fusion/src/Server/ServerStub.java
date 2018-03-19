@@ -14,6 +14,7 @@ import Utilities.Datum;
 import Utilities.Meldung;
 import Utilities.Termin;
 import Utilities.Zeit;
+import java.awt.Color;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
@@ -45,6 +46,8 @@ public interface ServerStub extends Remote{
     public void removeUserFromRootList(String username) throws RemoteException, BenutzerException;
 
     //Datenmanipulation - Nur ein User betroffen
+    public void changeColor(int color, int userID) throws RemoteException, SQLException;
+    
     public void changePasswort(String passwort, String username) throws RemoteException, SQLException;
     public void changeVorname(String vorname, String username) throws RemoteException, SQLException;
     public void changeNachname(String nachname, String username) throws RemoteException, SQLException;

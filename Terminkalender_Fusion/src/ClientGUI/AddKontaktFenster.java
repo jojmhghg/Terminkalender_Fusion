@@ -25,14 +25,15 @@ public class AddKontaktFenster extends javax.swing.JFrame {
      * Creates new form AddKontakt
      * @param stub
      * @param sitzungsID
+     * @throws Utilities.BenutzerException
+     * @throws java.rmi.RemoteException
      */
-    public AddKontaktFenster(ClientStub stub, int sitzungsID) {
+    public AddKontaktFenster(ClientStub stub, int sitzungsID) throws BenutzerException, RemoteException {
         initComponents();
         this.stub = stub;
         this.sitzungsID = sitzungsID;
         
         setColor();
-
     }
     
     private void setColor() throws RemoteException, BenutzerException{
