@@ -55,7 +55,7 @@ public class ClientStubImpl implements ClientStub{
         colors[8] = new Color(255,102,255);        
         colors[9] = new Color(204,0,204);
         colors[10] = new Color(102,0,102);
-        colors[11] = new Color(0, 0, 0);
+        colors[11] = new Color(255,255,255);
         
         colors[12] = new Color(46,49,117);
         colors[13] = new Color(29,30,66);
