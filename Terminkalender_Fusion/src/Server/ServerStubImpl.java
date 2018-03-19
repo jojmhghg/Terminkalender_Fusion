@@ -285,6 +285,36 @@ public class ServerStubImpl implements ServerStub {
     }
     
     /**
+     *
+     * @param username
+     * @throws Utilities.BenutzerException
+     * @throws java.rmi.RemoteException
+     */
+    @Override
+    public void removeAusUserAnServerListe(String username) throws BenutzerException, RemoteException{
+        if(this.serverDaten instanceof RootServerDaten){
+            int index = -1;
+            int counter = 0;
+            for(UserAnServer uas : ((RootServerDaten)this.serverDaten).userAnServerListe){
+                if(uas.username.equals(username)){
+                    //wenn ja, gibt ip dieses servers zurück
+                    index = counter;
+                }
+                counter++;
+            }
+            if(index == -1){
+                throw new BenutzerException("ClientStubImpl Line 179 index == -1 // username nicht in UserAnServerListe");
+            }
+            else{
+                ((RootServerDaten)this.serverDaten).userAnServerListe.remove(index);
+            }
+        }
+        else{
+            ((ChildServerDaten)this.serverDaten).parent.getServerStub().removeUserFromRootList(username);
+        }
+    }
+    
+    /**
      * sucht den server mit der db eines bestimmten users und gibt die id des users zurück
      * 
      * @param username Username der gesucht wird

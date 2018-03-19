@@ -14,7 +14,6 @@ import Utilities.Datum;
 import Utilities.Meldung;
 import Utilities.Termin;
 import Utilities.Zeit;
-import java.awt.Color;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
@@ -32,6 +31,8 @@ public interface ServerStub extends Remote{
     public String getServerID() throws RemoteException; 
     public int getAnzahlUser() throws RemoteException;
 
+    public void removeAusUserAnServerListe(String username) throws RemoteException, BenutzerException;
+    
     //Datensuche
     public ServerIdUndAnzahlUser findServerWithLeastUsers() throws RemoteException;
     public String findServerWithDbForUser(String originIP, int requestCounter, String username) throws RemoteException, SQLException;

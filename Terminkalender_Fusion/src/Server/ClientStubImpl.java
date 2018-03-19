@@ -235,26 +235,7 @@ public class ClientStubImpl implements ClientStub{
             }
         }
         if(remove){
-            if(((RootServerDaten)this.serverDaten).primitiveDaten.serverID.equals("0")){
-                index = -1;
-                counter = 0;
-                for(UserAnServer uas : ((RootServerDaten)this.serverDaten).userAnServerListe){
-                    if(uas.username.equals(username)){
-                        //wenn ja, gibt ip dieses servers zurück
-                        index = counter;
-                    }
-                    counter++;
-                }
-                if(index == -1){
-                    throw new BenutzerException("ClientStubImpl Line 179 index == -1 // username nicht in UserAnServerListe");
-                }
-                else{
-                    ((RootServerDaten)this.serverDaten).userAnServerListe.remove(index);
-                }
-            }
-            else{
-                ((ChildServerDaten)this.serverDaten).parent.getServerStub().removeUserFromRootList(username);
-            }
+            ((ChildServerDaten)serverDaten).parent.getServerStub().removeAusUserAnServerListe(username);
         }
     }
     
