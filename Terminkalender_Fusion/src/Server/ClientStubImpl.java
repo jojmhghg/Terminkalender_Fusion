@@ -691,14 +691,14 @@ public class ClientStubImpl implements ClientStub{
                 color[3] = this.colors[7];
                 break;
                 
-            case 2:
+            case 3:
                 color[0] = this.colors[8];
                 color[1] = this.colors[9];
                 color[2] = this.colors[10];
                 color[3] = this.colors[11];
                 break;
                 
-            case 3:
+            case 2:
                 color[0] = this.colors[12];
                 color[1] = this.colors[13];
                 color[2] = this.colors[14];
