@@ -171,7 +171,7 @@ public class DBHandler {
                         + "serverID integer,"
                         + "primary key(reihe))");
                 
-                PreparedStatement prepuser = con.prepareStatement("INSERT INTO counters values(?,?,?,?,?);");        
+                PreparedStatement prepuser = con.prepareStatement("INSERT INTO counters values(?,?,?,?,?,?);");        
                 prepuser.setInt(1, 1);
                 prepuser.setInt(2, serverID * 1000 + 1);
                 prepuser.setInt(3, serverID * 1000 + 1);
