@@ -159,7 +159,7 @@ public class RootServerDaten extends ServerDaten {
                         serverStub = (ServerStub) registry.lookup("ServerStub");
 
                         //lässt anderen Server Verbindung zu diesem aufbauen
-                        serverStub.initConnectionToChild(this.primitiveDaten.ownIP);
+                        serverStub.initConnectionP2P(this.primitiveDaten.ownIP);
 
                         //fügt Verbindung zur Liste der Verbindungen hinzu
                         verbindung = new Verbindung(serverStub, tmpIP, "0");
