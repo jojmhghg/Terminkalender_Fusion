@@ -179,9 +179,9 @@ public class ClientStubImpl implements ClientStub{
      */
     @Override
     public int einloggen(String username, String passwort) throws BenutzerException, SQLException, DatenbankException, RemoteException{
-        if(this.serverDaten instanceof RootServerDaten){
-             int sitzungsID = 10000000 * ((RootServerDaten)serverDaten).primitiveDaten.sitzungscounter + (int)(Math.random() * 1000000 + 1);
-            ((RootServerDaten)serverDaten).primitiveDaten.sitzungscounter++;
+        if(this.serverDaten instanceof ChildServerDaten){
+             int sitzungsID = 10000000 * ((ChildServerDaten)serverDaten).primitiveDaten.sitzungscounter + (int)(Math.random() * 1000000 + 1);
+            ((ChildServerDaten)serverDaten).primitiveDaten.sitzungscounter++;
             Benutzer user;
 
             try{
@@ -190,12 +190,8 @@ public class ClientStubImpl implements ClientStub{
             }
             catch(BenutzerException ex){
                 //falls user noch nicht eingeloggt, wird er aus der db geladen
-                if(((RootServerDaten)this.serverDaten).primitiveDaten.serverID.equals("0")){
-                    user = ((RootServerDaten)this.serverDaten).datenbank.getBenutzer(username);
-                }
-                else{
-                    user = ((ChildServerDaten)this.serverDaten).parent.getServerStub().getUser(username);
-                }
+                user = ((ChildServerDaten)this.serverDaten).parent.getServerStub().getUser(username);
+                
             }       
             if(user.istPasswort(passwort)){
                 ((ChildServerDaten)serverDaten).aktiveSitzungen.add(new Sitzung(user, sitzungsID));
