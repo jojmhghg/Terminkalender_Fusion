@@ -41,16 +41,26 @@ public class ClientStubImpl implements ClientStub{
     public ClientStubImpl(ServerDaten serverDaten) throws SQLException, DatenbankException{
         this.serverDaten = serverDaten;
         
-        this.colors = new Color[9];
-        colors[0] = new Color(0, 0, 0);
-        colors[1] = new Color(50, 50, 50);
-        colors[2] = new Color(50, 50, 0);
-        colors[3] = new Color(100, 250, 30);
-        colors[4] = new Color(220, 110, 50);
-        colors[5] = new Color(150, 220, 90);
-        colors[6] = new Color(80, 150, 10);
-        colors[7] = new Color(15, 66, 242);
-        colors[8] = new Color(234, 54, 9);
+        this.colors = new Color[16];
+        colors[0] = new Color(204,255,255);
+        colors[1] = new Color(51,153,255);
+        colors[2] = new Color(0,102,153);
+        colors[3] = new Color(0,0,0);
+        
+        colors[4] = new Color(204,204,204);
+        colors[5] = new Color(153,153,153);
+        colors[6] = new Color(102,102,102);
+        colors[7] = new Color(0, 0, 0);
+        
+        colors[8] = new Color(255,102,255);        
+        colors[9] = new Color(204,0,204);
+        colors[10] = new Color(102,0,102);
+        colors[11] = new Color(0, 0, 0);
+        
+        colors[12] = new Color(46,49,117);
+        colors[13] = new Color(29,30,66);
+        colors[14] = new Color(21,22,48);
+        colors[15] = new Color(0, 0, 0);
     }
     
     /**
@@ -698,27 +708,31 @@ public class ClientStubImpl implements ClientStub{
         Color[] color = new Color[3];
         switch (eingeloggterBenutzer.getColor()){
             case 0:
-                color[0] = this.colors[0];
-                color[1] = this.colors[1];
-                color[2] = this.colors[2];
+                color[0] = this.colors[4];
+                color[1] = this.colors[5];
+                color[2] = this.colors[6];
+                color[3] = this.colors[7];
                 break;
                 
             case 1:
-                color[0] = this.colors[3];
-                color[1] = this.colors[4];
-                color[2] = this.colors[5];
+                color[0] = this.colors[8];
+                color[1] = this.colors[9];
+                color[2] = this.colors[10];
+                color[3] = this.colors[11];
                 break;
                 
             case 2:
-                color[0] = this.colors[6];
-                color[1] = this.colors[7];
-                color[2] = this.colors[8];
+                color[0] = this.colors[12];
+                color[1] = this.colors[13];
+                color[2] = this.colors[14];
+                color[3] = this.colors[15];
                 break;   
                 
             default:
                 color[0] = this.colors[0];
                 color[1] = this.colors[1];
                 color[2] = this.colors[2];
+                color[3] = this.colors[3];
                 break;
         }
         return color;

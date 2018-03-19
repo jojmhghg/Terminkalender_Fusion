@@ -24,7 +24,7 @@ public class Benutzer implements Serializable{
     private String email;
     private String passwort;
     
-    private Integer color;
+    private int color;
     
     private final Terminkalender terminkalender;
     private LinkedList<String> kontaktliste; 

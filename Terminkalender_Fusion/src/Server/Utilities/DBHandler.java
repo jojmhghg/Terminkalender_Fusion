@@ -200,13 +200,14 @@ public class DBHandler {
         res.next();           
         int userID = res.getInt("userCounter");
 
-        PreparedStatement prepuser = con.prepareStatement("INSERT INTO benutzer values(?,?,?,?,?,?);");        
+        PreparedStatement prepuser = con.prepareStatement("INSERT INTO benutzer values(?,?,?,?,?,?,?);");        
         prepuser.setInt(1, userID);
         prepuser.setString(2, username);
         prepuser.setString(3, email);
         prepuser.setString(4, "");
         prepuser.setString(5, "");
         prepuser.setString(6, passwort);
+        prepuser.setInt(6, 0);
         prepuser.execute(); 
 
         PreparedStatement prepIncUserCounter = con.prepareStatement("UPDATE counters SET userCounter = userCounter + 1 WHERE reihe = 1");
