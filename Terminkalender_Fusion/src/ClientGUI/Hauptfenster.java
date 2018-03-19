@@ -2099,6 +2099,11 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         jLabel13.setForeground(Color.white);
         fillMeldList();
         displayDate();
+        try {
+            setColor();
+        } catch (RemoteException | BenutzerException ex) {
+            Logger.getLogger(Hauptfenster.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 
