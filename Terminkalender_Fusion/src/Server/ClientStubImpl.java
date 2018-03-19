@@ -703,21 +703,21 @@ public class ClientStubImpl implements ClientStub{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);
         Color[] color = new Color[4];
         switch (eingeloggterBenutzer.getColor()){
-            case 0:
+            case 1:
                 color[0] = this.colors[4];
                 color[1] = this.colors[5];
                 color[2] = this.colors[6];
                 color[3] = this.colors[7];
                 break;
                 
-            case 1:
+            case 2:
                 color[0] = this.colors[8];
                 color[1] = this.colors[9];
                 color[2] = this.colors[10];
                 color[3] = this.colors[11];
                 break;
                 
-            case 2:
+            case 3:
                 color[0] = this.colors[12];
                 color[1] = this.colors[13];
                 color[2] = this.colors[14];
