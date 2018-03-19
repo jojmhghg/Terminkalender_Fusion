@@ -198,8 +198,8 @@ public class ServerStubImpl implements ServerStub {
     public ServerIdUndAnzahlUser findServerWithLeastUsers() throws RemoteException{
         int tmp;
         int min = ((ChildServerDaten) this.serverDaten).aktiveSitzungen.size();
-        String minServerIP = ((RootServerDaten) this.serverDaten).primitiveDaten.ownIP ;
-        String serverID = ((RootServerDaten) this.serverDaten).primitiveDaten.serverID;
+        String minServerIP = this.serverDaten.primitiveDaten.ownIP ;
+        String serverID = this.serverDaten.primitiveDaten.serverID;
         
         //suche server mit wenigstern usern und gib ip dessen zurück
         for(Verbindung child : this.serverDaten.childConnection){
@@ -227,7 +227,7 @@ public class ServerStubImpl implements ServerStub {
     @Override
     public String findServerWithDbForUser(String originIP, int requestCounter, String username) throws RemoteException, SQLException{
         // war die Anfrage schonmal hier
-        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
+        if(!checkRequest(originIP, requestCounter) && !originIP.equals(this.serverDaten.primitiveDaten.ownIP)){
             //suche in db nach username, falls vorhanden, suche dort nach server mit wenigsten usern
             if(((RootServerDaten)this.serverDaten).datenbank.userExists(username)){
                 ServerIdUndAnzahlUser tmp;
@@ -299,7 +299,7 @@ public class ServerStubImpl implements ServerStub {
                 return ((RootServerDaten) this.serverDaten).datenbank.getUserID(username);
             }
             else{
-                int tmpRC1 = ((RootServerDaten)this.serverDaten).primitiveDaten.requestCounter;
+                int tmpRC1 = this.serverDaten.primitiveDaten.requestCounter;
                 ((RootServerDaten)this.serverDaten).incRequestCounter();
                 LinkedList<Integer> resultList = new LinkedList<>();
                 int anzahlThreads = 0;
@@ -344,7 +344,7 @@ public class ServerStubImpl implements ServerStub {
      */
     @Override
     public int findIdForUserRoots(String originIP,int requestCounter, String username) throws RemoteException, SQLException{       
-        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
+        if(!checkRequest(originIP, requestCounter) && !originIP.equals(this.serverDaten.primitiveDaten.ownIP)){
             //suche in db nach username
             if(((RootServerDaten)this.serverDaten).datenbank.userExists(username)){
                 return ((RootServerDaten)this.serverDaten).datenbank.getUserID(username);
@@ -394,7 +394,7 @@ public class ServerStubImpl implements ServerStub {
                 return ((RootServerDaten)this.serverDaten).datenbank.getProfil(userID);
             }
             else{
-                int tmpRC1 = ((RootServerDaten)this.serverDaten).primitiveDaten.requestCounter;
+                int tmpRC1 = this.serverDaten.primitiveDaten.requestCounter;
                 ((RootServerDaten)this.serverDaten).incRequestCounter();
                 LinkedList<LinkedList<String>> resultList = new LinkedList<>();
                 int anzahlThreads = 0;
@@ -440,7 +440,7 @@ public class ServerStubImpl implements ServerStub {
     @Override
     public LinkedList<String> findUserProfilRoots(String originIP, int requestCounter, int userID) throws RemoteException, SQLException{
         // war die Anfrage schonmal hier
-        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
+        if(!checkRequest(originIP, requestCounter) && !originIP.equals(this.serverDaten.primitiveDaten.ownIP)){
             //suche in db nach username
             if(((RootServerDaten)this.serverDaten).datenbank.userExists(userID)){
                 return ((RootServerDaten)this.serverDaten).datenbank.getProfil(userID);
@@ -713,12 +713,12 @@ public class ServerStubImpl implements ServerStub {
         /* --- falls mehr als ein teilnehmer am termin teilnimmt, dann wird die änderung an alle root-server-nachbarn weitergesendet --- */
         
             if(termin.getTeilnehmerliste().size() > 1){
-                int tmpRC1 = ((RootServerDaten)this.serverDaten).primitiveDaten.requestCounter;
+                int tmpRC1 = this.serverDaten.primitiveDaten.requestCounter;
                 //Flooding weiterleitung
                 for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
                     new Thread(() ->{
                         try {
-                            connection.getServerStub().changeEditierrechteRoots(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP, tmpRC1, termin, userID);
+                            connection.getServerStub().changeEditierrechteRoots(this.serverDaten.primitiveDaten.ownIP, tmpRC1, termin, userID);
                         } catch (RemoteException | SQLException ex) { }
                     }).start();
                 }     
@@ -771,7 +771,7 @@ public class ServerStubImpl implements ServerStub {
     @Override
     public void changeEditierrechteRoots(String originIP, int requestCounter, Termin termin, int userID) throws RemoteException, SQLException{
         // war die Anfrage schonmal hier
-        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
+        if(!checkRequest(originIP, requestCounter) && !originIP.equals(this.serverDaten.primitiveDaten.ownIP)){
         
         /* --- änderung wird an alle root-server-nachbarn weitergesendet --- */
             //Flooding weiterleitung
@@ -828,7 +828,7 @@ public class ServerStubImpl implements ServerStub {
     @Override
     public void changeEditierrechteChilds(Termin termin, String serverID, String username) throws RemoteException, SQLException{
         //ist man schon am richtigen server? (serverID gleich)
-        if(serverID.equals(((RootServerDaten)serverDaten).primitiveDaten.serverID)){
+        if(serverID.equals(serverDaten.primitiveDaten.serverID)){
             for(Sitzung sitzung : ((ChildServerDaten)serverDaten).aktiveSitzungen){
                 if(sitzung.getEingeloggterBenutzer().getUsername().equals(username)){
                     try {
@@ -842,7 +842,7 @@ public class ServerStubImpl implements ServerStub {
             }            
         }
         //ist man auf dem richtigen weg? (serverID ersten x ziffern gleich)
-        else if(serverID.startsWith(((RootServerDaten)serverDaten).primitiveDaten.serverID)){          
+        else if(serverID.startsWith(serverDaten.primitiveDaten.serverID)){          
             for(Verbindung child : this.serverDaten.childConnection){
                 child.getServerStub().changeEditierrechteChilds(termin, serverID, username);
             }           
@@ -867,11 +867,11 @@ public class ServerStubImpl implements ServerStub {
         
             if(termin.getTeilnehmerliste().size() > 1){
                 //Flooding weiterleitung
-                int tmpRC1 = ((RootServerDaten)serverDaten).primitiveDaten.requestCounter;
+                int tmpRC1 = serverDaten.primitiveDaten.requestCounter;
                 for(Verbindung connection : ((RootServerDaten)serverDaten).connectionList){             
                     new Thread(() ->{
                         try {
-                            connection.getServerStub().changeTerminRoots(((RootServerDaten)serverDaten).primitiveDaten.ownIP, tmpRC1, termin, userID);
+                            connection.getServerStub().changeTerminRoots(serverDaten.primitiveDaten.ownIP, tmpRC1, termin, userID);
                         } catch (RemoteException | SQLException ex) { }
                     }).start();
                 }     
@@ -930,7 +930,7 @@ public class ServerStubImpl implements ServerStub {
     @Override
     public void changeTerminRoots(String originIP, int requestCounter, Termin termin, int userID) throws RemoteException, SQLException{
         // war die Anfrage schonmal hier
-        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
+        if(!checkRequest(originIP, requestCounter) && !originIP.equals(this.serverDaten.primitiveDaten.ownIP)){
         
         /* --- änderung wird an alle root-server-nachbarn weitergesendet --- */
             //Flooding weiterleitung
@@ -992,7 +992,7 @@ public class ServerStubImpl implements ServerStub {
     @Override
     public void changeTerminChilds(Termin termin, String serverID, String username) throws RemoteException, SQLException{
         //ist man schon am richtigen server? (serverID gleich)
-        if(serverID.equals(((RootServerDaten)serverDaten).primitiveDaten.serverID)){
+        if(serverID.equals(serverDaten.primitiveDaten.serverID)){
             for(Sitzung sitzung : ((ChildServerDaten)serverDaten).aktiveSitzungen){
                 if(sitzung.getEingeloggterBenutzer().getUsername().equals(username)){
                     try {
@@ -1007,7 +1007,7 @@ public class ServerStubImpl implements ServerStub {
             }            
         }
         //ist man auf dem richtigen weg? (serverID ersten x ziffern gleich)
-        else if(serverID.startsWith(((RootServerDaten)serverDaten).primitiveDaten.serverID)){          
+        else if(serverID.startsWith(serverDaten.primitiveDaten.serverID)){          
             for(Verbindung child : this.serverDaten.childConnection){
                 child.getServerStub().changeTerminChilds(termin, serverID, username);
             }           
@@ -1031,12 +1031,12 @@ public class ServerStubImpl implements ServerStub {
       
         /* --- falls mehr als ein teilnehmer am termin teilnimmt, dann wird die änderung an alle root-server-nachbarn weitergesendet --- */
                    
-            int tmpRC1 = ((RootServerDaten)this.serverDaten).primitiveDaten.requestCounter;
+            int tmpRC1 = this.serverDaten.primitiveDaten.requestCounter;
             //Flooding weiterleitung
             for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
                 new Thread(() ->{
                     try {
-                        connection.getServerStub().deleteTerminAlsNichtOwnerRoots(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP, tmpRC1, termin, username, text);
+                        connection.getServerStub().deleteTerminAlsNichtOwnerRoots(this.serverDaten.primitiveDaten.ownIP, tmpRC1, termin, username, text);
                     } catch (RemoteException | SQLException ex) { }
                 }).start();
             }     
@@ -1084,7 +1084,7 @@ public class ServerStubImpl implements ServerStub {
     @Override
     public void deleteTerminAlsNichtOwnerRoots(String originIP, int requestCounter, Termin termin, String username, String text) throws RemoteException, SQLException{
         // war die Anfrage schonmal hier
-        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
+        if(!checkRequest(originIP, requestCounter) && !originIP.equals(this.serverDaten.primitiveDaten.ownIP)){
         
         /* --- änderung wird an alle root-server-nachbarn weitergesendet --- */
             //Flooding weiterleitung
@@ -1137,7 +1137,7 @@ public class ServerStubImpl implements ServerStub {
     @Override
     public void removeTeilnehmerChilds(int terminID, String username, String teilnehmer, String serverID, Meldung meldung) throws RemoteException, SQLException{
         //ist man schon am richtigen server? (serverID gleich)
-        if(serverID.equals(((RootServerDaten)serverDaten).primitiveDaten.serverID)){            
+        if(serverID.equals(serverDaten.primitiveDaten.serverID)){            
             for(Sitzung sitzung : ((ChildServerDaten)serverDaten).aktiveSitzungen){
                 if(sitzung.getEingeloggterBenutzer().getUsername().equals(username)){
                     try {                       
@@ -1150,7 +1150,7 @@ public class ServerStubImpl implements ServerStub {
             }            
         }
         //ist man auf dem richtigen weg? (serverID ersten x ziffern gleich)
-        else if(serverID.startsWith(((RootServerDaten)serverDaten).primitiveDaten.serverID)){          
+        else if(serverID.startsWith(serverDaten.primitiveDaten.serverID)){          
             for(Verbindung child : this.serverDaten.childConnection){
                 child.getServerStub().removeTeilnehmerChilds(terminID, username, teilnehmer, serverID, meldung);
             }           
@@ -1173,12 +1173,12 @@ public class ServerStubImpl implements ServerStub {
       
         /* --- falls mehr als ein teilnehmer am termin teilnimmt, dann wird die änderung an alle root-server-nachbarn weitergesendet --- */
                    
-            int tmpRC1 = ((RootServerDaten)this.serverDaten).primitiveDaten.requestCounter;
+            int tmpRC1 = this.serverDaten.primitiveDaten.requestCounter;
             //Flooding weiterleitung
             for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
                 new Thread(() ->{
                     try {
-                        connection.getServerStub().deleteTerminAlsOwnerRoots(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP, tmpRC1, termin, username, text);
+                        connection.getServerStub().deleteTerminAlsOwnerRoots(this.serverDaten.primitiveDaten.ownIP, tmpRC1, termin, username, text);
                     } catch (RemoteException | SQLException ex) { }
                 }).start();
             }     
@@ -1228,7 +1228,7 @@ public class ServerStubImpl implements ServerStub {
     @Override
     public void deleteTerminAlsOwnerRoots(String originIP, int requestCounter, Termin termin, String username, String text) throws RemoteException, SQLException{
         // war die Anfrage schonmal hier
-        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
+        if(!checkRequest(originIP, requestCounter) && !originIP.equals(this.serverDaten.primitiveDaten.ownIP)){
         
         /* --- änderung wird an alle root-server-nachbarn weitergesendet --- */
             //Flooding weiterleitung
@@ -1282,7 +1282,7 @@ public class ServerStubImpl implements ServerStub {
     @Override
     public void removeTermin(int terminID, String username, String serverID, Meldung meldung) throws RemoteException, SQLException{
         //ist man schon am richtigen server? (serverID gleich)
-        if(serverID.equals(((RootServerDaten)serverDaten).primitiveDaten.serverID)){
+        if(serverID.equals(serverDaten.primitiveDaten.serverID)){
             for(Sitzung sitzung : ((ChildServerDaten)serverDaten).aktiveSitzungen){
                 if(sitzung.getEingeloggterBenutzer().getUsername().equals(username)){
                     try {
@@ -1297,7 +1297,7 @@ public class ServerStubImpl implements ServerStub {
             }            
         }
         //ist man auf dem richtigen weg? (serverID ersten x ziffern gleich)
-        else if(serverID.startsWith(((RootServerDaten)serverDaten).primitiveDaten.serverID)){          
+        else if(serverID.startsWith(serverDaten.primitiveDaten.serverID)){          
             for(Verbindung child : this.serverDaten.childConnection){
                 child.getServerStub().removeTermin(terminID, username, serverID, meldung);
             }           
@@ -1322,12 +1322,12 @@ public class ServerStubImpl implements ServerStub {
         /* --- falls mehr als ein teilnehmer am termin teilnimmt, dann wird die änderung an alle root-server-nachbarn weitergesendet --- */
         
             if(termin.getTeilnehmerliste().size() > 1){
-                int tmpRC1 = ((RootServerDaten)this.serverDaten).primitiveDaten.requestCounter;
+                int tmpRC1 = this.serverDaten.primitiveDaten.requestCounter;
                 //Flooding weiterleitung
                 for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
                     new Thread(() ->{
                         try {
-                            connection.getServerStub().addTeilnehmerRoots(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP, tmpRC1, termin, username, einlader);
+                            connection.getServerStub().addTeilnehmerRoots(this.serverDaten.primitiveDaten.ownIP, tmpRC1, termin, username, einlader);
                         } catch (RemoteException | SQLException ex) { }
                     }).start();
                 }     
@@ -1396,7 +1396,7 @@ public class ServerStubImpl implements ServerStub {
     @Override
     public void addTeilnehmerRoots(String originIP, int requestCounter, Termin termin, String username, String einlader) throws RemoteException, SQLException{
         // war die Anfrage schonmal hier
-        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
+        if(!checkRequest(originIP, requestCounter) && !originIP.equals(this.serverDaten.primitiveDaten.ownIP)){
         
         /* --- änderung wird an alle root-server-nachbarn weitergesendet --- */
         
@@ -1469,7 +1469,7 @@ public class ServerStubImpl implements ServerStub {
     @Override
     public void addTeilnehmerChilds(int terminID, String username, String kontakt, String serverID) throws RemoteException, SQLException{
         //ist man schon am richtigen server? (serverID gleich)
-        if(serverID.equals(((RootServerDaten)serverDaten).primitiveDaten.serverID)){
+        if(serverID.equals(serverDaten.primitiveDaten.serverID)){
             for(Sitzung sitzung : ((ChildServerDaten)serverDaten).aktiveSitzungen){
                 if(sitzung.getEingeloggterBenutzer().getUsername().equals(username)){
                     try {
@@ -1481,7 +1481,7 @@ public class ServerStubImpl implements ServerStub {
             }            
         }
         //ist man auf dem richtigen weg? (serverID ersten x ziffern gleich)
-        else if(serverID.startsWith(((RootServerDaten)serverDaten).primitiveDaten.serverID)){          
+        else if(serverID.startsWith(serverDaten.primitiveDaten.serverID)){          
             for(Verbindung child : this.serverDaten.childConnection){
                 child.getServerStub().addTeilnehmerChilds(terminID, username, kontakt, serverID);
             }           
@@ -1500,7 +1500,7 @@ public class ServerStubImpl implements ServerStub {
     @Override
     public void addTermin(Anfrage anfrage, String serverID, String username) throws RemoteException, SQLException{
         //ist man schon am richtigen server? (serverID gleich)
-        if(serverID.equals(((RootServerDaten)serverDaten).primitiveDaten.serverID)){
+        if(serverID.equals(serverDaten.primitiveDaten.serverID)){
             for(Sitzung sitzung : ((ChildServerDaten)serverDaten).aktiveSitzungen){
                 if(sitzung.getEingeloggterBenutzer().getUsername().equals(username)){
                     //füge dem user den termin hinzu
@@ -1516,7 +1516,7 @@ public class ServerStubImpl implements ServerStub {
             }            
         }
         //ist man auf dem richtigen weg? (serverID ersten x ziffern gleich)
-        else if(serverID.startsWith(((RootServerDaten)serverDaten).primitiveDaten.serverID)){          
+        else if(serverID.startsWith(serverDaten.primitiveDaten.serverID)){          
             for(Verbindung child : this.serverDaten.childConnection){
                 child.getServerStub().addTermin(anfrage, serverID, username);
             }           
@@ -1540,12 +1540,12 @@ public class ServerStubImpl implements ServerStub {
         /* --- falls mehr als ein teilnehmer am termin teilnimmt, dann wird die änderung an alle root-server-nachbarn weitergesendet --- */
         
             if(termin.getTeilnehmerliste().size() > 1){
-                int tmpRC1 = ((RootServerDaten)this.serverDaten).primitiveDaten.requestCounter;
+                int tmpRC1 = this.serverDaten.primitiveDaten.requestCounter;
                 //Flooding weiterleitung
                 for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
                     new Thread(() ->{
                         try {
-                            connection.getServerStub().teilnehmerNimmtTeilRoots(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP, tmpRC1, termin, username, true, text);
+                            connection.getServerStub().teilnehmerNimmtTeilRoots(this.serverDaten.primitiveDaten.ownIP, tmpRC1, termin, username, true, text);
                         } catch (RemoteException | SQLException ex) { }
                     }).start();
                 }     
@@ -1602,7 +1602,7 @@ public class ServerStubImpl implements ServerStub {
     @Override
     public void teilnehmerNimmtTeilRoots(String originIP, int requestCounter, Termin termin, String username, boolean status, String text) throws RemoteException, SQLException{
         // war die Anfrage schonmal hier
-        if(!checkRequest(originIP, requestCounter) && !originIP.equals(((RootServerDaten)this.serverDaten).primitiveDaten.ownIP)){
+        if(!checkRequest(originIP, requestCounter) && !originIP.equals(this.serverDaten.primitiveDaten.ownIP)){
             
             /* --- falls mehr als ein teilnehmer am termin teilnimmt, dann wird die änderung an alle root-server-nachbarn weitergesendet --- */
             
@@ -1664,7 +1664,7 @@ public class ServerStubImpl implements ServerStub {
     @Override
     public void teilnehmerNimmtTeilChilds(int terminID, String username, String teilnehmer, String serverID, Meldung meldung) throws RemoteException, SQLException{
         //ist man schon am richtigen server? (serverID gleich)
-        if(serverID.equals(((ChildServerDaten)this.serverDaten).primitiveDaten.serverID)){
+        if(serverID.equals(this.serverDaten.primitiveDaten.serverID)){
             for(Sitzung sitzung : ((ChildServerDaten)this.serverDaten).aktiveSitzungen){
                 if(sitzung.getEingeloggterBenutzer().getUsername().equals(username)){
                     try {                        
@@ -1679,7 +1679,7 @@ public class ServerStubImpl implements ServerStub {
             }            
         }
         //ist man auf dem richtigen weg? (serverID ersten x ziffern gleich)
-        else if(serverID.startsWith(((RootServerDaten)serverDaten).primitiveDaten.serverID)){          
+        else if(serverID.startsWith(serverDaten.primitiveDaten.serverID)){          
             for(Verbindung child : this.serverDaten.childConnection){
                 child.getServerStub().teilnehmerNimmtTeilChilds(terminID, username, teilnehmer, serverID, meldung);
             }           

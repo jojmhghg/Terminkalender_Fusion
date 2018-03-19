@@ -207,7 +207,7 @@ public class DBHandler {
         prepuser.setString(4, "");
         prepuser.setString(5, "");
         prepuser.setString(6, passwort);
-        prepuser.setInt(6, 0);
+        prepuser.setInt(7, 0);
         prepuser.execute(); 
 
         PreparedStatement prepIncUserCounter = con.prepareStatement("UPDATE counters SET userCounter = userCounter + 1 WHERE reihe = 1");
