@@ -121,7 +121,7 @@ public class ServerStubImpl implements ServerStub {
             new VerbindungstestsThread(this.serverDaten, verbindung).start();
             
             //Ausgabe im Terminal            
-            System.out.println("Dauerhafte Verbindung zu Server " + ip + " hergestellt!");       
+            System.out.println("Dauerhafte Verbindung zu Root-Server " + ip + " hergestellt!");       
             
             return true;
         } catch (NotBoundException | IOException e) {

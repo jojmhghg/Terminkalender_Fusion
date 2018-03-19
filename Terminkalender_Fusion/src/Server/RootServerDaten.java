@@ -166,22 +166,22 @@ public class RootServerDaten extends ServerDaten {
                         this.connectionList.add(verbindung);
 
                         //Ausgabe im Terminal
-                        System.out.println("LOG * ---> Verbindung zu Server " + tmpIP + " hergestellt!");
+                        System.out.println("LOG * ---> Verbindung zu Root-Server " + tmpIP + " hergestellt!");
 
                         //Starte Threads, die die Verbindung zu anderen Servern testen
                         new VerbindungstestsThread(this, verbindung).start(); 
                         result = true;
                         noConnection = false;                    
                     } catch (RemoteException | NotBoundException ex) {
-                        System.out.println("LOG * ---> Verbindung zu Server " + tmpIP + " konnte nicht hergestellt werden!");  
+                        System.out.println("LOG * ---> Verbindung zu Root-Server " + tmpIP + " konnte nicht hergestellt werden!");  
                     }    
                 }
                 else{
-                    System.out.println("LOG * ---> Verbindung zu Server " + tmpIP + " schon vorhanden!");
+                    System.out.println("LOG * ---> Verbindung zu Root-Server " + tmpIP + " schon vorhanden!");
                 }                                    
             }
             else{
-                System.out.println("LOG * ---> Verbindung zu Server " + tmpIP + " konnte nicht hergestellt werden! (eigener Server)");  
+                System.out.println("LOG * ---> Verbindung zu Root-Server " + tmpIP + " konnte nicht hergestellt werden! (eigener Server)");  
             }            
             serverlist.remove(tmpIP);
         } 

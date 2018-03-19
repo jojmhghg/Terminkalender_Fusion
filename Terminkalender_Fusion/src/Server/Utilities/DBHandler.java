@@ -176,7 +176,8 @@ public class DBHandler {
                 prepuser.setInt(2, serverID * 1000 + 1);
                 prepuser.setInt(3, serverID * 1000 + 1);
                 prepuser.setInt(4, serverID * 1000 + 1);
-                prepuser.setInt(5, serverID);
+                prepuser.setInt(5, serverID * 1000 + 1);
+                prepuser.setInt(6, serverID);
                 prepuser.execute(); 
             }
         }
