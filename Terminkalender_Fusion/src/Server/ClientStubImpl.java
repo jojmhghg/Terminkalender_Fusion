@@ -701,7 +701,7 @@ public class ClientStubImpl implements ClientStub{
     @Override
     public Color[] getColor(int sitzungsID) throws BenutzerException{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);
-        Color[] color = new Color[3];
+        Color[] color = new Color[4];
         switch (eingeloggterBenutzer.getColor()){
             case 0:
                 color[0] = this.colors[4];
