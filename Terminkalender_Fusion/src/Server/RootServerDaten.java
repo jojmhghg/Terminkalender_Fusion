@@ -50,12 +50,10 @@ public class RootServerDaten extends ServerDaten {
         super(args);
         this.connectionList = new LinkedList<>();
         
-         this.requestTable = new HashMap<>();
-         datenbank = new DBHandler(null, childConnection, primitiveDaten);
-         datenbank.getConnection(0); 
-         userAnServerListe = new LinkedList<>();
-
-        startDB();           
+        this.requestTable = new HashMap<>();
+        datenbank = new DBHandler(null, childConnection, primitiveDaten);        
+        startDB();
+        userAnServerListe = new LinkedList<>();                
     }
     
     private void startDB() throws ClassNotFoundException, SQLException, NoSuchAlgorithmException{
