@@ -1139,13 +1139,15 @@ public class ServerStubImpl implements ServerStub {
                 int meldungsID;       
                 //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
                 for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
-                    for(Verbindung child : this.serverDaten.childConnection){
+                    if(((RootServerDaten)serverDaten).datenbank.userExists(teilnehmer.getUsername())){    
                         meldungsID = ((RootServerDaten)this.serverDaten).datenbank.addMeldung(teilnehmer.getUsername(), text, false);
                         meldung = new Meldung(text, meldungsID);
-                        try{ 
-                            String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
-                            child.getServerStub().removeTeilnehmerChilds(termin.getID(), teilnehmer.getUsername(), username, serverID, meldung);                                                    
-                        } catch (BenutzerException ex){}
+                        for(Verbindung child : this.serverDaten.childConnection){                          
+                            try{ 
+                                String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
+                                child.getServerStub().removeTeilnehmerChilds(termin.getID(), teilnehmer.getUsername(), username, serverID, meldung);                                                    
+                            } catch (BenutzerException ex){}
+                        }
                     }
                 } 
             }
