@@ -169,22 +169,23 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         jPanel14.setBackground(color1);
         headerPanel.setBackground(color1);
         jLabel16.setBackground(color1);
-        jLabel17.setBackground(color1);
-        jPanel11.setBackground(color1);
+        jPanel11.setBackground(color1);       
         jPanel12.setBackground(color1);
         jPanel13.setBackground(color1);
         jPanel4.setBackground(color1);
-       
+        jPanel15.setBackground(color1);
         
         //Middle
         jPanel6.setBackground(color2);
         contactUsernameField.setBackground(color2);
         kontaktlistenbox.setBackground(color2);
-        //showAddKontakt.setBackground(color2);
-        showRemoveKontakt.setBackground(color2);
         benachList.setBackground(color2);
         calendarPanel.setBackground(color2);
         jPanel5.setBackground(color2);
+        jPanel9.setBackground(color2);
+        jPanel8.setBackground(color2);
+        termineListe.setBackground(color2);
+        
         
         //Dark
         mainPanel.setBackground(color3);
@@ -1408,19 +1409,19 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         jPanel14.setLayout(jPanel14Layout);
         jPanel14Layout.setHorizontalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel14Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel16, javax.swing.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel14Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanel14Layout.setVerticalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel14Layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(jPanel14Layout.createSequentialGroup()
+                .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 1, Short.MAX_VALUE))
         );
 
-        calendarPanel.add(jPanel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, 80, -1));
+        calendarPanel.add(jPanel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, 80, 20));
 
         jPanel15.setBackground(new java.awt.Color(46, 49, 117));
         jPanel15.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -1454,10 +1455,10 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
             jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel15Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
-        calendarPanel.add(jPanel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 10, 80, -1));
+        calendarPanel.add(jPanel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 10, 80, 20));
 
         mainPanel.add(calendarPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 70, 700, 510));
 
