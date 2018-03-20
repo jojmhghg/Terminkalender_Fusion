@@ -604,7 +604,6 @@ public class ProfilFenster extends javax.swing.JFrame {
         //Light
         jPanel2.setBackground(momentanFarbe1);
         jPanel6.setBackground(momentanFarbe1);
-        jPanel6.setBackground(momentanFarbe1);
         jButton1.setBackground(momentanFarbe1);
         jButton2.setBackground(momentanFarbe1);
         jButton3.setBackground(momentanFarbe1);
@@ -613,10 +612,14 @@ public class ProfilFenster extends javax.swing.JFrame {
         
         //Middle
         jPanel3.setBackground(momentanFarbe2);
+        usernameField.setBackground(momentanFarbe2);
+        vornameField.setBackground(momentanFarbe2);
         nachnameField.setBackground(momentanFarbe2);
         emailField.setBackground(momentanFarbe2);
         altesPWField.setBackground(momentanFarbe2);
         neuesPWField.setBackground(momentanFarbe2);
+        jPanel6.setBackground(momentanFarbe2);
+        jPanel5.setBackground(momentanFarbe2);
         
         
         
@@ -634,7 +637,6 @@ public class ProfilFenster extends javax.swing.JFrame {
         //Light
         jPanel2.setBackground(momentanFarbe1);
         jPanel6.setBackground(momentanFarbe1);
-        jPanel6.setBackground(momentanFarbe1);
         jButton1.setBackground(momentanFarbe1);
         jButton2.setBackground(momentanFarbe1);
         jButton3.setBackground(momentanFarbe1);
@@ -643,6 +645,14 @@ public class ProfilFenster extends javax.swing.JFrame {
         
         //Middle
         jPanel3.setBackground(momentanFarbe2);
+        usernameField.setBackground(momentanFarbe2);
+        vornameField.setBackground(momentanFarbe2);
+        nachnameField.setBackground(momentanFarbe2);
+        emailField.setBackground(momentanFarbe2);
+        altesPWField.setBackground(momentanFarbe2);
+        neuesPWField.setBackground(momentanFarbe2);
+        jPanel6.setBackground(momentanFarbe2);
+        jPanel5.setBackground(momentanFarbe2);
         
         farbset = 3;
     }//GEN-LAST:event_jButton3ActionPerformed
@@ -657,7 +667,6 @@ public class ProfilFenster extends javax.swing.JFrame {
         //Light
         jPanel2.setBackground(momentanFarbe1);
         jPanel6.setBackground(momentanFarbe1);
-        jPanel6.setBackground(momentanFarbe1);
         jButton1.setBackground(momentanFarbe1);
         jButton2.setBackground(momentanFarbe1);
         jButton3.setBackground(momentanFarbe1);
@@ -666,6 +675,14 @@ public class ProfilFenster extends javax.swing.JFrame {
         
         //Middle
         jPanel3.setBackground(momentanFarbe2);
+        usernameField.setBackground(momentanFarbe2);
+        vornameField.setBackground(momentanFarbe2);
+        nachnameField.setBackground(momentanFarbe2);
+        emailField.setBackground(momentanFarbe2);
+        altesPWField.setBackground(momentanFarbe2);
+        neuesPWField.setBackground(momentanFarbe2);
+        jPanel6.setBackground(momentanFarbe2);
+        jPanel5.setBackground(momentanFarbe2);
         
         farbset = 0;
     }//GEN-LAST:event_jButton4ActionPerformed
@@ -680,7 +697,6 @@ public class ProfilFenster extends javax.swing.JFrame {
         //Light
         jPanel2.setBackground(momentanFarbe1);
         jPanel6.setBackground(momentanFarbe1);
-        jPanel6.setBackground(momentanFarbe1);
         jButton1.setBackground(momentanFarbe1);
         jButton2.setBackground(momentanFarbe1);
         jButton3.setBackground(momentanFarbe1);
@@ -689,6 +705,14 @@ public class ProfilFenster extends javax.swing.JFrame {
         
         //Middle
         jPanel3.setBackground(momentanFarbe2);
+        usernameField.setBackground(momentanFarbe2);
+        vornameField.setBackground(momentanFarbe2);
+        nachnameField.setBackground(momentanFarbe2);
+        emailField.setBackground(momentanFarbe2);
+        altesPWField.setBackground(momentanFarbe2);
+        neuesPWField.setBackground(momentanFarbe2);
+        jPanel6.setBackground(momentanFarbe2);
+        jPanel5.setBackground(momentanFarbe2);
         
         farbset = 1;
     }//GEN-LAST:event_jButton1ActionPerformed
