@@ -130,9 +130,7 @@ public class LoginFenster extends javax.swing.JFrame {
                 this.setVisible(false);
                 
                 Hauptfenster start = new Hauptfenster(stub, sitzungsID, this);               
-                start.setVisible(true);
-                start.fillContactList();
-                start.fillMeldList();           
+                start.setVisible(true);                          
             }  
         }
         catch(BenutzerException | DatenbankException e){

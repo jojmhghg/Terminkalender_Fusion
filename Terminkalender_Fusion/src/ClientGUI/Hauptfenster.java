@@ -51,7 +51,7 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
     private ClientStub stub;
     private int sitzungsID;
     //private DefaultListModel listModel;
-    DefaultListModel listModel = new DefaultListModel();
+    DefaultListModel listModel;
     DefaultListModel termineListeModel = new DefaultListModel();
     //DefaultListModel event = new DefaultListModel();
     LoginFenster fenster;
@@ -109,6 +109,8 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         timer = new Timer(1000, taskPerformer);
         timer.start();
         
+        fillContactList();
+        fillMeldList();
     }
     
     private void setColor() throws RemoteException, BenutzerException{
@@ -2003,12 +2005,10 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
      * Fuele Kontaktliste auf
      */
     public void fillContactList() {
-        int i = 0;
         try {
+            listModel = new DefaultListModel();
             for (String contactListe : stub.getKontakte(sitzungsID)) {
-                i++;
                 listModel.addElement(contactListe);
-                //listModel.addElement(stub.getKontakte(sitzungsID));
             }
         } catch (BenutzerException | RemoteException ex) {
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Hauptfenster", JOptionPane.ERROR_MESSAGE);
@@ -2094,7 +2094,6 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         jLabel13.setForeground(Color.white);
         fillMeldList();
         displayDate();
-        listModel = new DefaultListModel();
         fillContactList();
         try {
             setColor();
