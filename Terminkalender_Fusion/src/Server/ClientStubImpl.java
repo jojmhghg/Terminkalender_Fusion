@@ -402,8 +402,9 @@ public class ClientStubImpl implements ClientStub{
     @Override
     public void changeTermin(Termin termin, int sitzungsID) throws BenutzerException, TerminException, SQLException, RemoteException{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);
- 
-       ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeTermin(termin, eingeloggterBenutzer.getUserID());            
+        System.out.println("clientstub - 1");
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeTermin(termin, eingeloggterBenutzer.getUserID());     
+        System.out.println("clientstub - 2");       
     }
     
     /**

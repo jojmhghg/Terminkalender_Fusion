@@ -895,6 +895,7 @@ public class ServerStubImpl implements ServerStub {
         /* --- falls mehr als ein teilnehmer am termin teilnimmt, dann wird die änderung an alle root-server-nachbarn weitergesendet --- */
         
             if(termin.getTeilnehmerliste().size() > 1){
+                System.out.println("mehr als ein teilnehmer -> weiterleiten p2p");
                 //Flooding weiterleitung
                 int tmpRC1 = serverDaten.primitiveDaten.requestCounter;
                 for(Verbindung connection : ((RootServerDaten)serverDaten).connectionList){             
@@ -909,6 +910,7 @@ public class ServerStubImpl implements ServerStub {
             
         /* --- ändere Daten auf DB des Servers --- */
                        
+            System.out.println("änderungen an db des änderers");
             //trage aktuallisierte Daten ein
             ((RootServerDaten)serverDaten).datenbank.changeTerminbeginn(termin.getID(), termin.getBeginn());
             ((RootServerDaten)serverDaten).datenbank.changeTerminende(termin.getID(), termin.getEnde());
@@ -925,6 +927,7 @@ public class ServerStubImpl implements ServerStub {
             //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
             for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
                 if(((RootServerDaten)this.serverDaten).datenbank.userExists(teilnehmer.getUsername())){
+                    System.out.println(teilnehmer.getUsername() + "ist an db und änderungen werden an ihn geschickt");
                     for(Verbindung child : this.serverDaten.childConnection){
                         try{ 
                             String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
@@ -957,6 +960,7 @@ public class ServerStubImpl implements ServerStub {
         if(!checkRequest(originIP, requestCounter) && !originIP.equals(this.serverDaten.primitiveDaten.ownIP)){
         
         /* --- änderung wird an alle root-server-nachbarn weitergesendet --- */
+        System.out.println("flooding weiterleitung");
             //Flooding weiterleitung
             for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
                 new Thread(() ->{
@@ -968,9 +972,10 @@ public class ServerStubImpl implements ServerStub {
  
             //existiert termin überhaupt auf db?
             if(((RootServerDaten)this.serverDaten).datenbank.terminExists(termin.getID())){
-        
+                System.out.println("termin auf db!");
         /* --- ändere Daten auf DB des Servers --- */
                        
+                System.out.println("änderungen an db des änderers");
                 //trage aktuallisierte Daten ein
                 ((RootServerDaten)serverDaten).datenbank.changeTerminbeginn(termin.getID(), termin.getBeginn());
                 ((RootServerDaten)serverDaten).datenbank.changeTerminende(termin.getID(), termin.getEnde());
@@ -987,6 +992,7 @@ public class ServerStubImpl implements ServerStub {
                 //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
                 for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
                     if(((RootServerDaten)this.serverDaten).datenbank.userExists(teilnehmer.getUsername())){
+                        System.out.println(teilnehmer.getUsername() + "ist an db und änderungen werden an ihn geschickt");
                         for(Verbindung child : this.serverDaten.childConnection){
                             try{ 
                                 String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
@@ -1012,6 +1018,7 @@ public class ServerStubImpl implements ServerStub {
     public void changeTerminChilds(Termin termin, String serverID, String username) throws RemoteException, SQLException{
         //ist man schon am richtigen server? (serverID gleich)
         if(serverID.equals(serverDaten.primitiveDaten.serverID)){
+            System.out.println("termin wird angepasst für " + username);
             for(Sitzung sitzung : ((ChildServerDaten)serverDaten).aktiveSitzungen){
                 if(sitzung.getEingeloggterBenutzer().getUsername().equals(username)){
                     try {
