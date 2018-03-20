@@ -7,18 +7,15 @@ package ClientGUI;
  */
 import Server.ClientStub;
 import Utilities.BenutzerException;
-import Utilities.Datum;
 import Utilities.Teilnehmer;
 import Utilities.Termin;
 import Utilities.TerminException;
-import Utilities.Zeit;
 import java.awt.Color;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 
 /**
@@ -47,14 +44,14 @@ public class TerminAnzeigenFenster extends javax.swing.JFrame {
     public TerminAnzeigenFenster(int terminID, ClientStub stub, int sitzungsID, Hauptfenster hauptfenster) throws RemoteException, BenutzerException, TerminException {
         initComponents();
         
-        //Farben des ComboButtons ändern
-        kontakte.getEditor().getEditorComponent().setBackground(new java.awt.Color(29,30,66));
-        kontakte.getEditor().getEditorComponent().setForeground(Color.white);
+        //Farben des ComboButtons 
+        kontaktdropbox.getEditor().getEditorComponent().setBackground(new java.awt.Color(29,30,66));
+        kontaktdropbox.getEditor().getEditorComponent().setForeground(Color.white);
         //erstes Item "null"
-        this.kontakte.addItem("");
+        this.kontaktdropbox.addItem("");
         //alle Kontakte einfuegen
         for(String kontakte : stub.getKontakte(sitzungsID)){
-                this.kontakte.addItem(kontakte);
+                this.kontaktdropbox.addItem(kontakte);
         }
         
         this.hauptfenster = hauptfenster;
@@ -79,7 +76,7 @@ public class TerminAnzeigenFenster extends javax.swing.JFrame {
         if(!termin.getEditierbar() && !stub.getUsername(sitzungsID).equals(termin.getOwner())){
             bearbeitenLabel.setVisible(false);
             jPanel5.setVisible(false);
-            kontakte.setVisible(false);
+            kontaktdropbox.setVisible(false);
             addTeilnahmeLabel.setVisible(false);
             jPanel8.setVisible(false);
             jPanel3.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 200, 180));
@@ -96,7 +93,8 @@ public class TerminAnzeigenFenster extends javax.swing.JFrame {
 
         
         //Light
-        kontakte.setBackground(color1);
+        kontaktdropbox.setBackground(color1);
+        kontaktdropbox.getEditor().getEditorComponent().setBackground(color2);
         jPanel2.setBackground(color1);
         jPanel3.setBackground(color1);
         jPanel4.setBackground(color1);
@@ -109,14 +107,12 @@ public class TerminAnzeigenFenster extends javax.swing.JFrame {
         
         //Middle
         jPanel1.setBackground(color2);
-        jPanel5.setBackground(color2);
-        jPanel6.setBackground(color2);
-        jPanel7.setBackground(color2);
         jPanel8.setBackground(color2);
         notiz.setBackground(color2);
         teilnehmerliste.setBackground(color2);
         
         //Font 
+        kontaktdropbox.getEditor().getEditorComponent().setForeground(color4);
         titel.setForeground(color4);
         jLabel2.setForeground(color4);
         jLabel3.setForeground(color4);
@@ -135,7 +131,7 @@ public class TerminAnzeigenFenster extends javax.swing.JFrame {
         ort.setForeground(color4);
         terminersteller.setForeground(color4);
         datum.setForeground(color4);
-        kontakte.setForeground(color4);
+        kontaktdropbox.setForeground(color4);
         addTeilnahmeLabel.setForeground(color4);
         teilnehmerliste.setForeground(color4);
         
@@ -186,7 +182,7 @@ public class TerminAnzeigenFenster extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jPanel8 = new javax.swing.JPanel();
         addTeilnahmeLabel = new javax.swing.JLabel();
-        kontakte = new javax.swing.JComboBox<>();
+        kontaktdropbox = new javax.swing.JComboBox<>();
         jPanel4 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -314,16 +310,16 @@ public class TerminAnzeigenFenster extends javax.swing.JFrame {
 
         jPanel3.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 40, 40, 30));
 
-        kontakte.setBackground(new java.awt.Color(29, 30, 66));
-        kontakte.setEditable(true);
-        kontakte.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        kontakte.setForeground(new java.awt.Color(255, 255, 255));
-        kontakte.addActionListener(new java.awt.event.ActionListener() {
+        kontaktdropbox.setBackground(new java.awt.Color(29, 30, 66));
+        kontaktdropbox.setEditable(true);
+        kontaktdropbox.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        kontaktdropbox.setForeground(new java.awt.Color(255, 255, 255));
+        kontaktdropbox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                kontakteActionPerformed(evt);
+                kontaktdropboxActionPerformed(evt);
             }
         });
-        jPanel3.add(kontakte, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 190, 30));
+        jPanel3.add(kontaktdropbox, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 190, 30));
 
         jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 70, 250, 230));
 
@@ -502,11 +498,11 @@ public class TerminAnzeigenFenster extends javax.swing.JFrame {
         // TODO add your handling code here:
         addTeilnahmeLabel.setForeground(Color.gray);
 
-        String username = kontakte.getEditor().getItem().toString();
+        String username = kontaktdropbox.getEditor().getItem().toString();
         if (username.length() > 0) {
             try {
                 stub.addTerminteilnehmer(terminID, username, sitzungsID);
-                kontakte.getEditor().setItem(null);
+                kontaktdropbox.getEditor().setItem(null);
                 //damit man nichtmehr aktualisieren muss addElement
                 teilnehmerListeModel.addElement(username + " (offen)");
             } catch (RemoteException | BenutzerException | SQLException | TerminException ex) {
@@ -515,9 +511,9 @@ public class TerminAnzeigenFenster extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_addTeilnahmeLabelMouseClicked
 
-    private void kontakteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_kontakteActionPerformed
+    private void kontaktdropboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_kontaktdropboxActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_kontakteActionPerformed
+    }//GEN-LAST:event_kontaktdropboxActionPerformed
 
    
     /**
@@ -730,7 +726,7 @@ public class TerminAnzeigenFenster extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JComboBox<String> kontakte;
+    private javax.swing.JComboBox<String> kontaktdropbox;
     private javax.swing.JTextArea notiz;
     private javax.swing.JLabel ort;
     private javax.swing.JLabel start;

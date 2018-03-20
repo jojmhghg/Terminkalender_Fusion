@@ -61,7 +61,7 @@ public class ProfilFenster extends javax.swing.JFrame {
         jButton2.setBackground(color1);
         jButton3.setBackground(color1);
         jButton4.setBackground(color1);
-        
+        jPanel5.setBackground(color1);
         
         //Middle
         jPanel3.setBackground(color2);
@@ -71,8 +71,6 @@ public class ProfilFenster extends javax.swing.JFrame {
         emailField.setBackground(color2);
         altesPWField.setBackground(color2);
         neuesPWField.setBackground(color2);
-        jPanel6.setBackground(color2);
-        jPanel5.setBackground(color2);
         
         
         //Font 
@@ -269,11 +267,15 @@ public class ProfilFenster extends javax.swing.JFrame {
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel11, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 165, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel11, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         jPanel3.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 440, -1, -1));
@@ -299,11 +301,15 @@ public class ProfilFenster extends javax.swing.JFrame {
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, 165, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel12, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         jPanel3.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 440, -1, -1));
@@ -604,6 +610,7 @@ public class ProfilFenster extends javax.swing.JFrame {
         //Light
         jPanel2.setBackground(momentanFarbe1);
         jPanel6.setBackground(momentanFarbe1);
+        jPanel5.setBackground(momentanFarbe1);
         jButton1.setBackground(momentanFarbe1);
         jButton2.setBackground(momentanFarbe1);
         jButton3.setBackground(momentanFarbe1);
@@ -618,8 +625,6 @@ public class ProfilFenster extends javax.swing.JFrame {
         emailField.setBackground(momentanFarbe2);
         altesPWField.setBackground(momentanFarbe2);
         neuesPWField.setBackground(momentanFarbe2);
-        jPanel6.setBackground(momentanFarbe2);
-        jPanel5.setBackground(momentanFarbe2);
         
         
         
@@ -637,6 +642,7 @@ public class ProfilFenster extends javax.swing.JFrame {
         //Light
         jPanel2.setBackground(momentanFarbe1);
         jPanel6.setBackground(momentanFarbe1);
+        jPanel5.setBackground(momentanFarbe1);
         jButton1.setBackground(momentanFarbe1);
         jButton2.setBackground(momentanFarbe1);
         jButton3.setBackground(momentanFarbe1);
@@ -651,8 +657,7 @@ public class ProfilFenster extends javax.swing.JFrame {
         emailField.setBackground(momentanFarbe2);
         altesPWField.setBackground(momentanFarbe2);
         neuesPWField.setBackground(momentanFarbe2);
-        jPanel6.setBackground(momentanFarbe2);
-        jPanel5.setBackground(momentanFarbe2);
+        
         
         farbset = 3;
     }//GEN-LAST:event_jButton3ActionPerformed
@@ -667,6 +672,7 @@ public class ProfilFenster extends javax.swing.JFrame {
         //Light
         jPanel2.setBackground(momentanFarbe1);
         jPanel6.setBackground(momentanFarbe1);
+        jPanel5.setBackground(momentanFarbe1);
         jButton1.setBackground(momentanFarbe1);
         jButton2.setBackground(momentanFarbe1);
         jButton3.setBackground(momentanFarbe1);
@@ -681,8 +687,6 @@ public class ProfilFenster extends javax.swing.JFrame {
         emailField.setBackground(momentanFarbe2);
         altesPWField.setBackground(momentanFarbe2);
         neuesPWField.setBackground(momentanFarbe2);
-        jPanel6.setBackground(momentanFarbe2);
-        jPanel5.setBackground(momentanFarbe2);
         
         farbset = 0;
     }//GEN-LAST:event_jButton4ActionPerformed
@@ -697,6 +701,7 @@ public class ProfilFenster extends javax.swing.JFrame {
         //Light
         jPanel2.setBackground(momentanFarbe1);
         jPanel6.setBackground(momentanFarbe1);
+        jPanel5.setBackground(momentanFarbe1);
         jButton1.setBackground(momentanFarbe1);
         jButton2.setBackground(momentanFarbe1);
         jButton3.setBackground(momentanFarbe1);
@@ -711,8 +716,6 @@ public class ProfilFenster extends javax.swing.JFrame {
         emailField.setBackground(momentanFarbe2);
         altesPWField.setBackground(momentanFarbe2);
         neuesPWField.setBackground(momentanFarbe2);
-        jPanel6.setBackground(momentanFarbe2);
-        jPanel5.setBackground(momentanFarbe2);
         
         farbset = 1;
     }//GEN-LAST:event_jButton1ActionPerformed
