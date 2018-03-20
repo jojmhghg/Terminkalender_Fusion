@@ -129,7 +129,9 @@ public class LoginFenster extends javax.swing.JFrame {
                 
                 this.setVisible(false);
                 
-                Hauptfenster start = new Hauptfenster(stub, sitzungsID, this);               
+                Hauptfenster start = new Hauptfenster(stub, sitzungsID, this);
+                start.fillContactList();
+                start.fillMeldList();
                 start.setVisible(true);                          
             }  
         }
