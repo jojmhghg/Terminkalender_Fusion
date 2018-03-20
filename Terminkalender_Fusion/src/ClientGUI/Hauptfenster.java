@@ -180,7 +180,7 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         jPanel6.setBackground(color2);
         contactUsernameField.setBackground(color2);
         kontaktlistenbox.setBackground(color2);
-        showAddKontakt.setBackground(color2);
+        //showAddKontakt.setBackground(color2);
         showRemoveKontakt.setBackground(color2);
         benachList.setBackground(color2);
         calendarPanel.setBackground(color2);
