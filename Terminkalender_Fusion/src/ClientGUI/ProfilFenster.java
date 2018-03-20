@@ -58,6 +58,7 @@ public class ProfilFenster extends javax.swing.JFrame {
         jPanel2.setBackground(color1);
         jPanel6.setBackground(color1);
         jPanel6.setBackground(color1);
+        jPanel5.setBackground(color1);
         jButton1.setBackground(color1);
         jButton2.setBackground(color1);
         jButton3.setBackground(color1);
