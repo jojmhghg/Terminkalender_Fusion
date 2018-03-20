@@ -100,12 +100,21 @@ public class TerminBearbeitenFenster extends javax.swing.JFrame {
         jPanel6.setBackground(color1);
         jPanel5.setBackground(color1);
         jPanel7.setBackground(color1);
+        tag1.setBackground(color1);
+        monat1.setBackground(color1);
+        jahr1.setBackground(color1);
+        minute1.setBackground(color1);
+        minute2.setBackground(color1);
+        stunde1.setBackground(color1);
+        stunde2.setBackground(color1);
+        
         
         
         //Middle
         jPanel1.setBackground(color2);
         notiz.setBackground(color2);
         teilnehmerliste.setBackground(color2);
+        ortTextField.setBackground(color2);   
         
         
         //Font 
@@ -131,7 +140,7 @@ public class TerminBearbeitenFenster extends javax.swing.JFrame {
         teilnehmerliste.setForeground(color4);
         ortTextField.setForeground(color4);
         ownerValueLabel.setForeground(color4);
-           
+        jSeparator2.setForeground(color4);
         
     }
 

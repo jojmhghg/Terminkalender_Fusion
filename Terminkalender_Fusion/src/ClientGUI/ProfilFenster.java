@@ -66,6 +66,12 @@ public class ProfilFenster extends javax.swing.JFrame {
         
         //Middle
         jPanel3.setBackground(color2);
+        usernameField.setBackground(color2);
+        vornameField.setBackground(color2);
+        nachnameField.setBackground(color2);
+        emailField.setBackground(color2);
+        altesPWField.setBackground(color2);
+        neuesPWField.setBackground(color2);
         
         
         //Font 
@@ -88,6 +94,13 @@ public class ProfilFenster extends javax.swing.JFrame {
         jButton3.setForeground(color4);
         jButton4.setForeground(color4);
         jButton1.setForeground(color4);
+        jSeparator2.setForeground(color4);
+        jSeparator3.setForeground(color4);
+        jSeparator4.setForeground(color4);
+        jSeparator5.setForeground(color4);
+        jSeparator6.setForeground(color4);
+        jSeparator7.setForeground(color4);
+        
         
         
     }
@@ -345,7 +358,7 @@ public class ProfilFenster extends javax.swing.JFrame {
 
         jPanel3.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 360, -1, -1));
 
-        jPanel9.setBackground(new java.awt.Color(204, 0, 204));
+        jPanel9.setBackground(new java.awt.Color(102, 0, 102));
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
@@ -360,7 +373,7 @@ public class ProfilFenster extends javax.swing.JFrame {
 
         jPanel3.add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 360, -1, -1));
 
-        jPanel10.setBackground(new java.awt.Color(102, 0, 102));
+        jPanel10.setBackground(new java.awt.Color(51, 0, 51));
 
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
         jPanel10.setLayout(jPanel10Layout);
@@ -375,7 +388,7 @@ public class ProfilFenster extends javax.swing.JFrame {
 
         jPanel3.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 360, -1, -1));
 
-        jPanel8.setBackground(new java.awt.Color(255, 102, 255));
+        jPanel8.setBackground(new java.awt.Color(255, 153, 255));
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
@@ -390,7 +403,7 @@ public class ProfilFenster extends javax.swing.JFrame {
 
         jPanel3.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 360, -1, -1));
 
-        jPanel12.setBackground(new java.awt.Color(51, 153, 255));
+        jPanel12.setBackground(new java.awt.Color(0, 153, 204));
 
         javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
         jPanel12.setLayout(jPanel12Layout);
@@ -405,7 +418,7 @@ public class ProfilFenster extends javax.swing.JFrame {
 
         jPanel3.add(jPanel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 360, -1, -1));
 
-        jPanel13.setBackground(new java.awt.Color(0, 102, 153));
+        jPanel13.setBackground(new java.awt.Color(0, 51, 102));
 
         javax.swing.GroupLayout jPanel13Layout = new javax.swing.GroupLayout(jPanel13);
         jPanel13.setLayout(jPanel13Layout);
@@ -420,7 +433,7 @@ public class ProfilFenster extends javax.swing.JFrame {
 
         jPanel3.add(jPanel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 360, -1, -1));
 
-        jPanel11.setBackground(new java.awt.Color(204, 255, 255));
+        jPanel11.setBackground(new java.awt.Color(153, 204, 255));
 
         javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
         jPanel11.setLayout(jPanel11Layout);
@@ -599,6 +612,13 @@ public class ProfilFenster extends javax.swing.JFrame {
         
         //Middle
         jPanel3.setBackground(momentanFarbe2);
+        nachnameField.setBackground(momentanFarbe2);
+        emailField.setBackground(momentanFarbe2);
+        altesPWField.setBackground(momentanFarbe2);
+        neuesPWField.setBackground(momentanFarbe2);
+        
+        
+        
         
         farbset = 2;
     }//GEN-LAST:event_jButton2ActionPerformed

@@ -51,6 +51,7 @@ public class ForgotPasswordFenster extends javax.swing.JFrame {
         
         //Middle
         jPanel2.setBackground(color2);
+        emailField.setBackground(color2);
         
         
         //Font 
@@ -58,6 +59,7 @@ public class ForgotPasswordFenster extends javax.swing.JFrame {
         jLabel1.setForeground(color4);
         emailField.setForeground(color4);
         jLabel11.setForeground(color4);
+        jSeparator2.setForeground(color4);
         
     }
     

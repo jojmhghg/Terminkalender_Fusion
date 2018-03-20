@@ -48,13 +48,14 @@ public class RemoveKontaktFenster extends javax.swing.JFrame {
         
         //Middle
         jPanel1.setBackground(color2);
-        
+        userNameField.setBackground(color2);
         
         //Font 
         jLabel7.setForeground(color4);
         jLabel1.setForeground(color4);
         userNameField.setForeground(color4);
         jLabel11.setForeground(color4);
+        jSeparator2.setForeground(color4);
         
     }
     
