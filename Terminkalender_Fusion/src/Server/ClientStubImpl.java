@@ -43,8 +43,8 @@ public class ClientStubImpl implements ClientStub{
         
         this.colors = new Color[16];
         colors[0] = new Color(153,204,255);
-        colors[1] = new Color(102,204,255);
-        colors[2] = new Color(0,153,204);
+        colors[1] = new Color(0,153,204);
+        colors[2] = new Color(0,51,102);
         colors[3] = new Color(0,0,0);
         
         colors[4] = new Color(204,204,204);
