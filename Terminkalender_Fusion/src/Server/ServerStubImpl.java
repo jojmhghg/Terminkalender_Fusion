@@ -1460,28 +1460,28 @@ public class ServerStubImpl implements ServerStub {
                     }
                 }  
             }
-        }
-        
-        /* --- Falls der eingeladene User zu dieser DB gehört, füge der DB & dem Server, 
-        an dem er eingeloggt ist, eine Anfrage und den Termin dem User hinzu --- */
+            
+            /* --- Falls der eingeladene User zu dieser DB gehört, füge der DB & dem Server, 
+            an dem er eingeloggt ist, eine Anfrage und den Termin dem User hinzu --- */
 
-        if(((RootServerDaten)serverDaten).datenbank.userExists(username)){ 
+            if(((RootServerDaten)serverDaten).datenbank.userExists(username)){ 
 
-            String text = einlader + " lädt sie zu einem Termin am ";
-            Anfrage anfrage = new Anfrage(text, termin, einlader, ((RootServerDaten)this.serverDaten).datenbank.getMeldungsCounter());
+                String text = einlader + " lädt sie zu einem Termin am ";
+                Anfrage anfrage = new Anfrage(text, termin, einlader, ((RootServerDaten)this.serverDaten).datenbank.getMeldungsCounter());
 
-            //Füge der DB die Anfrage hinzu
-            ((RootServerDaten)serverDaten).datenbank.addExistingTermin(termin);
-            ((RootServerDaten)serverDaten).datenbank.addTeilnehmer(termin.getID(), username);
-            ((RootServerDaten)serverDaten).datenbank.addAnfrage(username, termin.getID(), einlader, text); 
-
-            //Füge dem neuen Teilnehmer den Termin hinzu (auf dem Server)
-            for(Verbindung child : this.serverDaten.childConnection){
-                try{
-                    child.getServerStub().addTermin(anfrage, ((RootServerDaten)this.serverDaten).getServerIdByUsername(username), username);
-                } catch (BenutzerException ex){}
-            } 
-        }
+                //Füge dem neuen Teilnehmer den Termin hinzu (auf dem Server)
+                for(Verbindung child : this.serverDaten.childConnection){
+                    try{
+                        child.getServerStub().addTermin(anfrage, ((RootServerDaten)this.serverDaten).getServerIdByUsername(username), username);
+                    } catch (BenutzerException ex){}
+                } 
+                
+                //Füge der DB die Anfrage hinzu
+                ((RootServerDaten)serverDaten).datenbank.addExistingTermin(termin);
+                ((RootServerDaten)serverDaten).datenbank.addTeilnehmer(termin.getID(), username);
+                ((RootServerDaten)serverDaten).datenbank.addAnfrage(username, termin.getID(), einlader, text); 
+            }
+        }     
     }
     
     /**
