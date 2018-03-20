@@ -492,8 +492,11 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
                 button[x].setForeground(Color.white);
 
                 if (ld.getDayOfMonth() == tag && monat == ld.getMonthValue() && year == ld.getYear()) {
+                    Color[] color = stub.getColor(sitzungsID);
+                    Color color3 = color[2];
+                    
                     button[x].setForeground(Color.red);
-                    button[x].setBackground(new Color(29, 30, 66));
+                    button[x].setBackground(color3);
                 }
 
                 tagBekommen[x] = tag;
