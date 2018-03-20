@@ -6,7 +6,6 @@
  */
 package ClientGUI;
 
-import Client.GUI;
 import Server.ClientStub;
 import Utilities.Anfrage;
 import Utilities.BenutzerException;
@@ -91,7 +90,7 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         
         setColor();
         
-        jList1.setModel(listModel);
+        kontaktlistenbox.setModel(listModel);
         termineListe.setModel(termineListeModel);
         daySelector = 0;
         initKalender();
@@ -181,7 +180,7 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         //Middle
         jPanel6.setBackground(color2);
         contactUsernameField.setBackground(color2);
-        jList1.setBackground(color2);
+        kontaktlistenbox.setBackground(color2);
         showAddKontakt.setBackground(color2);
         showRemoveKontakt.setBackground(color2);
         benachList.setBackground(color2);
@@ -249,7 +248,7 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         jLabel8.setForeground(color4);
         contactUsernameField.setForeground(color4);
         showAddKontakt.setForeground(color4);
-        jList1.setForeground(color4);
+        kontaktlistenbox.setForeground(color4);
         showRemoveKontakt.setForeground(color4);
         jLabel11.setForeground(color4);
         benachList.setForeground(color4);
@@ -593,7 +592,7 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         jPanel2 = new javax.swing.JPanel();
         contactUsernameField = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList<>();
+        kontaktlistenbox = new javax.swing.JList<>();
         jLabel8 = new javax.swing.JLabel();
         jPanel8 = new javax.swing.JPanel();
         showAddKontakt = new javax.swing.JLabel();
@@ -706,26 +705,26 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         jScrollPane1.setBackground(new java.awt.Color(29, 30, 66));
         jScrollPane1.setBorder(null);
 
-        jList1.setBackground(new java.awt.Color(29, 30, 66));
-        jList1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jList1.setForeground(new java.awt.Color(240, 240, 240));
-        jList1.setModel(new javax.swing.AbstractListModel<String>() {
+        kontaktlistenbox.setBackground(new java.awt.Color(29, 30, 66));
+        kontaktlistenbox.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        kontaktlistenbox.setForeground(new java.awt.Color(240, 240, 240));
+        kontaktlistenbox.setModel(new javax.swing.AbstractListModel<String>() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
-        jList1.setToolTipText("");
-        jList1.addMouseListener(new java.awt.event.MouseAdapter() {
+        kontaktlistenbox.setToolTipText("");
+        kontaktlistenbox.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jList1MouseClicked(evt);
+                kontaktlistenboxMouseClicked(evt);
             }
         });
-        jList1.addComponentListener(new java.awt.event.ComponentAdapter() {
+        kontaktlistenbox.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {
-                jList1ComponentShown(evt);
+                kontaktlistenboxComponentShown(evt);
             }
         });
-        jScrollPane1.setViewportView(jList1);
+        jScrollPane1.setViewportView(kontaktlistenbox);
 
         jPanel2.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, 210, 110));
 
@@ -1654,7 +1653,7 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jList1ComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_jList1ComponentShown
+    private void kontaktlistenboxComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_kontaktlistenboxComponentShown
 //        int i = 0;
 //         //LinkedList<String> contactListe = stub.getKontakte(sitzungsID);
 //        try {
@@ -1666,7 +1665,7 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
 //        } catch (BenutzerException | RemoteException ex) {
 //            JOptionPane.showMessageDialog(null, ex.getMessage(), "Hauptfenster", JOptionPane.ERROR_MESSAGE);
 //        }
-    }//GEN-LAST:event_jList1ComponentShown
+    }//GEN-LAST:event_kontaktlistenboxComponentShown
 
     private void benachListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_benachListMouseClicked
         if(evt.getClickCount() == 2 && evt.getButton() == MouseEvent.BUTTON1){
@@ -1710,19 +1709,19 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         // TODO add your handling code here:
     }//GEN-LAST:event_day25ActionPerformed
 
-    private void jList1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jList1MouseClicked
+    private void kontaktlistenboxMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_kontaktlistenboxMouseClicked
         if(evt.getClickCount() == 2 && evt.getButton() == MouseEvent.BUTTON1){
             KontaktProfilFenster profil;
             
             try {
-                profil = new KontaktProfilFenster(stub, sitzungsID, jList1.getSelectedValue());
+                profil = new KontaktProfilFenster(stub, sitzungsID, kontaktlistenbox.getSelectedValue());
                 profil.setVisible(true);
             } catch (RemoteException | BenutzerException | SQLException ex) {
                 Logger.getLogger(Hauptfenster.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
-    }//GEN-LAST:event_jList1MouseClicked
+    }//GEN-LAST:event_kontaktlistenboxMouseClicked
 
     private void showAddKontaktMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_showAddKontaktMouseClicked
 
@@ -1753,7 +1752,7 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         showRemoveKontakt.setForeground(Color.white);
         //RemoveKontakt start = new RemoveKontakt(stub,sitzungsID);
         //start.setVisible(true);
-        int selectedIndex = jList1.getSelectedIndex();
+        int selectedIndex = kontaktlistenbox.getSelectedIndex();
         int size = listModel.getSize();
         if (selectedIndex != -1) {
             try {
@@ -2047,7 +2046,7 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
     public void valueChanged(ListSelectionEvent e) {
         if (e.getValueIsAdjusting() == false) {
 
-            if (jList1.getSelectedIndex() == -1) {
+            if (kontaktlistenbox.getSelectedIndex() == -1) {
                 //No selection, disable add button.
                 showAddKontakt.setEnabled(false);
 
@@ -2095,6 +2094,7 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         jLabel13.setForeground(Color.white);
         fillMeldList();
         displayDate();
+        fillContactList();
         try {
             setColor();
         } catch (RemoteException | BenutzerException ex) {
@@ -2165,7 +2165,6 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JList<String> jList1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
@@ -2184,6 +2183,7 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JList<String> kontaktlistenbox;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JLabel mittwochLabel;
     private javax.swing.JLabel montagLabel;
