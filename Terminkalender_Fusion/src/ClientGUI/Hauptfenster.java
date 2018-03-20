@@ -2094,6 +2094,7 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
         jLabel13.setForeground(Color.white);
         fillMeldList();
         displayDate();
+        listModel = new DefaultListModel();
         fillContactList();
         try {
             setColor();
