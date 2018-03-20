@@ -76,22 +76,14 @@ public class ClientStubImpl implements ClientStub{
     @Override
     public void createUser(String username, String passwort, String email) throws BenutzerException, SQLException, RemoteException{
         if(this.serverDaten instanceof RootServerDaten){
-            //existiert User auf diesem Server oder auf anderem Server? 
-            
-            try{
-                if(findServerForUser(username).equals("false")){
-                    //lege User in DB an
-                    ((RootServerDaten) serverDaten).datenbank.addUser(username, passwort, email);
-                }
-                else{
-                    throw new BenutzerException("Client nicht mit dem Root-Server verbunden!");
-                }                
-            }
-            catch(BenutzerException | SQLException ex){
+            //existiert User auf diesem Server oder auf anderem Server?            
+            if(findServerForUser(username).equals("false")){
                 //lege User in DB an
                 ((RootServerDaten) serverDaten).datenbank.addUser(username, passwort, email);
             }
-            
+            else{
+                throw new BenutzerException("User existiert bereits!");
+            }                         
         }
         else{
             throw new BenutzerException("Client nicht mit dem Root-Server verbunden!");
