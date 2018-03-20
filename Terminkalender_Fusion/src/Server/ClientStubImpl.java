@@ -275,6 +275,7 @@ public class ClientStubImpl implements ClientStub{
 //TODO: hier muss von root an child weitergeleitet werden!
                     Benutzer user = istEingeloggt(username);
                     user.setPasswort(passwort);
+                    
 //bis hier!                    
                 }
                 catch(BenutzerException ex){ }
