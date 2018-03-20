@@ -274,14 +274,17 @@ public class ClientStubImpl implements ClientStub{
 
                 //aktuallisiere DB
                 ((RootServerDaten)serverDaten).datenbank.changePasswort(passwort, username);
-                try{
-//TODO: hier muss von root an child weitergeleitet werden!
-                    Benutzer user = istEingeloggt(username);
-                    user.setPasswort(passwort);
-                    
-//bis hier!                    
-                }
-                catch(BenutzerException ex){ }
+                
+                //akt. pw auf server
+                for(Sitzung sitzung : ((ChildServerDaten)serverDaten).aktiveSitzungen){
+                    if(sitzung.getEingeloggterBenutzer().getUsername().equals(username)){
+                        try {     
+                            sitzung.getEingeloggterBenutzer().setPasswort(passwort);
+                        } catch (BenutzerException ex) {
+                            Logger.getLogger(ServerStubImpl.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }           
             }
             else{
                 throw new BenutzerException("User existiert nicht!");
@@ -402,9 +405,7 @@ public class ClientStubImpl implements ClientStub{
     @Override
     public void changeTermin(Termin termin, int sitzungsID) throws BenutzerException, TerminException, SQLException, RemoteException{
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);
-        System.out.println("clientstub - 1");
-        ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeTermin(termin, eingeloggterBenutzer.getUserID());     
-        System.out.println("clientstub - 2");       
+        ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeTermin(termin, eingeloggterBenutzer.getUserID());       
     }
     
     /**

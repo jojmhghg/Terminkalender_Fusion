@@ -895,7 +895,6 @@ public class ServerStubImpl implements ServerStub {
         /* --- falls mehr als ein teilnehmer am termin teilnimmt, dann wird die änderung an alle root-server-nachbarn weitergesendet --- */
         
             if(termin.getTeilnehmerliste().size() > 1){
-                System.out.println("mehr als ein teilnehmer -> weiterleiten p2p");
                 //Flooding weiterleitung
                 int tmpRC1 = serverDaten.primitiveDaten.requestCounter;
                 for(Verbindung connection : ((RootServerDaten)serverDaten).connectionList){             
@@ -910,7 +909,7 @@ public class ServerStubImpl implements ServerStub {
             
         /* --- ändere Daten auf DB des Servers --- */
                        
-            System.out.println("änderungen an db des änderers");
+
             //trage aktuallisierte Daten ein
             ((RootServerDaten)serverDaten).datenbank.changeTerminbeginn(termin.getID(), termin.getBeginn());
             ((RootServerDaten)serverDaten).datenbank.changeTerminende(termin.getID(), termin.getEnde());
@@ -960,7 +959,7 @@ public class ServerStubImpl implements ServerStub {
         if(!checkRequest(originIP, requestCounter) && !originIP.equals(this.serverDaten.primitiveDaten.ownIP)){
         
         /* --- änderung wird an alle root-server-nachbarn weitergesendet --- */
-        System.out.println("flooding weiterleitung");
+
             //Flooding weiterleitung
             for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
                 new Thread(() ->{
@@ -972,10 +971,10 @@ public class ServerStubImpl implements ServerStub {
  
             //existiert termin überhaupt auf db?
             if(((RootServerDaten)this.serverDaten).datenbank.terminExists(termin.getID())){
-                System.out.println("termin auf db!");
+
         /* --- ändere Daten auf DB des Servers --- */
                        
-                System.out.println("änderungen an db des änderers");
+
                 //trage aktuallisierte Daten ein
                 ((RootServerDaten)serverDaten).datenbank.changeTerminbeginn(termin.getID(), termin.getBeginn());
                 ((RootServerDaten)serverDaten).datenbank.changeTerminende(termin.getID(), termin.getEnde());
@@ -1018,7 +1017,7 @@ public class ServerStubImpl implements ServerStub {
     public void changeTerminChilds(Termin termin, String serverID, String username) throws RemoteException, SQLException{
         //ist man schon am richtigen server? (serverID gleich)
         if(serverID.equals(serverDaten.primitiveDaten.serverID)){
-            System.out.println("termin wird angepasst für " + username);
+
             for(Sitzung sitzung : ((ChildServerDaten)serverDaten).aktiveSitzungen){
                 if(sitzung.getEingeloggterBenutzer().getUsername().equals(username)){
                     try {
@@ -1750,6 +1749,36 @@ public class ServerStubImpl implements ServerStub {
         else{
             ((ChildServerDaten)this.serverDaten).parent.getServerStub().changeColor(color, userID);
         }          
+    }
+
+    /**
+     * 
+     * @param passwort
+     * @param username
+     * @param serverID
+     * @throws RemoteException
+     * @throws SQLException 
+     */
+    @Override
+    public void resetPwChilds(String passwort, String username, String serverID) throws RemoteException, SQLException {
+       //ist man schon am richtigen server? (serverID gleich)
+        if(serverID.equals(serverDaten.primitiveDaten.serverID)){
+            for(Sitzung sitzung : ((ChildServerDaten)serverDaten).aktiveSitzungen){
+                if(sitzung.getEingeloggterBenutzer().getUsername().equals(username)){
+                    try {     
+                        sitzung.getEingeloggterBenutzer().setPasswort(passwort);
+                    } catch (BenutzerException ex) {
+                        Logger.getLogger(ServerStubImpl.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }            
+        }
+        //ist man auf dem richtigen weg? (serverID ersten x ziffern gleich)
+        else if(serverID.startsWith(serverDaten.primitiveDaten.serverID)){          
+            for(Verbindung child : this.serverDaten.childConnection){
+                child.getServerStub().resetPwChilds(passwort, username, serverID);
+            }           
+        }
     }
     
 }

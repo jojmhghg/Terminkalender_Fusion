@@ -49,6 +49,8 @@ public interface ServerStub extends Remote{
     //Datenmanipulation - Nur ein User betroffen
     public void changeColor(int color, int userID) throws RemoteException, SQLException;
     
+    public void resetPwChilds(String passwort, String username, String serverID) throws RemoteException, SQLException;
+    
     public void changePasswort(String passwort, String username) throws RemoteException, SQLException;
     public void changeVorname(String vorname, String username) throws RemoteException, SQLException;
     public void changeNachname(String nachname, String username) throws RemoteException, SQLException;
