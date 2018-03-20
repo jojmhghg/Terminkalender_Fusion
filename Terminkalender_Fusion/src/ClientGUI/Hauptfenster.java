@@ -1727,13 +1727,9 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
     private void showAddKontaktMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_showAddKontaktMouseClicked
 
         showAddKontakt.setForeground(Color.white);
-        //AddKontakt start= new AddKontakt(stub,sitzungsID);
-        //start.setVisible(true);
         String contact = contactUsernameField.getText();
         if (contact.length() > 0) {
             try {
-                //if (contact.length() >= 0) {
-                //AddKontakt add = new AddKontakt(stub,sitzungsID);
                 stub.addKontakt(contact, sitzungsID);
                 listModel.addElement(contact);
                 contactUsernameField.setText("");

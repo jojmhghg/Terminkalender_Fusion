@@ -560,8 +560,14 @@ public class ClientStubImpl implements ClientStub{
      */
     @Override
     public void addKontakt(String username, int sitzungsID) throws BenutzerException, SQLException, RemoteException{       
+        System.out.println("test");        
         //existiert user überhaupt?
-        ((ChildServerDaten)this.serverDaten).parent.getServerStub().findIdForUser(username);
+        if(((ChildServerDaten)this.serverDaten).parent.getServerStub().findIdForUser(username) == -1){
+            System.out.println("uesr existiert nicht bei addKontakt");
+            throw new BenutzerException("User existiert nicht!");
+        }
+        
+        System.out.println("ergebnis addKontakt suche: " +  ((ChildServerDaten)this.serverDaten).parent.getServerStub().findIdForUser(username));
         
         //adde kontakt auf server
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);            

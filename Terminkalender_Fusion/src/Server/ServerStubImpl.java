@@ -19,7 +19,6 @@ import Utilities.Teilnehmer;
 import Utilities.Termin;
 import Utilities.TerminException;
 import Utilities.Zeit;
-import java.awt.Color;
 import java.io.IOException;
 import java.rmi.AccessException;
 import java.rmi.NotBoundException;
