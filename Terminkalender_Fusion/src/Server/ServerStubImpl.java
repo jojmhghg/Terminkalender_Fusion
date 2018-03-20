@@ -1425,7 +1425,7 @@ public class ServerStubImpl implements ServerStub {
     public void addTeilnehmerRoots(String originIP, int requestCounter, Termin termin, String username, String einlader) throws RemoteException, SQLException{
         // war die Anfrage schonmal hier
         if(!checkRequest(originIP, requestCounter) && !originIP.equals(this.serverDaten.primitiveDaten.ownIP)){
-            System.out.println("flooding kommt an");
+
         /* --- änderung wird an alle root-server-nachbarn weitergesendet --- */
         
             //Flooding weiterleitung
@@ -1439,14 +1439,12 @@ public class ServerStubImpl implements ServerStub {
  
             //existiert termin überhaupt auf db?
             if(((RootServerDaten)this.serverDaten).datenbank.terminExists(termin.getID())){
-                System.out.println("teilnehmer in dieser db!");            
+           
         /* --- ändere Daten auf DB des Servers --- */
                        
                 //Füge dem Termin den neuen Teilnehmer in der DB hinzu
                 ((RootServerDaten)serverDaten).datenbank.addTeilnehmer(termin.getID(), username);
-            
-
-          
+  
         /* --- ändere Daten auf den child-servern --- */
         
                 //mit dieser Liste merkt man sich serverIDs die bereits einen änderungsaufruf bekommen
@@ -1471,7 +1469,7 @@ public class ServerStubImpl implements ServerStub {
         an dem er eingeloggt ist, eine Anfrage und den Termin dem User hinzu --- */
 
         if(((RootServerDaten)serverDaten).datenbank.userExists(username)){ 
-            System.out.println("hier ist neuer teilnehmer");
+
             String text = einlader + " lädt sie zu einem Termin am ";
             Anfrage anfrage = new Anfrage(text, termin, einlader, ((RootServerDaten)this.serverDaten).datenbank.getMeldungsCounter());
 
