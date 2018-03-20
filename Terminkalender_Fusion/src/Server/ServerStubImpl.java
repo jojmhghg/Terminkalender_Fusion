@@ -1397,19 +1397,15 @@ public class ServerStubImpl implements ServerStub {
           
         /* --- ändere Daten auf den child-servern --- */
         
-            //mit dieser Liste merkt man sich serverIDs die bereits einen änderungsaufruf bekommen
-            //so werden nicht dem selben server mehrere änderungen geschickt
-            LinkedList<String> bereitsAngesteuerteServer = new LinkedList<>();
             //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
             for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
-                for(Verbindung child : this.serverDaten.childConnection){
-                    try{ 
-                        String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
-                        if(!bereitsAngesteuerteServer.contains(serverID)){
-                            child.getServerStub().addTeilnehmerChilds(termin.getID(), teilnehmer.getUsername(), username, serverID); 
-                            bereitsAngesteuerteServer.add(serverID);
-                        }              
-                    } catch (BenutzerException ex){}
+                if(((RootServerDaten)this.serverDaten).datenbank.userExists(teilnehmer.getUsername())){
+                    for(Verbindung child : this.serverDaten.childConnection){
+                        try{ 
+                            String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
+                            child.getServerStub().addTeilnehmerChilds(termin.getID(), teilnehmer.getUsername(), username, serverID);                                         
+                        } catch (BenutzerException ex){}
+                    }
                 }
             }                            
         }
@@ -1456,19 +1452,15 @@ public class ServerStubImpl implements ServerStub {
   
         /* --- ändere Daten auf den child-servern --- */
         
-                //mit dieser Liste merkt man sich serverIDs die bereits einen änderungsaufruf bekommen
-                //so werden nicht dem selben server mehrere änderungen geschickt
-                LinkedList<String> bereitsAngesteuerteServer = new LinkedList<>();
                 //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
                 for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
-                    for(Verbindung child : this.serverDaten.childConnection){
-                        try{ 
-                            String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
-                            if(!bereitsAngesteuerteServer.contains(serverID)){
-                                child.getServerStub().addTeilnehmerChilds(termin.getID(), teilnehmer.getUsername(), username, serverID); 
-                                bereitsAngesteuerteServer.add(serverID);
-                            }              
-                        } catch (BenutzerException ex){}
+                    if(((RootServerDaten)this.serverDaten).datenbank.userExists(teilnehmer.getUsername())){
+                        for(Verbindung child : this.serverDaten.childConnection){
+                            try{ 
+                                String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
+                                child.getServerStub().addTeilnehmerChilds(termin.getID(), teilnehmer.getUsername(), username, serverID);                                         
+                            } catch (BenutzerException ex){}
+                        }
                     }
                 }  
             }
