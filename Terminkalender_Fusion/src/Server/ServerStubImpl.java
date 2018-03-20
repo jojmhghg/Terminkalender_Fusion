@@ -926,7 +926,7 @@ public class ServerStubImpl implements ServerStub {
             //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
             for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
                 if(((RootServerDaten)this.serverDaten).datenbank.userExists(teilnehmer.getUsername())){
-                    System.out.println(teilnehmer.getUsername() + "ist an db und änderungen werden an ihn geschickt");
+
                     for(Verbindung child : this.serverDaten.childConnection){
                         try{ 
                             String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
@@ -991,7 +991,7 @@ public class ServerStubImpl implements ServerStub {
                 //für jeden Teilnehmer wird die Änderung an dessen Server geschickt
                 for(Teilnehmer teilnehmer : termin.getTeilnehmerliste()){
                     if(((RootServerDaten)this.serverDaten).datenbank.userExists(teilnehmer.getUsername())){
-                        System.out.println(teilnehmer.getUsername() + "ist an db und änderungen werden an ihn geschickt");
+
                         for(Verbindung child : this.serverDaten.childConnection){
                             try{ 
                                 String serverID = ((RootServerDaten)this.serverDaten).getServerIdByUsername(teilnehmer.getUsername());
