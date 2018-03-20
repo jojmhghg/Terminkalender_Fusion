@@ -1474,6 +1474,7 @@ public class ServerStubImpl implements ServerStub {
             Anfrage anfrage = new Anfrage(text, termin, einlader, ((RootServerDaten)this.serverDaten).datenbank.getMeldungsCounter());
 
             //Füge der DB die Anfrage hinzu
+            ((RootServerDaten)serverDaten).datenbank.addExistingTermin(termin);
             ((RootServerDaten)serverDaten).datenbank.addAnfrage(username, termin.getID(), einlader, text); 
 
             //Füge dem neuen Teilnehmer den Termin hinzu (auf dem Server)
