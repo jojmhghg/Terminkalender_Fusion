@@ -273,8 +273,8 @@ public class ClientStubImpl implements ClientStub{
                 emailService.sendMail(((RootServerDaten)serverDaten).datenbank.getEmail(username), "Terminkalender: Passwort zurückgesetzt", message);
 
                 //aktuallisiere DB
-                ((RootServerDaten)serverDaten).datenbank.changePasswort(passwort, username);
-                
+                ((RootServerDaten)serverDaten).datenbank.changePasswort(username, passwort);
+
                 //akt. pw auf server
                 for(Verbindung child : this.serverDaten.childConnection){
                     child.getServerStub().resetPwChilds(passwort, username, findServerForUser(username));
