@@ -564,6 +564,7 @@ public class ClientStubImpl implements ClientStub{
         if(((ChildServerDaten)this.serverDaten).parent.getServerStub().findIdForUser(username) == -1){
             throw new BenutzerException("User existiert nicht!!!");
         }
+        
 
         //adde kontakt auf server
         Benutzer eingeloggterBenutzer = istEingeloggt(sitzungsID);            
