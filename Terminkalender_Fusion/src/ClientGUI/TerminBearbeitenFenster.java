@@ -107,6 +107,8 @@ public class TerminBearbeitenFenster extends javax.swing.JFrame {
         minute2.setBackground(color1);
         stunde1.setBackground(color1);
         stunde2.setBackground(color1);
+        titel.setBackground(color1);
+
         
         
         

@@ -55,6 +55,7 @@ public class KontaktProfilFenster extends javax.swing.JFrame {
         
         //Light
         jPanel3.setBackground(color1);
+        jPanel4.setBackground(color1);
             
         //Middle
         jPanel2.setBackground(color2);
