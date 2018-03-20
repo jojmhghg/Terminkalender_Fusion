@@ -272,8 +272,10 @@ public class ClientStubImpl implements ClientStub{
                 //aktuallisiere DB
                 ((RootServerDaten)serverDaten).datenbank.changePasswort(passwort, username);
                 try{
+//TODO: hier muss von root an child weitergeleitet werden!
                     Benutzer user = istEingeloggt(username);
                     user.setPasswort(passwort);
+//bis hier!                    
                 }
                 catch(BenutzerException ex){ }
             }
@@ -861,12 +863,16 @@ public class ClientStubImpl implements ClientStub{
      * @throws BenutzerException 
      */
     private Benutzer istEingeloggt(String username) throws BenutzerException {
-        for(Sitzung sitzung : ((ChildServerDaten)serverDaten).aktiveSitzungen){
-            if(sitzung.getEingeloggterBenutzer().getUsername().equals(username)){
-                return sitzung.getEingeloggterBenutzer();
-            }
+        if(serverDaten instanceof ChildServerDaten){
+            for(Sitzung sitzung : ((ChildServerDaten)serverDaten).aktiveSitzungen){
+                if(sitzung.getEingeloggterBenutzer().getUsername().equals(username)){
+                    return sitzung.getEingeloggterBenutzer();
+                }
+            }           
         }
-        throw new BenutzerException("ungültige Sitzungs-ID");
+        throw new BenutzerException("user nicht eingeloggt");
     }
+        
+    
   
 }

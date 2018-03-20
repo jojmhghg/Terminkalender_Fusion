@@ -33,7 +33,7 @@ public class ForgotPasswordFenster extends javax.swing.JFrame {
         this.stub = stub;
         this.sitzungsID = sitzungsID;
         
-        setColor();
+        //setColor();
     }
     
     private void setColor() throws RemoteException, BenutzerException{

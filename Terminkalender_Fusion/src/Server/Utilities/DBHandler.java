@@ -974,10 +974,12 @@ public class DBHandler {
         
         //hier werden die Terminliste erstellt
         while(termine != null && termine.next()){
+            
             //gibt es einen User auf dem Servern, der an dem Termin teilnimmt? 
             //wenn ja: füge referenz hinzu
             teilnehmerliste = getTeilnehmerSet(termine.getInt("terminID"));
             stopLoop = false;
+            /*
             while(teilnehmerliste.next() && !stopLoop){
                 teilnehmerUsername = teilnehmerliste.getString("username");
                 for(Sitzung sitzung : aktiveSitzungen){
@@ -990,7 +992,7 @@ public class DBHandler {
                         }
                     }
                 }
-            }    
+            }   */ 
             //wenn nein: erstelle neuen Termin
             if(!stopLoop){
                 edit = termine.getInt("editEveryone") == 1;
