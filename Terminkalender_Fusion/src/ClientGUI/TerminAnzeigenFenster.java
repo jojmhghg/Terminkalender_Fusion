@@ -96,6 +96,7 @@ public class TerminAnzeigenFenster extends javax.swing.JFrame {
 
         
         //Light
+        kontakte.setBackground(color1);
         jPanel2.setBackground(color1);
         jPanel3.setBackground(color1);
         jPanel4.setBackground(color1);
@@ -103,7 +104,7 @@ public class TerminAnzeigenFenster extends javax.swing.JFrame {
         jPanel5.setBackground(color1);
         jPanel7.setBackground(color1);
         titel.setBackground(color1);
-        kontakte.setBackground(color1);
+        
         
         
         //Middle
