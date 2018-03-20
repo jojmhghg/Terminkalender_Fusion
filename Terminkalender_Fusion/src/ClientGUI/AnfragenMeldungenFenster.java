@@ -80,6 +80,7 @@ public class AnfragenMeldungenFenster extends javax.swing.JFrame {
         
         //Middle
         jPanel2.setBackground(color2);
+        meldungsText.setBackground(color2);
         
         //Font 
         jLabel7.setForeground(color4);

@@ -58,6 +58,10 @@ public class KontaktProfilFenster extends javax.swing.JFrame {
             
         //Middle
         jPanel2.setBackground(color2);
+        usernameField.setBackground(color2);
+        vornameField.setBackground(color2);
+        nachnameField.setBackground(color2);
+        emailField.setBackground(color2);
         
         
         //Font 
@@ -70,6 +74,10 @@ public class KontaktProfilFenster extends javax.swing.JFrame {
         vornameField.setForeground(color4);
         nachnameField.setForeground(color4);
         emailField.setForeground(color4);
+        jSeparator2.setForeground(color4);
+        jSeparator4.setForeground(color4);
+        jSeparator5.setForeground(color4);
+        jSeparator3.setForeground(color4);
         
     }
 

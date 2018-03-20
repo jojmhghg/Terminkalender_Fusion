@@ -102,6 +102,7 @@ public class TerminAnzeigenFenster extends javax.swing.JFrame {
         jPanel6.setBackground(color1);
         jPanel5.setBackground(color1);
         jPanel7.setBackground(color1);
+        titel.setBackground(color1);
         
         
         //Middle

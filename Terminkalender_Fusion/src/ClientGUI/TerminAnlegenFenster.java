@@ -73,11 +73,21 @@ public class TerminAnlegenFenster extends javax.swing.JFrame {
         //Light
         jPanel2.setBackground(color1);
         jPanel3.setBackground(color1);
+        titel.setBackground(color1);
+        tag1.setBackground(color1);
+        monat1.setBackground(color1);
+        jahr1.setBackground(color1);
+        minute1.setBackground(color1);
+        minute2.setBackground(color1);
+        stunde1.setBackground(color1);
+        stunde2.setBackground(color1);
         
         
         //Middle
         jPanel1.setBackground(color2);
         beschreibung.setBackground(color2);
+       
+        
         
         //Font 
         titel.setForeground(color4);
