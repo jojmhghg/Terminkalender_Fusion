@@ -252,7 +252,7 @@ public class ClientStubImpl implements ClientStub{
      * @throws SQLException 
      */
     @Override
-    public void resetPassword(String username) throws BenutzerException, SQLException{ 
+    public void resetPassword(String username) throws BenutzerException, SQLException, RemoteException{ 
         if(((RootServerDaten)serverDaten).primitiveDaten.serverID.equals("0")){
             if(((RootServerDaten)this.serverDaten).datenbank.userExists(username)){       
                 String message;
@@ -276,15 +276,9 @@ public class ClientStubImpl implements ClientStub{
                 ((RootServerDaten)serverDaten).datenbank.changePasswort(passwort, username);
                 
                 //akt. pw auf server
-                for(Sitzung sitzung : ((ChildServerDaten)serverDaten).aktiveSitzungen){
-                    if(sitzung.getEingeloggterBenutzer().getUsername().equals(username)){
-                        try {     
-                            sitzung.getEingeloggterBenutzer().setPasswort(passwort);
-                        } catch (BenutzerException ex) {
-                            Logger.getLogger(ServerStubImpl.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                }           
+                for(Verbindung child : this.serverDaten.childConnection){
+                    child.getServerStub().resetPwChilds(passwort, username, findServerForUser(username));
+                }            
             }
             else{
                 throw new BenutzerException("User existiert nicht!");
