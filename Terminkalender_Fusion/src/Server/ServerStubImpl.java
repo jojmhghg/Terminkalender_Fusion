@@ -1349,19 +1349,18 @@ public class ServerStubImpl implements ServerStub {
         if(this.serverDaten instanceof RootServerDaten){
       
         /* --- falls mehr als ein teilnehmer am termin teilnimmt, dann wird die änderung an alle root-server-nachbarn weitergesendet --- */
-        
-            if(termin.getTeilnehmerliste().size() > 1){
-                int tmpRC1 = this.serverDaten.primitiveDaten.requestCounter;
-                //Flooding weiterleitung
-                for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
-                    new Thread(() ->{
-                        try {
-                            connection.getServerStub().addTeilnehmerRoots(this.serverDaten.primitiveDaten.ownIP, tmpRC1, termin, username, einlader);
-                        } catch (RemoteException | SQLException ex) { }
-                    }).start();
-                }     
-                ((RootServerDaten)this.serverDaten).incRequestCounter();
-            }
+                   
+            int tmpRC1 = this.serverDaten.primitiveDaten.requestCounter;
+            //Flooding weiterleitung
+            for(Verbindung connection : ((RootServerDaten)this.serverDaten).connectionList){             
+                new Thread(() ->{
+                    try {
+                        connection.getServerStub().addTeilnehmerRoots(this.serverDaten.primitiveDaten.ownIP, tmpRC1, termin, username, einlader);
+                    } catch (RemoteException | SQLException ex) { }
+                }).start();
+            }     
+            ((RootServerDaten)this.serverDaten).incRequestCounter();
+            
             
         /* --- ändere Daten auf DB des Servers --- */
                        
@@ -1373,6 +1372,7 @@ public class ServerStubImpl implements ServerStub {
                     an dem er eingeloggt ist, eine Anfrage und den Termin dem User hinzu --- */
         
             if(((RootServerDaten)serverDaten).datenbank.userExists(username)){ 
+                System.out.println("hier ist neuer teilnehmer");
                 String text = einlader + " lädt sie zu einem Termin am ";
                 Anfrage anfrage = new Anfrage(text, termin, einlader, ((RootServerDaten)this.serverDaten).datenbank.getMeldungsCounter());
                 
@@ -1450,6 +1450,7 @@ public class ServerStubImpl implements ServerStub {
                 an dem er eingeloggt ist, eine Anfrage und den Termin dem User hinzu --- */
         
             if(((RootServerDaten)serverDaten).datenbank.userExists(username)){ 
+                System.out.println("hier ist neuer teilnehmer");
                 String text = einlader + " lädt sie zu einem Termin am ";
                 Anfrage anfrage = new Anfrage(text, termin, einlader, ((RootServerDaten)this.serverDaten).datenbank.getMeldungsCounter());
                 
