@@ -1811,16 +1811,6 @@ public class Hauptfenster extends javax.swing.JFrame implements ListSelectionLis
     }//GEN-LAST:event_jLabel12MouseClicked
 
     private void refreshbuttonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_refreshbuttonMouseClicked
-        try {
-            // TODO add your handling code here:
-            for(String kontakte : stub.getKontakte(sitzungsID)){
-                System.out.println(kontakte);
-            }
-        } catch (BenutzerException ex) {
-            Logger.getLogger(Hauptfenster.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (RemoteException ex) {
-            Logger.getLogger(Hauptfenster.class.getName()).log(Level.SEVERE, null, ex);
-        }
         fillContactList();
         refresh();
     }//GEN-LAST:event_refreshbuttonMouseClicked

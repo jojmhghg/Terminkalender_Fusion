@@ -42,9 +42,9 @@ public class ClientStubImpl implements ClientStub{
         this.serverDaten = serverDaten;
         
         this.colors = new Color[16];
-        colors[0] = new Color(204,255,255);
-        colors[1] = new Color(51,153,255);
-        colors[2] = new Color(0,102,153);
+        colors[0] = new Color(153,204,255);
+        colors[1] = new Color(0,153,204);
+        colors[2] = new Color(0,51,102);
         colors[3] = new Color(0,0,0);
         
         colors[4] = new Color(204,204,204);
@@ -52,15 +52,15 @@ public class ClientStubImpl implements ClientStub{
         colors[6] = new Color(102,102,102);
         colors[7] = new Color(0, 0, 0);
         
-        colors[8] = new Color(255,102,255);        
-        colors[9] = new Color(204,0,204);
-        colors[10] = new Color(102,0,102);
-        colors[11] = new Color(255,255,255);
+        colors[8] = new Color(46,49,117);        
+        colors[9] = new Color(29,30,66);
+        colors[10] = new Color(21,22,48);
+        colors[11] = new Color(240,240,240);
         
-        colors[12] = new Color(46,49,117);
-        colors[13] = new Color(29,30,66);
-        colors[14] = new Color(21,22,48);
-        colors[15] = new Color(0, 0, 0);
+        colors[12] = new Color(255,153,255);
+        colors[13] = new Color(102,0,102);
+        colors[14] = new Color(51,0,51);
+        colors[15] = new Color(240,240,240);
     }
     
     /**
